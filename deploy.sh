@@ -883,15 +883,26 @@ setup_database() {
     # 创建数据库和用户
     print_info "创建数据库和用户..."
     
-    # 尝试连接测试
-    if ! mysql -u root -e "SELECT 1" &> /dev/null; then
-        print_error "无法连接到 MariaDB，可能需要设置 root 密码"
-        print_info "尝试使用 sudo 连接..."
+    # 尝试不同的连接方式
+    MYSQL_CMD="mysql -u root"
+    
+    # 测试无密码连接
+    if ! $MYSQL_CMD -e "SELECT 1" &> /dev/null; then
+        # 测试 sudo 连接
+        if ! sudo $MYSQL_CMD -e "SELECT 1" &> /dev/null; then
+            print_error "无法连接到 MariaDB，请确保 root 用户配置正确"
+            exit 1
+        else
+            MYSQL_CMD="sudo $MYSQL_CMD"
+        fi
     fi
     
-    mysql -u root << EOF
+    # 转义密码中的特殊字符，确保在 SQL 中正确处理
+    ESCAPED_PASSWORD=$(echo "${CONFIG[DB_PASSWORD]}" | sed 's/[\\"\'"'"'\`]/\\&/g')
+    
+    $MYSQL_CMD << EOF
 CREATE DATABASE IF NOT EXISTS ${CONFIG[DB_NAME]} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${CONFIG[DB_USER]}'@'localhost' IDENTIFIED BY '${CONFIG[DB_PASSWORD]}';
+CREATE USER IF NOT EXISTS '${CONFIG[DB_USER]}'@'localhost' IDENTIFIED BY '$ESCAPED_PASSWORD';
 GRANT ALL PRIVILEGES ON ${CONFIG[DB_NAME]}.* TO '${CONFIG[DB_USER]}'@'localhost';
 FLUSH PRIVILEGES;
 EOF
@@ -900,7 +911,25 @@ EOF
         print_success "数据库配置完成"
     else
         print_error "数据库配置失败"
+        # 尝试直接使用 mysqladmin 测试连接
+        print_info "尝试测试数据库连接..."
+        if ! $MYSQL_CMD -e "SHOW DATABASES" &> /dev/null; then
+            print_error "无法连接到数据库，请检查 root 用户权限"
+        fi
         exit 1
+    fi
+    
+    # 验证新创建的用户是否可以连接
+    print_info "验证新创建的数据库用户..."
+    if mysql -u "${CONFIG[DB_USER]}" -p"${CONFIG[DB_PASSWORD]}" -e "SELECT 1 FROM ${CONFIG[DB_NAME]}.information_schema.tables LIMIT 1" &> /dev/null; then
+        print_success "数据库用户验证成功"
+    else
+        print_warning "数据库用户验证失败，可能需要手动修复权限"
+        # 尝试修复权限
+        $MYSQL_CMD << EOF
+GRANT ALL PRIVILEGES ON ${CONFIG[DB_NAME]}.* TO '${CONFIG[DB_USER]}'@'localhost' IDENTIFIED BY '$ESCAPED_PASSWORD' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOF
     fi
 }
 
@@ -1515,11 +1544,9 @@ EOF
 show_completion() {
     print_header "部署完成！"
     
-    cat << EOF
-${GREEN}✓ 系统部署成功！${NC}
-
-${BOLD}访问信息:${NC}
-EOF
+    echo -e "${GREEN}✓ 系统部署成功！${NC}"
+    echo -e ""
+    echo -e "${BOLD}访问信息:${NC}"
     
     if [ "${CONFIG[ENABLE_SSL]}" = "yes" ]; then
         echo -e "  前端: ${BLUE}https://${CONFIG[DOMAIN]}${NC}"
@@ -1529,21 +1556,19 @@ EOF
         echo -e "  后端: ${BLUE}http://${CONFIG[DOMAIN]}:${CONFIG[BACKEND_PORT]}${NC}"
     fi
     
-    cat << EOF
-
-${BOLD}管理员账号:${NC}
-  用户名: ${CONFIG[ADMIN_USER]}
-  密码: ${CONFIG[ADMIN_PASSWORD]}
-
-${BOLD}常用命令:${NC}
-  查看服务状态: ${YELLOW}pm2 status${NC}
-  查看日志: ${YELLOW}pm2 logs expiry-backend${NC}
-  重启服务: ${YELLOW}pm2 restart expiry-backend${NC}
-
-${BOLD}详细信息:${NC}
-  请查看: ${BLUE}$PROJECT_ROOT/deployment-info.txt${NC}
-
-EOF
+    echo -e ""
+    echo -e "${BOLD}管理员账号:${NC}"
+    echo -e "  用户名: ${CONFIG[ADMIN_USER]}"
+    echo -e "  密码: ${CONFIG[ADMIN_PASSWORD]}"
+    echo -e ""
+    echo -e "${BOLD}常用命令:${NC}"
+    echo -e "  查看服务状态: ${YELLOW}pm2 status${NC}"
+    echo -e "  查看日志: ${YELLOW}pm2 logs expiry-backend${NC}"
+    echo -e "  重启服务: ${YELLOW}pm2 restart expiry-backend${NC}"
+    echo -e ""
+    echo -e "${BOLD}详细信息:${NC}"
+    echo -e "  请查看: ${BLUE}$PROJECT_ROOT/deployment-info.txt${NC}"
+    echo -e ""
     
     print_warning "请妥善保管数据库密码和管理员密码！"
 }
