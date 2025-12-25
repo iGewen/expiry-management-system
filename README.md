@@ -475,17 +475,16 @@ pm2 startup
 
 ## 📄 许可证
 
-MIT
+GPL-3.0 license
 
 ## 👥 作者
 
-商品保质期管理系统开发团队
+HeHaiFeng GeWen
 
 ## 📞 支持
 
 - 📖 查看 [部署文档](DEPLOYMENT.md)
 - 📖 查看 [快速开始](QUICKSTART.md)
-- 📖 查看 [完成总结](COMPLETION_SUMMARY.md)
 
 ---
 
