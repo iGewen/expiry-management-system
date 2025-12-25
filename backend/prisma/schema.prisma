@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ImportStatus {
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  username      String          @unique @db.VarChar(50)
+  password      String          @db.VarChar(255)
+  phone         String          @db.VarChar(20)
+  role          Role            @default(USER)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  products      Product[]
+  logs          Log[]
+  importHistory ImportHistory[]
+
+  @@index([username])
+  @@index([phone])
+  @@map("users")
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(100)
+  productionDate DateTime
+  shelfLife      Int      // 保质期天数
+  reminderDays   Int      @default(3) // 提醒提前天数
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  isDeleted      Boolean  @default(false)
+
+  @@index([userId])
+  @@index([productionDate])
+  @@index([isDeleted])
+  @@map("products")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   @db.VarChar(50)
+  details   String?  @db.Text
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("logs")
+}
+
+model ImportHistory {
+  id           Int          @id @default(autoincrement())
+  userId       Int
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename     String       @db.VarChar(255)
+  totalCount   Int          @default(0)
+  successCount Int          @default(0)
+  failCount    Int          @default(0)
+  status       ImportStatus @default(SUCCESS)
+  errors       String?      @db.Text // JSON格式存储错误信息
+  createdAt    DateTime     @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("import_history")
+}

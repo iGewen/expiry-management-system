@@ -1,0 +1,62 @@
+// 126邮箱风格主题变量 - 天蓝色主题
+
+// 主色调 - 天蓝色系
+$primary-color: #1890FF;
+$primary-hover: #40A9FF;
+$primary-active: #096DD9;
+$primary-light: #E6F7FF;
+
+// 辅助色
+$success-color: #52C41A;
+$warning-color: #FAAD14;
+$danger-color: #F5222D;
+$info-color: #1890FF;
+
+// 文字颜色
+$text-primary: #333333;
+$text-regular: #666666;
+$text-secondary: #999999;
+$text-placeholder: #CCCCCC;
+
+// 边框颜色
+$border-base: #DDDDDD;
+$border-light: #EEEEEE;
+$border-dark: #CCCCCC;
+
+// 背景颜色
+$bg-white: #FFFFFF;
+$bg-gray: #F5F5F5;
+$bg-light: #FAFAFA;
+$bg-dark: #F0F0F0;
+
+// 阴影
+$box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 1px 4px rgba(0, 0, 0, 0.08);
+$box-shadow-card: 0 2px 12px rgba(0, 0, 0, 0.12);
+
+// 圆角
+$border-radius-base: 4px;
+$border-radius-small: 2px;
+$border-radius-large: 8px;
+
+// 字体大小
+$font-size-base: 14px;
+$font-size-small: 12px;
+$font-size-large: 16px;
+$font-size-title: 20px;
+$font-size-h1: 24px;
+
+// 间距
+$spacing-small: 8px;
+$spacing-base: 16px;
+$spacing-large: 24px;
+$spacing-xlarge: 32px;
+
+// 布局
+$header-height: 60px;
+$sidebar-width: 200px;
+$container-width: 1200px;
+
+// 过渡动画
+$transition-base: all 0.3s ease;
+$transition-fast: all 0.2s ease;
