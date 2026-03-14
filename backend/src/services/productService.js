@@ -28,7 +28,7 @@ export class ProductService {
    * 创建商品
    */
   async createProduct(userId, productData) {
-    const { name, productionDate, shelfLife, reminderDays } = productData;
+    const { name, productionDate, shelfLife, reminderDays, categoryId, barcode } = productData;
     
     // 验证数据
     if (!name || !productionDate || !shelfLife) {
@@ -42,12 +42,17 @@ export class ProductService {
     const product = await prisma.product.create({
       data: {
         name,
+        barcode: barcode || null,
         productionDate: productionDateObj,
         shelfLife,
         expiryDate,
         reminderDays: reminderDays || 3,
         status,
-        userId
+        userId,
+        categoryId: categoryId || null
+      },
+      include: {
+        category: true
       }
     });
 
@@ -58,7 +63,7 @@ export class ProductService {
    * 获取商品列表 - 优化版本，使用数据库查询而非内存过滤
    */
   async getProducts(userId, userRole, filters = {}) {
-    const { page = 1, pageSize = 20, name, status, startDate, endDate, searchUserId } = filters;
+    const { page = 1, pageSize = 20, name, status, categoryId, startDate, endDate, searchUserId } = filters;
     
     // 参数验证和规范化
     let pageNum = parseInt(page, 10);
@@ -91,7 +96,15 @@ export class ProductService {
     if (name) {
       where.name = { contains: name };
     }
-  
+
+    // 分类筛选
+    if (categoryId) {
+      const parsedCategoryId = parseInt(categoryId, 10);
+      if (!isNaN(parsedCategoryId) && parsedCategoryId > 0) {
+        where.categoryId = parsedCategoryId;
+      }
+    }
+
     // 日期范围筛选
     if (startDate || endDate) {
       where.productionDate = {};
@@ -212,7 +225,7 @@ export class ProductService {
    * 更新商品
    */
   async updateProduct(id, userId, userRole, productData) {
-    const { name, productionDate, shelfLife, reminderDays } = productData;
+    const { name, productionDate, shelfLife, reminderDays, categoryId, barcode } = productData;
 
     const where = {
       id,
@@ -252,9 +265,20 @@ export class ProductService {
       }
     }
 
+    // 更新分类和条码
+    if (categoryId !== undefined) {
+      updateData.categoryId = categoryId || null;
+    }
+    if (barcode !== undefined) {
+      updateData.barcode = barcode || null;
+    }
+
     const updated = await prisma.product.update({
       where: { id },
-      data: updateData
+      data: updateData,
+      include: {
+        category: true
+      }
     });
 
     return this.formatProduct(updated, userRole);
@@ -533,12 +557,15 @@ export class ProductService {
     const result = {
       id: product.id,
       name: product.name,
+      barcode: product.barcode,
       productionDate: product.productionDate,
       shelfLife: product.shelfLife,
       expiryDate,
       reminderDays: product.reminderDays,
       remainingDays,
       status,
+      categoryId: product.categoryId,
+      category: product.category || null,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt
     };

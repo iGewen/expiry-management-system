@@ -200,6 +200,48 @@ export class SmsService {
       message: '验证成功'
     };
   }
+
+  /**
+   * 检查短信服务是否启用
+   */
+  isEnabled() {
+    return this.initialized && config.sms.enabled;
+  }
+
+  /**
+   * 发送自定义短信（用于提醒等场景）
+   */
+  async sendCustomMessage(phone, message) {
+    if (!this.isEnabled()) {
+      logger.warn('SMS service not enabled, cannot send custom message');
+      return { success: false, error: 'SMS service not enabled' };
+    }
+
+    try {
+      // 使用通知类模板（需要用户自己申请一个通知类短信模板）
+      // 这里使用重置密码模板作为备用
+      const params = {
+        RegionId: config.sms.region,
+        PhoneNumbers: phone,
+        SignName: config.sms.signName,
+        TemplateCode: config.sms.resetTemplateCode, // 使用重置模板
+        TemplateParam: JSON.stringify({ code: message.substring(0, 20) }) // 截取部分内容
+      };
+
+      const result = await this.client.request('SendSms', params, { method: 'POST' });
+      
+      if (result.Code === 'OK') {
+        logger.info(`Custom SMS sent to ${phone}`);
+        return { success: true };
+      } else {
+        logger.error(`Failed to send custom SMS: ${result.Message}`);
+        return { success: false, error: result.Message };
+      }
+    } catch (error) {
+      logger.error('Error sending custom SMS:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // 创建单例实例

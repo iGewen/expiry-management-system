@@ -15,6 +15,9 @@ import productRoutes from './routes/products.js';
 import userRoutes from './routes/users.js';
 import logRoutes from './routes/logs.js';
 import importHistoryRoutes from './routes/importHistory.js';
+import categoryRoutes from './routes/category.js';
+import reminderRoutes from './routes/reminder.js';
+import schedulerService from './services/schedulerService.js';
 
 const app = express();
 
@@ -182,6 +185,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/import-history', importHistoryRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/reminders', reminderRoutes);
 
 // 404 处理
 app.use(notFoundHandler);
@@ -200,6 +205,9 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
   console.log(`📝 API Documentation: http://localhost:${PORT}/api`);
   console.log(`❤️ Health Check: http://localhost:${PORT}/health`);
+  
+  // 启动定时任务
+  schedulerService.start();
 });
 
 // 优雅关闭

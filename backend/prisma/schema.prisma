@@ -41,15 +41,33 @@ model User {
   products      Product[]
   logs          Log[]
   importHistory ImportHistory[]
+  categories    Category[]      // 用户自定义分类
+  reminderSetting ReminderSetting? // 提醒设置
 
   @@index([username])
   @@index([phone])
   @@map("users")
 }
 
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(50)
+  color     String    @default("#409EFF") // 分类颜色
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, name]) // 同一用户分类名不能重复
+  @@index([userId])
+  @@map("categories")
+}
+
 model Product {
   id             Int           @id @default(autoincrement())
   name           String        @db.VarChar(100)
+  barcode        String?       @db.VarChar(50) // 商品条码
   productionDate DateTime
   shelfLife      Int           // 保质期天数
   expiryDate     DateTime      // 过期日期（冗余字段，用于高效查询）
@@ -57,17 +75,52 @@ model Product {
   status         ProductStatus @default(NORMAL) // 状态冗余字段
   userId         Int
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId     Int?          // 分类ID
+  category       Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   isDeleted      Boolean       @default(false)
 
   @@index([userId])
+  @@index([categoryId])
   @@index([productionDate])
   @@index([expiryDate])
   @@index([status])
   @@index([isDeleted])
   @@index([userId, status, isDeleted]) // 复合索引优化查询
   @@map("products")
+}
+
+model ReminderSetting {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique // 每个用户一个设置
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled         Boolean  @default(true) // 是否启用提醒
+  reminderTime    String   @default("09:00") // 提醒时间，如 "09:00"
+  advanceDays     Int      @default(3) // 提前几天提醒
+  remindBySms     Boolean  @default(true) // 短信提醒
+  remindByEmail   Boolean  @default(false) // 邮件提醒
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("reminder_settings")
+}
+
+model ReminderLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  productName String   @db.VarChar(100)
+  expiryDate  DateTime
+  sentAt      DateTime @default(now())
+  channel     String   @default("sms") // sms/email
+  status      String   @default("success") // success/failed
+  errorMsg    String?  @db.Text
+
+  @@index([userId])
+  @@index([sentAt])
+  @@map("reminder_logs")
 }
 
 model Log {
