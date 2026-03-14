@@ -138,10 +138,14 @@ const predefineColors = [
 
 const loadCategories = async () => {
   loading.value = true
+  console.log('开始加载分类...')
   try {
     const res = await getCategories()
+    console.log('分类数据:', res)
     categories.value = res.data || []
+    console.log('分类列表:', categories.value)
   } catch (error: any) {
+    console.error('获取分类失败:', error)
     ElMessage.error(error.response?.data?.message || '获取分类列表失败')
   } finally {
     loading.value = false
