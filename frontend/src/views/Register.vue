@@ -374,15 +374,22 @@ const handleRegister = async () => {
   display: flex;
   gap: 12px;
   width: 100%;
-  
+  align-items: flex-start;
+
   :deep(.el-input) {
     flex: 1;
+  }
+
+  :deep(.el-input__wrapper) {
+    height: 40px;
   }
 }
 
 .code-button {
   width: 120px;
   flex-shrink: 0;
+  height: 40px;
+  padding: 0 15px;
 }
 
 .register-button {
