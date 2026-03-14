@@ -187,7 +187,7 @@ const handleSendCode = async () => {
 
   sendingCode.value = true
   try {
-    const res = await httpClient.post('/api/auth/sms/reset', { phone: form.phone })
+    const res = await httpClient.post('/auth/sms/reset', { phone: form.phone })
     if (res.success) {
       ElMessage.success('验证码已发送')
       // 开始倒计时
