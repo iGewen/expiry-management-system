@@ -143,9 +143,6 @@ export class AuthService {
 
     // 初始化默认分类
     await categoryService.initDefaultCategories(user.id);
-        createdAt: true
-      }
-    });
 
     // 生成 token
     const token = this.generateToken(user.id);
