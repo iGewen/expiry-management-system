@@ -332,25 +332,30 @@ const handleReset = async () => {
   
   :deep(.el-input) {
     .el-input__wrapper {
-      padding: 12px 15px;
+      padding: 0 15px;
+      height: 40px;
       box-shadow: 0 0 0 1px $border-base inset;
       transition: $transition-fast;
-      
+
       &:hover:not(.is-disabled) {
         box-shadow: 0 0 0 1px $primary-color inset;
       }
-      
+
       &.is-focus {
         box-shadow: 0 0 0 2px $primary-color inset;
       }
-      
+
       &.is-disabled {
         background-color: $bg-gray;
       }
     }
-    
+
     .el-input__prefix {
       color: $text-secondary;
+    }
+
+    .el-input__inner {
+      height: 40px;
     }
   }
 }
