@@ -67,45 +67,47 @@
           </template>
         </el-table-column>
         <el-table-column prop="_count.products" label="商品数" width="100" />
-        <el-table-column label="操作" width="420" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-if="row.role !== 'SUPER_ADMIN'"
-              type="info"
-              size="small"
-              @click="handleChangePhone(row)"
-            >
-              <el-icon><Phone /></el-icon>
-              修改手机号
-            </el-button>
-            <el-button
-              v-if="row.role !== 'SUPER_ADMIN'"
-              type="warning"
-              size="small"
-              @click="handleChangeRole(row)"
-            >
-              <el-icon><Edit /></el-icon>
-              修改角色
-            </el-button>
-            <el-button
-              v-if="row.role !== 'SUPER_ADMIN'"
-              type="primary"
-              size="small"
-              @click="handleResetPassword(row)"
-            >
-              <el-icon><Key /></el-icon>
-              重置密码
-            </el-button>
-            <el-button
-              v-if="row.role !== 'SUPER_ADMIN'"
-              :type="row.isActive ? 'danger' : 'success'"
-              size="small"
-              @click="handleToggleStatus(row)"
-            >
-              <el-icon><Lock /></el-icon>
-              {{ row.isActive ? '禁用' : '启用' }}
-            </el-button>
-            <el-tag v-if="row.role === 'SUPER_ADMIN'" type="info" size="small">不可操作</el-tag>
+            <div class="action-buttons">
+              <el-button
+                v-if="row.role !== 'SUPER_ADMIN'"
+                type="info"
+                size="small"
+                @click="handleChangePhone(row)"
+                title="修改手机号"
+              >
+                <el-icon><Phone /></el-icon>
+              </el-button>
+              <el-button
+                v-if="row.role !== 'SUPER_ADMIN'"
+                type="warning"
+                size="small"
+                @click="handleChangeRole(row)"
+                title="修改角色"
+              >
+                <el-icon><Edit /></el-icon>
+              </el-button>
+              <el-button
+                v-if="row.role !== 'SUPER_ADMIN'"
+                type="primary"
+                size="small"
+                @click="handleResetPassword(row)"
+                title="重置密码"
+              >
+                <el-icon><Key /></el-icon>
+              </el-button>
+              <el-button
+                v-if="row.role !== 'SUPER_ADMIN'"
+                :type="row.isActive ? 'danger' : 'success'"
+                size="small"
+                @click="handleToggleStatus(row)"
+                :title="row.isActive ? '禁用' : '启用'"
+              >
+                <el-icon><Lock /></el-icon>
+              </el-button>
+              <el-tag v-if="row.role === 'SUPER_ADMIN'" type="info" size="small">不可操作</el-tag>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -465,5 +467,37 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 操作按钮样式 */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.action-buttons :deep(.el-button) {
+  padding: 4px 8px;
+}
+
+/* 响应式表格 */
+@media (max-width: 1400px) {
+  .admin-manage :deep(.el-table) {
+    font-size: 13px;
+  }
+  
+  .admin-manage :deep(.el-table .cell) {
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .action-buttons :deep(.el-button) {
+    margin-bottom: 2px;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="statistics">
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <div class="card-header">
@@ -12,29 +12,29 @@
               </el-radio-group>
             </div>
           </template>
-          <div ref="statusChartRef" style="width: 100%; height: 400px;"></div>
+          <div ref="statusChartRef" style="width: 100%; height: 350px;"></div>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>月度新增趋势</span>
           </template>
-          <div ref="trendChartRef" style="width: 100%; height: 400px;"></div>
+          <div ref="trendChartRef" style="width: 100%; height: 350px;"></div>
         </el-card>
       </el-col>
     </el-row>
 
     <el-row :gutter="20" style="margin-top: 20px;">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>商品保质期分布</span>
           </template>
-          <div ref="shelfLifeChartRef" style="width: 100%; height: 400px;"></div>
+          <div ref="shelfLifeChartRef" style="width: 100%; height: 350px;"></div>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <div class="card-header">
@@ -45,7 +45,7 @@
               </el-button>
             </div>
           </template>
-          <el-table :data="expiredProducts" v-loading="loading" height="400" border>
+          <el-table :data="expiredProducts" v-loading="loading" max-height="350" border>
             <el-table-column type="index" label="排名" width="60">
               <template #default="{ row, $index }">
                 {{ row.id === 0 ? '-' : $index + 1 }}
@@ -348,5 +348,31 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* 响应式布局 */
+@media (max-width: 992px) {
+  .statistics .el-col {
+    margin-bottom: 20px;
+  }
+  
+  .statistics .el-col:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .statistics :deep(.el-card__header) {
+    padding: 10px 15px;
+  }
+  
+  .card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .card-header span {
+    font-size: 14px;
+  }
 }
 </style>

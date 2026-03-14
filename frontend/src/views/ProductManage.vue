@@ -91,16 +91,16 @@
             {{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleEdit(row)">
-              <el-icon><Edit /></el-icon>
-              编辑
-            </el-button>
-            <el-button type="danger" size="small" @click="handleDelete(row)">
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
+            <div class="action-buttons">
+              <el-button type="primary" size="small" @click="handleEdit(row)" title="编辑">
+                <el-icon><Edit /></el-icon>
+              </el-button>
+              <el-button type="danger" size="small" @click="handleDelete(row)" title="删除">
+                <el-icon><Delete /></el-icon>
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -395,5 +395,25 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.action-buttons :deep(.el-button) {
+  padding: 4px 8px;
+}
+
+/* 响应式表格 */
+@media (max-width: 1200px) {
+  .product-manage :deep(.el-table) {
+    font-size: 12px;
+  }
+  
+  .product-manage :deep(.el-table .cell) {
+    padding: 0 4px;
+  }
 }
 </style>

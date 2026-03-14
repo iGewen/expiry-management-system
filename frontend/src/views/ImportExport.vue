@@ -1,7 +1,7 @@
 <template>
   <div class="import-export">
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>批量导入</span>
@@ -66,7 +66,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>批量导出</span>
@@ -402,5 +402,27 @@ const handleExport = async () => {
 
 :deep(.el-upload-dragger) {
   padding: 40px;
+}
+
+/* 响应式布局 */
+@media (max-width: 992px) {
+  .import-export .el-col {
+    margin-bottom: 20px;
+  }
+  
+  .import-export .el-col:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  :deep(.el-upload-dragger) {
+    padding: 20px;
+  }
+  
+  .import-section,
+  .export-section {
+    padding: 5px 0;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <el-row :gutter="20" class="stats-cards">
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6" :lg="6">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-icon total">
             <el-icon :size="40"><Box /></el-icon>
@@ -12,7 +12,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6" :lg="6">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-icon warning">
             <el-icon :size="40"><WarningFilled /></el-icon>
@@ -23,7 +23,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6" :lg="6">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-icon expired">
             <el-icon :size="40"><CircleCloseFilled /></el-icon>
@@ -34,7 +34,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6" :lg="6">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-icon today">
             <el-icon :size="40"><CirclePlusFilled /></el-icon>
@@ -48,7 +48,7 @@
     </el-row>
 
     <el-row :gutter="20" class="charts">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>商品状态分布</span>
@@ -56,7 +56,7 @@
           <div ref="pieChartRef" style="width: 100%; height: 300px;"></div>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>月度新增趋势</span>
@@ -346,5 +346,52 @@ onUnmounted(() => {
 
 .recent-products :deep(.el-card__header) {
   font-weight: bold;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .stat-card :deep(.el-card__body) {
+    padding: 15px;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+  }
+  
+  .stat-icon :deep(.el-icon) {
+    font-size: 24px !important;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  .charts {
+    margin-bottom: 10px;
+  }
+  
+  .charts .el-col {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-cards {
+    margin-bottom: 10px;
+  }
+  
+  .stats-cards .el-col {
+    margin-bottom: 10px;
+  }
+  
+  .stat-card {
+    padding: 5px;
+  }
 }
 </style>
