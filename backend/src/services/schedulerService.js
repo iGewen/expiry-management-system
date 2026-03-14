@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import reminderService from '../services/reminderService.js';
-import logger from '../config/logger.js';
+import reminderService from './reminderService.js';
+import logger from '../utils/logger.js';
 
 class SchedulerService {
   constructor() {

@@ -1,6 +1,6 @@
 import prisma from '../config/database.js';
 import smsService from './smsService.js';
-import logger from '../config/logger.js';
+import logger from '../utils/logger.js';
 import { subDays, format, isAfter, isBefore, startOfDay, addDays } from 'date-fns';
 
 class ReminderService {
