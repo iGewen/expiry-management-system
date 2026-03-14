@@ -267,4 +267,47 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
 }
+
+/* 响应式搜索表单 */
+@media (max-width: 768px) {
+  .log-audit :deep(.search-form) {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .log-audit :deep(.search-form .el-form-item) {
+    margin-bottom: 12px;
+    width: 100%;
+  }
+  
+  .log-audit :deep(.search-form .el-form-item__content) {
+    width: 100%;
+  }
+  
+  .log-audit :deep(.search-form .el-select),
+  .log-audit :deep(.search-form .el-date-editor) {
+    width: 100% !important;
+  }
+  
+  .log-audit :deep(.search-form .el-date-editor) {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .log-audit {
+    padding: 12px;
+  }
+  
+  .log-audit :deep(.el-card__header) {
+    padding: 12px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .log-audit .card-header {
+    width: 100%;
+  }
+}
 </style>

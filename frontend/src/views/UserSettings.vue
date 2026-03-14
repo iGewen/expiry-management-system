@@ -1,7 +1,7 @@
 <template>
   <div class="user-settings">
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>个人信息</span>
@@ -37,7 +37,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card shadow="never">
           <template #header>
             <span>修改密码</span>
@@ -380,6 +380,35 @@ onMounted(() => {
   
   span {
     color: $text-regular;
+  }
+}
+
+/* 响应式布局 */
+@media (max-width: 992px) {
+  .user-settings .el-col {
+    margin-bottom: 20px;
+  }
+  
+  .user-settings .el-col:last-child {
+    margin-bottom: 0;
+  }
+  
+  .user-settings {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .user-settings :deep(.el-form-item) {
+    margin-bottom: 12px;
+  }
+  
+  .phone-display {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    padding: 8px 12px;
+    gap: 8px;
   }
 }
 </style>
