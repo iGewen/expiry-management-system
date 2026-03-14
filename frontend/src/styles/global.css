@@ -86,19 +86,20 @@ a:hover {
 
 .el-form--inline .el-form-item {
   margin-right: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .el-form--inline .el-form-item:last-child {
   margin-right: 0;
 }
 
-/* 修复卡片的响应式问题 */
+/* 修复卡片的响应式问题 - 保持默认布局 */
 .el-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 44px;
+  padding: 14px 20px;
 }
 
 /* 修复表格的响应式问题 */
@@ -112,6 +113,7 @@ a:hover {
 .el-pagination {
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: flex-end;
 }
 
 .el-pagination .el-pagination__sizes,
@@ -120,8 +122,8 @@ a:hover {
   margin: 0;
 }
 
-/* 响应式断点 */
-@media (max-width: 768px) {
+/* 响应式断点 - 仅在小屏幕上调整 */
+@media (max-width: 576px) {
   /* 移动端表单优化 */
   .el-form--inline {
     flex-direction: column;
@@ -130,6 +132,7 @@ a:hover {
   
   .el-form--inline .el-form-item {
     margin-right: 0;
+    margin-bottom: 12px;
     width: 100%;
   }
   
@@ -140,14 +143,6 @@ a:hover {
   /* 移动端按钮优化 */
   .el-button {
     padding: 8px 15px;
-  }
-  
-  /* 移动端卡片优化 */
-  .el-card__header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    padding: 12px;
   }
   
   /* 移动端表格优化 */
@@ -162,12 +157,6 @@ a:hover {
   /* 移动端分页优化 */
   .el-pagination {
     justify-content: center;
-  }
-  
-  .el-pagination .el-pagination__total,
-  .el-pagination .el-pagination__sizes,
-  .el-pagination .el-pagination__jump {
-    display: none;
   }
 }
 

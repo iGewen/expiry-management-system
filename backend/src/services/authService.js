@@ -188,7 +188,8 @@ export class AuthService {
     // 登录成功，清除失败计数
     await store.del(`${LOGIN_FAIL_PREFIX}${username}`);
     await store.del(lockKey);
-n    // 更新最后登录时间
+
+    // 更新最后登录时间
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }

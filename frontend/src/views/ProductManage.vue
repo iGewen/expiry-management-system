@@ -385,10 +385,32 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.card-header span {
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .search-form {
   margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.search-form :deep(.el-form-item) {
+  margin-bottom: 0;
+  margin-right: 12px;
+}
+
+.search-form :deep(.el-form-item__label) {
+  line-height: 32px;
+}
+
+.search-form :deep(.el-form-item__content) {
+  line-height: 32px;
 }
 
 .pagination {
@@ -419,26 +441,27 @@ onMounted(() => {
 
 /* 搜索表单响应式 */
 @media (max-width: 768px) {
-  .product-manage :deep(.search-form) {
-    display: flex;
+  .search-form {
     flex-direction: column;
+    align-items: flex-start;
   }
   
-  .product-manage :deep(.search-form .el-form-item) {
+  .search-form :deep(.el-form-item) {
     margin-bottom: 12px;
+    margin-right: 0;
     width: 100%;
   }
   
-  .product-manage :deep(.search-form .el-form-item__content) {
+  .search-form :deep(.el-form-item__content) {
     width: 100%;
   }
   
-  .product-manage :deep(.search-form .el-select),
-  .product-manage :deep(.search-form .el-date-editor) {
+  .search-form :deep(.el-select),
+  .search-form :deep(.el-date-editor) {
     width: 100% !important;
   }
   
-  .product-manage :deep(.search-form .el-date-editor) {
+  .search-form :deep(.el-date-editor) {
     max-width: 100%;
   }
 }
@@ -448,8 +471,7 @@ onMounted(() => {
     padding: 12px;
   }
   
-  .product-manage :deep(.el-card__header) {
-    padding: 12px;
+  .card-header {
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;

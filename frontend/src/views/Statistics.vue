@@ -348,6 +348,12 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.card-header span {
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* 响应式布局 */
