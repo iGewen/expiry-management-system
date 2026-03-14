@@ -1,10 +1,7 @@
 import request from '@/utils/request'
 
 export function getReminderSetting() {
-  return request({
-    url: '/reminders/setting',
-    method: 'get'
-  })
+  return request.get('/reminders/setting')
 }
 
 export function updateReminderSetting(data: {
@@ -14,31 +11,17 @@ export function updateReminderSetting(data: {
   remindBySms?: boolean
   remindByEmail?: boolean
 }) {
-  return request({
-    url: '/reminders/setting',
-    method: 'put',
-    data
-  })
+  return request.put('/reminders/setting', data)
 }
 
 export function triggerReminder() {
-  return request({
-    url: '/reminders/trigger',
-    method: 'post'
-  })
+  return request.post('/reminders/trigger')
 }
 
 export function getReminderLogs(params?: { page?: number; pageSize?: number }) {
-  return request({
-    url: '/reminders/logs',
-    method: 'get',
-    params
-  })
+  return request.get('/reminders/logs', { params })
 }
 
 export function getUpcomingProducts() {
-  return request({
-    url: '/reminders/upcoming',
-    method: 'get'
-  })
+  return request.get('/reminders/upcoming')
 }
