@@ -206,7 +206,9 @@ export class AuthService {
         id: user.id,
         username: user.username,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt
       },
       token,
       refreshToken
@@ -407,7 +409,8 @@ export class AuthService {
         role: true,
         isActive: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        lastLoginAt: true
       }
     });
 
