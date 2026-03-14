@@ -63,7 +63,25 @@
           <el-input v-model="form.name" placeholder="请输入分类名称" maxlength="20" show-word-limit />
         </el-form-item>
         <el-form-item label="颜色" prop="color">
-          <el-color-picker v-model="form.color" :predefine="predefineColors" />
+          <div class="color-picker-wrapper">
+            <span
+              class="color-preview"
+              :style="{ backgroundColor: form.color }"
+            />
+            <el-button size="small" @click="showColorPicker = true">
+              选择颜色
+            </el-button>
+          </div>
+          <div v-if="showColorPicker" class="color-presets">
+            <span
+              v-for="color in predefineColors"
+              :key="color"
+              class="color-option"
+              :style="{ backgroundColor: color }"
+              :class="{ active: form.color === color }"
+              @click="selectColor(color)"
+            />
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -84,6 +102,7 @@ import { getCategories, createCategory, updateCategory, deleteCategory } from '@
 const loading = ref(false)
 const submitting = ref(false)
 const dialogVisible = ref(false)
+const showColorPicker = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const categories = ref<any[]>([])
@@ -131,6 +150,7 @@ const loadCategories = async () => {
 
 const showAddDialog = () => {
   isEdit.value = false
+  showColorPicker.value = false
   form.value = {
     id: null,
     name: '',
@@ -141,12 +161,18 @@ const showAddDialog = () => {
 
 const showEditDialog = (row: any) => {
   isEdit.value = true
+  showColorPicker.value = false
   form.value = {
     id: row.id,
     name: row.name,
     color: row.color
   }
   dialogVisible.value = true
+}
+
+const selectColor = (color: string) => {
+  form.value.color = color
+  showColorPicker.value = false
 }
 
 const handleSubmit = async () => {
@@ -212,6 +238,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.card-header span {
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .category-name {
@@ -223,6 +255,44 @@ onMounted(() => {
     width: 16px;
     height: 16px;
     border-radius: 4px;
+  }
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #dcdfe6;
+}
+
+.color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.active {
+    border-color: #409eff;
+    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
   }
 }
 

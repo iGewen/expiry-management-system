@@ -5,6 +5,7 @@ import { config } from '../config/index.js';
 import { store } from '../config/redis.js';
 import logger from '../utils/logger.js';
 import smsService from './smsService.js';
+import categoryService from './categoryService.js';
 
 // 登录失败计数器键前缀
 const LOGIN_FAIL_PREFIX = 'login:fail:';
@@ -137,6 +138,11 @@ export class AuthService {
         username: true,
         phone: true,
         role: true,
+      }
+    });
+
+    // 初始化默认分类
+    await categoryService.initDefaultCategories(user.id);
         createdAt: true
       }
     });
