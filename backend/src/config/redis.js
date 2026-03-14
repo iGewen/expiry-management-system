@@ -84,7 +84,10 @@ export const store = {
       const value = await redis.get(key);
       return value ? JSON.parse(value) : null;
     }
-    return memoryStore.get(key) || null;
+    const item = memoryStore.get(key);
+    if (!item) return null;
+    // 内存存储时 value 被包装了一层，需要解包
+    return item.value;
   },
 
   async set(key, value, ttlSeconds = 0) {
