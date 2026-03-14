@@ -43,16 +43,18 @@ function getSmsConfig() {
   const accessKeyId = process.env.ALIYUN_ACCESS_KEY_ID;
   const accessKeySecret = process.env.ALIYUN_ACCESS_KEY_SECRET;
   const signName = process.env.ALIYUN_SMS_SIGN_NAME;
-  const templateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE;
+  const registerTemplateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE_REGISTER;
+  const resetTemplateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE_RESET;
   
-  // 检查是否配置了短信服务
-  if (accessKeyId && accessKeySecret && signName && templateCode) {
+  // 检查是否配置了短信服务（需要两个模板都配置）
+  if (accessKeyId && accessKeySecret && signName && registerTemplateCode && resetTemplateCode) {
     return {
       enabled: true,
       accessKeyId,
       accessKeySecret,
       signName,
-      templateCode,
+      registerTemplateCode,
+      resetTemplateCode,
       region: process.env.ALIYUN_SMS_REGION || 'cn-hangzhou'
     };
   }

@@ -46,9 +46,24 @@ export class SmsService {
   }
 
   /**
+   * 获取模板代码
+   */
+  getTemplateCode(purpose) {
+    switch (purpose) {
+      case 'register':
+        return config.sms.registerTemplateCode;
+      case 'reset':
+        return config.sms.resetTemplateCode;
+      default:
+        // 默认使用注册模板
+        return config.sms.registerTemplateCode;
+    }
+  }
+
+  /**
    * 发送验证码
    */
-  async sendVerificationCode(phone, purpose = 'verify') {
+  async sendVerificationCode(phone, purpose = 'register') {
     // 检查短信服务是否启用
     if (!config.sms.enabled) {
       // 开发环境返回模拟验证码
@@ -85,11 +100,14 @@ export class SmsService {
 
     try {
       // 调用阿里云短信服务
+      // 根据用途选择模板
+      const templateCode = this.getTemplateCode(purpose);
+      
       const params = {
         RegionId: config.sms.region,
         PhoneNumbers: phone,
         SignName: config.sms.signName,
-        TemplateCode: config.sms.templateCode,
+        TemplateCode: templateCode,
         TemplateParam: JSON.stringify({ code })
       };
 
