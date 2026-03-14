@@ -21,6 +21,14 @@
           <el-icon><Box /></el-icon>
           <template #title>商品管理</template>
         </el-menu-item>
+        <el-menu-item index="/categories">
+          <el-icon><Folder /></el-icon>
+          <template #title>分类管理</template>
+        </el-menu-item>
+        <el-menu-item index="/reminder">
+          <el-icon><Bell /></el-icon>
+          <template #title>过期提醒</template>
+        </el-menu-item>
         <el-menu-item index="/statistics">
           <el-icon><PieChart /></el-icon>
           <template #title>数据统计</template>

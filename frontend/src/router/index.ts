@@ -80,6 +80,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '用户设置' }
       },
       {
+        path: 'categories',
+        name: 'Categories',
+        component: () => import('@/views/CategoryManage.vue'),
+        meta: { title: '分类管理' }
+      },
+      {
+        path: 'reminder',
+        name: 'Reminder',
+        component: () => import('@/views/ReminderSetting.vue'),
+        meta: { title: '过期提醒' }
+      },
+      {
         path: 'admin',
         name: 'Admin',
         component: () => import('@/views/AdminManage.vue'),
