@@ -1,5 +1,5 @@
 import categoryService from '../services/categoryService.js';
-import logger from '../config/logger.js';
+import logger from '../utils/logger.js';
 
 class CategoryController {
   /**
