@@ -209,7 +209,7 @@ const handleSendCode = async () => {
 
   sendingCode.value = true
   try {
-    const res = await httpClient.post('/auth/sms/register', { phone: form.phone })
+    const res = await httpClient.post('/api/auth/sms/register', { phone: form.phone })
     if (res.success) {
       ElMessage.success(res.message || '验证码已发送')
       // 开始倒计时
