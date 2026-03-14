@@ -22,15 +22,22 @@ enum ImportStatus {
   PARTIAL
 }
 
+enum ProductStatus {
+  NORMAL
+  WARNING
+  EXPIRED
+}
+
 model User {
   id            Int             @id @default(autoincrement())
   username      String          @unique @db.VarChar(50)
   password      String          @db.VarChar(255)
-  phone         String          @db.VarChar(20)
+  phone         String          @unique @db.VarChar(20)
   role          Role            @default(USER)
   isActive      Boolean         @default(true)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  lastLoginAt   DateTime?
   products      Product[]
   logs          Log[]
   importHistory ImportHistory[]
@@ -41,20 +48,25 @@ model User {
 }
 
 model Product {
-  id             Int      @id @default(autoincrement())
-  name           String   @db.VarChar(100)
+  id             Int           @id @default(autoincrement())
+  name           String        @db.VarChar(100)
   productionDate DateTime
-  shelfLife      Int      // 保质期天数
-  reminderDays   Int      @default(3) // 提醒提前天数
+  shelfLife      Int           // 保质期天数
+  expiryDate     DateTime      // 过期日期（冗余字段，用于高效查询）
+  reminderDays   Int           @default(3) // 提醒提前天数
+  status         ProductStatus @default(NORMAL) // 状态冗余字段
   userId         Int
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  isDeleted      Boolean  @default(false)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
 
   @@index([userId])
   @@index([productionDate])
+  @@index([expiryDate])
+  @@index([status])
   @@index([isDeleted])
+  @@index([userId, status, isDeleted]) // 复合索引优化查询
   @@map("products")
 }
 
@@ -71,6 +83,7 @@ model Log {
   @@index([userId])
   @@index([createdAt])
   @@index([action])
+  @@index([userId, action, createdAt]) // 复合索引
   @@map("logs")
 }
 

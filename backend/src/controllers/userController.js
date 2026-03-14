@@ -25,6 +25,13 @@ export class UserController {
   async getUserById(req, res) {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的用户ID',
+          code: 'INVALID_PARAM'
+        });
+      }
       const user = await userService.getUserById(id);
 
       res.json({
@@ -43,6 +50,13 @@ export class UserController {
   async updateUser(req, res) {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的用户ID',
+          code: 'INVALID_PARAM'
+        });
+      }
       const userData = req.body;
 
       // 不能禁用自己的账号
@@ -82,6 +96,13 @@ export class UserController {
   async resetPassword(req, res) {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的用户ID',
+          code: 'INVALID_PARAM'
+        });
+      }
       const { newPassword } = req.body;
 
       if (!newPassword) {
@@ -111,6 +132,13 @@ export class UserController {
   async deleteUser(req, res) {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的用户ID',
+          code: 'INVALID_PARAM'
+        });
+      }
 
       // 不能删除自己
       if (id === req.user.id) {

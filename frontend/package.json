@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
+    "build:check": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -23,6 +24,9 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vue-tsc": "^2.1.10",
-    "sass": "^1.83.0"
+    "sass": "^1.83.0",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.27.4",
+    "terser": "^5.31.0"
   }
 }

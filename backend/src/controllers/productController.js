@@ -56,6 +56,14 @@ export class ProductController {
       const userId = req.user.id;
       const userRole = req.user.role;
       const id = parseInt(req.params.id);
+      
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的商品ID',
+          code: 'INVALID_PARAM'
+        });
+      }
 
       const product = await productService.getProductById(id, userId, userRole);
 
@@ -77,6 +85,14 @@ export class ProductController {
       const userId = req.user.id;
       const userRole = req.user.role;
       const id = parseInt(req.params.id);
+      
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的商品ID',
+          code: 'INVALID_PARAM'
+        });
+      }
       const productData = req.body;
 
       const product = await productService.updateProduct(id, userId, userRole, productData);
@@ -100,6 +116,14 @@ export class ProductController {
       const userId = req.user.id;
       const userRole = req.user.role;
       const id = parseInt(req.params.id);
+      
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的商品ID',
+          code: 'INVALID_PARAM'
+        });
+      }
 
       await productService.deleteProduct(id, userId, userRole);
 

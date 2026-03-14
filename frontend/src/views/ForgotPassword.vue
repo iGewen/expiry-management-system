@@ -16,8 +16,8 @@
               <path d="M12 24L20 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h2>{{ verified ? '重置密码' : '忘记密码' }}</h2>
-          <p>{{ verified ? '请输入您的新密码' : '通过手机号验证找回密码' }}</p>
+          <h2>重置密码</h2>
+          <p>通过手机号验证找回密码</p>
         </div>
 
         <el-form ref="formRef" :model="form" :rules="rules" class="forgot-form">
@@ -27,7 +27,6 @@
               v-model="form.phone"
               placeholder="请输入注册时的手机号"
               size="large"
-              :disabled="verified"
             >
               <template #prefix>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -37,34 +36,67 @@
             </el-input>
           </el-form-item>
 
-          <!-- 已验证后显示新密码输入 -->
-          <transition name="slide-fade">
-            <el-form-item v-if="verified" prop="newPassword">
+          <!-- 验证码输入 -->
+          <el-form-item prop="verifyCode">
+            <div class="code-input-wrapper">
               <el-input
-                v-model="form.newPassword"
-                type="password"
-                placeholder="请输入新密码(6-20位，含字母和数字)"
+                v-model="form.verifyCode"
+                placeholder="验证码"
                 size="large"
-                show-password
+                maxlength="6"
               >
                 <template #prefix>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M12 5V4a4 4 0 00-8 0v1H3v9h10V5h-1zm-6-1a2 2 0 114 0v1H6V4z"/>
+                    <path d="M8 1a4 4 0 00-4 4v2H3a1 1 0 00-1 1v6a1 1 0 001 1h10a1 1 0 001-1V8a1 1 0 00-1-1h-1V5a4 4 0 00-4-4zm2 6H6V5a2 2 0 114 0v2z"/>
                   </svg>
                 </template>
               </el-input>
-            </el-form-item>
-          </transition>
-
-          <!-- 验证成功提示 -->
-          <transition name="slide-fade">
-            <div v-if="verified" class="verified-info">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="#1890FF">
-                <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.97 6.03l-4.5 4.5a.75.75 0 01-1.06 0l-2-2a.75.75 0 111.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 111.06 1.06z"/>
-              </svg>
-              <span>手机号验证成功，用户名：<strong>{{ verifiedUsername }}</strong></span>
+              <el-button
+                type="primary"
+                size="large"
+                :disabled="countdown > 0 || !isPhoneValid"
+                :loading="sendingCode"
+                @click="handleSendCode"
+                class="code-button"
+              >
+                {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+              </el-button>
             </div>
-          </transition>
+          </el-form-item>
+
+          <!-- 新密码输入 -->
+          <el-form-item prop="newPassword">
+            <el-input
+              v-model="form.newPassword"
+              type="password"
+              placeholder="请输入新密码(6-20位，含字母和数字)"
+              size="large"
+              show-password
+            >
+              <template #prefix>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M12 5V4a4 4 0 00-8 0v1H3v9h10V5h-1zm-6-1a2 2 0 114 0v1H6V4z"/>
+                </svg>
+              </template>
+            </el-input>
+          </el-form-item>
+
+          <!-- 确认密码输入 -->
+          <el-form-item prop="confirmPassword">
+            <el-input
+              v-model="form.confirmPassword"
+              type="password"
+              placeholder="请再次输入新密码"
+              size="large"
+              show-password
+            >
+              <template #prefix>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M12 5V4a4 4 0 00-8 0v1H3v9h10V5h-1zm-6-1a2 2 0 114 0v1H6V4z"/>
+                </svg>
+              </template>
+            </el-input>
+          </el-form-item>
 
           <el-form-item>
             <el-button
@@ -72,9 +104,9 @@
               size="large"
               class="submit-button"
               :loading="loading"
-              @click="verified ? handleReset() : handleVerify()"
+              @click="handleReset"
             >
-              {{ loading ? (verified ? '重置中...' : '验证中...') : (verified ? '重置密码' : '验证手机号') }}
+              {{ loading ? '重置中...' : '重置密码' }}
             </el-button>
           </el-form-item>
 
@@ -93,55 +125,86 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
+import httpClient from '@/utils/request'
 
 const router = useRouter()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
-const verified = ref(false)
-const verifiedUsername = ref('')
+const sendingCode = ref(false)
+const countdown = ref(0)
 
 const form = reactive({
   phone: '',
-  newPassword: ''
+  verifyCode: '',
+  newPassword: '',
+  confirmPassword: ''
 })
+
+// 验证手机号是否有效
+const isPhoneValid = computed(() => /^1[3-9]\d{9}$/.test(form.phone))
+
+// 验证确认密码
+const validateConfirmPassword = (_rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error('请再次输入密码'))
+  } else if (value !== form.newPassword) {
+    callback(new Error('两次输入密码不一致'))
+  } else {
+    callback()
+  }
+}
 
 const rules: FormRules = {
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
+  verifyCode: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+  ],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
-    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/, message: '必须包含字母和数字', trigger: 'blur' }
+    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/, message: '必须包含字母和数字', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, validator: validateConfirmPassword, trigger: 'blur' }
   ]
 }
 
-const handleVerify = async () => {
-  if (!formRef.value) return
+// 发送验证码
+const handleSendCode = async () => {
+  if (!isPhoneValid.value) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
 
-  await formRef.value.validateField('phone', async (valid) => {
-    if (!valid) return
-
-    loading.value = true
-    try {
-      const res = await authApi.forgotPassword(form.phone)
-      if (res.success) {
-        verified.value = true
-        verifiedUsername.value = res.data?.username || ''
-        ElMessage.success('手机号验证成功')
-      }
-    } catch (error) {
-      console.error('Verify error:', error)
-    } finally {
-      loading.value = false
+  sendingCode.value = true
+  try {
+    const res = await httpClient.post('/auth/sms/reset', { phone: form.phone })
+    if (res.success) {
+      ElMessage.success('验证码已发送')
+      // 开始倒计时
+      countdown.value = 60
+      const timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
     }
-  })
+  } catch (error) {
+    // 为了安全，后端不暴露手机号是否注册，所以显示统一消息
+    ElMessage.success('验证码已发送')
+  } finally {
+    sendingCode.value = false
+  }
 }
 
 const handleReset = async () => {
@@ -152,7 +215,11 @@ const handleReset = async () => {
 
     loading.value = true
     try {
-      const res = await authApi.resetPassword(form)
+      const res = await authApi.resetPassword({
+        phone: form.phone,
+        newPassword: form.newPassword,
+        verifyCode: form.verifyCode
+      })
       if (res.success) {
         ElMessage.success('密码重置成功，请使用新密码登录')
         setTimeout(() => {
@@ -288,30 +355,19 @@ const handleReset = async () => {
   }
 }
 
-// 验证成功提示
-.verified-info {
+.code-input-wrapper {
   display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: $primary-light;
-  border: 1px solid rgba(24, 144, 255, 0.2);
-  border-radius: $border-radius-base;
-  margin-bottom: 20px;
+  gap: 12px;
+  width: 100%;
   
-  svg {
-    flex-shrink: 0;
-    margin-right: 10px;
+  :deep(.el-input) {
+    flex: 1;
   }
-  
-  span {
-    font-size: 14px;
-    color: $text-regular;
-    
-    strong {
-      color: $primary-color;
-      font-weight: 600;
-    }
-  }
+}
+
+.code-button {
+  width: 120px;
+  flex-shrink: 0;
 }
 
 .submit-button {
@@ -355,25 +411,6 @@ const handleReset = async () => {
   }
 }
 
-// 过渡动画
-.slide-fade-enter-active {
-  transition: all 0.4s ease;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-enter-from {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateY(10px);
-  opacity: 0;
-}
-
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -403,6 +440,15 @@ const handleReset = async () => {
   
   .form-container {
     padding: 40px 30px;
+  }
+  
+  .code-input-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .code-button {
+    width: 100%;
   }
 }
 </style>

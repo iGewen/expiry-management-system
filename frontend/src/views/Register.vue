@@ -49,6 +49,33 @@
             </el-input>
           </el-form-item>
 
+          <el-form-item prop="verifyCode">
+            <div class="code-input-wrapper">
+              <el-input
+                v-model="form.verifyCode"
+                placeholder="验证码"
+                size="large"
+                maxlength="6"
+              >
+                <template #prefix>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 1a4 4 0 00-4 4v2H3a1 1 0 00-1 1v6a1 1 0 001 1h10a1 1 0 001-1V8a1 1 0 00-1-1h-1V5a4 4 0 00-4-4zm2 6H6V5a2 2 0 114 0v2z"/>
+                  </svg>
+                </template>
+              </el-input>
+              <el-button
+                type="primary"
+                size="large"
+                :disabled="countdown > 0 || !isPhoneValid"
+                :loading="sendingCode"
+                @click="handleSendCode"
+                class="code-button"
+              >
+                {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+              </el-button>
+            </div>
+          </el-form-item>
+
           <el-form-item prop="password">
             <el-input
               v-model="form.password"
@@ -113,24 +140,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
+import httpClient from '@/utils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const sendingCode = ref(false)
+const countdown = ref(0)
 
 const form = reactive({
   username: '',
   phone: '',
+  verifyCode: '',
   password: '',
   confirmPassword: ''
 })
+
+// 验证手机号是否有效
+const isPhoneValid = computed(() => /^1[3-9]\d{9}$/.test(form.phone))
 
 const validatePass2 = (_rule: any, value: any, callback: any) => {
   if (value === '') {
@@ -146,20 +180,52 @@ const rules: FormRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 4, max: 20, message: '长度在 4 到 20 个字符', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9]+$/, message: '只能包含字母和数字', trigger: 'blur' }
+    { pattern: /^[a-zA-Z0-9_]+$/, message: '只能包含字母、数字和下划线', trigger: 'blur' }
   ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
+  verifyCode: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+  ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
-    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/, message: '必须包含字母和数字', trigger: 'blur' }
+    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/, message: '必须包含字母和数字', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, validator: validatePass2, trigger: 'blur' }
   ]
+}
+
+// 发送验证码
+const handleSendCode = async () => {
+  if (!isPhoneValid.value) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
+
+  sendingCode.value = true
+  try {
+    const res = await httpClient.post('/auth/sms/register', { phone: form.phone })
+    if (res.success) {
+      ElMessage.success(res.message || '验证码已发送')
+      // 开始倒计时
+      countdown.value = 60
+      const timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    }
+  } catch (error) {
+    console.error('Send code error:', error)
+  } finally {
+    sendingCode.value = false
+  }
 }
 
 const handleRegister = async () => {
@@ -173,8 +239,9 @@ const handleRegister = async () => {
       const res = await authApi.register(form)
       
       if (res.success && res.data) {
-        userStore.setUser(res.data.user)
-        userStore.setToken(res.data.token)
+        const { user, token, refreshToken } = res.data as any
+        userStore.setUser(user)
+        userStore.setToken(token, refreshToken)
         
         ElMessage.success('注册成功')
         router.push('/')
@@ -303,6 +370,21 @@ const handleRegister = async () => {
   }
 }
 
+.code-input-wrapper {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  
+  :deep(.el-input) {
+    flex: 1;
+  }
+}
+
+.code-button {
+  width: 120px;
+  flex-shrink: 0;
+}
+
 .register-button {
   width: 100%;
   height: 44px;
@@ -394,6 +476,15 @@ const handleRegister = async () => {
   
   .form-container {
     padding: 40px 30px;
+  }
+  
+  .code-input-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .code-button {
+    width: 100%;
   }
 }
 </style>

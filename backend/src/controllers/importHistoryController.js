@@ -27,9 +27,17 @@ export class ImportHistoryController {
   async delete(req, res) {
     try {
       const userId = req.user.id;
-      const { id } = req.params;
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的历史记录ID',
+          code: 'INVALID_PARAM'
+        });
+      }
 
-      await importHistoryService.deleteHistory(parseInt(id), userId);
+      await importHistoryService.deleteHistory(id, userId);
 
       res.json({
         success: true,

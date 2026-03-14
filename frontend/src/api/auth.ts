@@ -1,15 +1,30 @@
 import request from '@/utils/request'
-import type { ApiResponse, LoginForm, RegisterForm, User } from '@/types'
+import type { ApiResponse, RegisterForm, User } from '@/types'
+
+export interface LoginResponse {
+  user: User
+  token: string
+  refreshToken?: string
+}
+
+export interface ResetPasswordForm {
+  phone: string
+  newPassword: string
+  verifyCode: string
+}
 
 export const authApi = {
   // 登录
-  login(data: LoginForm) {
-    return request.post<ApiResponse<{ user: User; token: string }>>('/auth/login', data)
+  login(username: string, password: string) {
+    return request.post<ApiResponse<LoginResponse>>('/auth/login', {
+      username,
+      password
+    })
   },
 
   // 注册
   register(data: RegisterForm) {
-    return request.post<ApiResponse<{ user: User; token: string }>>('/auth/register', data)
+    return request.post<ApiResponse<LoginResponse>>('/auth/register', data)
   },
 
   // 登出
@@ -28,8 +43,13 @@ export const authApi = {
   },
 
   // 重置密码
-  resetPassword(data: { phone: string; newPassword: string }) {
+  resetPassword(data: ResetPasswordForm) {
     return request.post<ApiResponse>('/auth/reset-password', data)
+  },
+
+  // 刷新 Token
+  refreshToken(refreshToken: string) {
+    return request.post<ApiResponse<LoginResponse>>('/auth/refresh', { refreshToken })
   },
 
   // 获取当前用户信息

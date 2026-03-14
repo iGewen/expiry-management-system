@@ -5,9 +5,55 @@ import prisma from '../config/database.js';
 const authService = new AuthService();
 
 export class AuthController {
+  /**
+   * 发送注册验证码
+   */
+  async sendRegisterSmsCode(req, res) {
+    try {
+      const { phone } = req.body;
+      
+      const result = await authService.sendRegisterSmsCode(phone);
+      
+      res.json({
+        success: result.success,
+        message: result.message
+      });
+    } catch (error) {
+      logger.error('Send register SMS error:', error);
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  /**
+   * 发送密码重置验证码
+   */
+  async sendResetSmsCode(req, res) {
+    try {
+      const { phone } = req.body;
+      
+      const result = await authService.sendResetSmsCode(phone);
+      
+      // 为了安全，无论手机号是否注册都返回相同响应
+      res.json({
+        success: true,
+        message: '验证码已发送'
+      });
+    } catch (error) {
+      logger.error('Send reset SMS error:', error);
+      // 为了安全，不暴露具体错误
+      res.json({
+        success: true,
+        message: '验证码已发送'
+      });
+    }
+  }
+
   async register(req, res) {
     try {
-      const { username, password, confirmPassword, phone } = req.body;
+      const { username, password, confirmPassword, phone, verifyCode } = req.body;
 
       // 验证密码匹配
       if (password !== confirmPassword) {
@@ -20,7 +66,8 @@ export class AuthController {
       const result = await authService.register({
         username,
         password,
-        phone
+        phone,
+        verifyCode
       });
 
       logger.info(`User registered: ${username}`);
@@ -43,7 +90,8 @@ export class AuthController {
     try {
       const { username, password } = req.body;
 
-      const result = await authService.login(username, password);
+      const ipAddress = req.ip || req.connection.remoteAddress;
+      const result = await authService.login(username, password, ipAddress);
 
       logger.info(`User logged in: ${username}`);
 
@@ -110,43 +158,11 @@ export class AuthController {
     }
   }
 
-  async forgotPassword(req, res) {
-    try {
-      const { phone } = req.body;
-
-      // 验证手机号是否存在
-      const user = await prisma.user.findFirst({
-        where: { phone }
-      });
-
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: '该手机号未注册'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: '验证成功',
-        data: {
-          username: user.username
-        }
-      });
-    } catch (error) {
-      logger.error('Forgot password error:', error);
-      res.status(500).json({
-        success: false,
-        message: '操作失败'
-      });
-    }
-  }
-
   async resetPassword(req, res) {
     try {
-      const { phone, newPassword } = req.body;
+      const { phone, newPassword, verifyCode } = req.body;
 
-      await authService.resetPassword(phone, newPassword);
+      await authService.resetPassword(phone, newPassword, verifyCode);
 
       logger.info(`Password reset for phone: ${phone}`);
 

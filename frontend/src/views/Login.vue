@@ -162,14 +162,18 @@ const handleLogin = async () => {
 
     loading.value = true
     try {
-      const res = await authApi.login(loginForm)
+      const res = await authApi.login(loginForm.username, loginForm.password)
       
       if (res.success && res.data) {
-        userStore.setUser(res.data.user)
-        userStore.setToken(res.data.token)
+        const { user, token, refreshToken } = res.data as any
+        userStore.setUser(user)
+        userStore.setToken(token, refreshToken)
         
         ElMessage.success('登录成功')
-        router.push('/')
+        
+        // 如果有重定向地址，跳转到目标页面
+        const redirect = router.currentRoute.value.query.redirect as string
+        router.push(redirect || '/')
       }
     } catch (error) {
       console.error('Login error:', error)

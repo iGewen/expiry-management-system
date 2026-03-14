@@ -64,5 +64,5 @@ export const updateProduct = (id: number, data: ProductForm) => productApi.updat
 export const deleteProduct = (id: number) => productApi.delete(id).then(res => res.data)
 export const batchDeleteProducts = (ids: number[]) => productApi.batchDelete(ids).then(res => res.data)
 export const getProductStats = () => productApi.getStatistics().then(res => res.data)
-export const importProducts = (products: any[]) => request.post('/products/batch/import', { products }).then(res => res.data)
+export const importProducts = (file: File) => productApi.batchImport(file).then(res => res.data)
 export const exportProducts = (params?: any) => productApi.getList(params).then(res => res.data?.products || [])

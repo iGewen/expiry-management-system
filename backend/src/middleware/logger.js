@@ -63,10 +63,27 @@ function sanitizeBody(body) {
   
   const sanitized = { ...body };
   
-  // 移除敏感信息
-  if (sanitized.password) sanitized.password = '***';
-  if (sanitized.oldPassword) sanitized.oldPassword = '***';
-  if (sanitized.newPassword) sanitized.newPassword = '***';
+  // 移除所有敏感字段
+  const sensitiveFields = [
+    'password',
+    'oldPassword',
+    'newPassword',
+    'confirmPassword',
+    'token',
+    'refreshToken',
+    'authorization',
+    'secret',
+    'apiKey',
+    'api_key',
+    'accessToken',
+    'access_token'
+  ];
+  
+  for (const field of sensitiveFields) {
+    if (sanitized[field] !== undefined) {
+      sanitized[field] = '***REDACTED***';
+    }
+  }
   
   return sanitized;
 }

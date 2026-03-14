@@ -28,8 +28,15 @@ export class ImportHistoryService {
 
   async getHistories(userId, filters = {}) {
     const { page = 1, pageSize = 20 } = filters;
-    const pageNum = parseInt(page);
-    const pageSizeNum = parseInt(pageSize);
+    
+    let pageNum = parseInt(page, 10);
+    let pageSizeNum = parseInt(pageSize, 10);
+    
+    // 有效性检查
+    if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
+    if (isNaN(pageSizeNum) || pageSizeNum < 1) pageSizeNum = 20;
+    if (pageSizeNum > 100) pageSizeNum = 100; // 限制最大分页
+    
     const skip = (pageNum - 1) * pageSizeNum;
 
     const where = { userId };

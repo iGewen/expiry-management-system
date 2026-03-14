@@ -4,9 +4,15 @@ import bcrypt from 'bcrypt';
 export class UserService {
   async getUsers(filters = {}) {
     const { page = 1, pageSize = 20, role, isActive, search } = filters;
-    // 确保 page 和 pageSize 是数字类型
-    const pageNum = parseInt(page);
-    const pageSizeNum = parseInt(pageSize);
+    // 确保 page 和 pageSize 是数字类型并进行有效性检查
+    let pageNum = parseInt(page, 10);
+    let pageSizeNum = parseInt(pageSize, 10);
+    
+    // 有效性检查
+    if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
+    if (isNaN(pageSizeNum) || pageSizeNum < 1) pageSizeNum = 20;
+    if (pageSizeNum > 100) pageSizeNum = 100; // 限制最大分页
+    
     const skip = (pageNum - 1) * pageSizeNum;
 
     const where = {};
@@ -40,6 +46,7 @@ export class UserService {
           isActive: true,
           createdAt: true,
           updatedAt: true,
+          lastLoginAt: true,
           _count: {
             select: {
               products: true,
@@ -60,6 +67,7 @@ export class UserService {
         isActive: user.isActive,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        lastLoginAt: user.lastLoginAt,
         productCount: user._count.products,
         logCount: user._count.logs
       })),
@@ -72,7 +80,12 @@ export class UserService {
 
   async getUserById(id) {
     // 确保 id 是数字类型
-    const userId = typeof id === 'string' ? parseInt(id) : id;
+    const userId = typeof id === 'string' ? parseInt(id, 10) : id;
+    
+    // 验证 ID 有效性
+    if (isNaN(userId) || userId <= 0) {
+      throw new Error('无效的用户ID');
+    }
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -84,6 +97,7 @@ export class UserService {
         isActive: true,
         createdAt: true,
         updatedAt: true,
+          lastLoginAt: true,
         _count: {
           select: {
             products: true,
@@ -108,7 +122,12 @@ export class UserService {
     const { phone, role, isActive } = userData;
     
     // 确保 id 是数字类型
-    const userId = typeof id === 'string' ? parseInt(id) : id;
+    const userId = typeof id === 'string' ? parseInt(id, 10) : id;
+    
+    // 验证 ID 有效性
+    if (isNaN(userId) || userId <= 0) {
+      throw new Error('无效的用户ID');
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: userId }
@@ -170,7 +189,12 @@ export class UserService {
 
   async resetUserPassword(id, newPassword) {
     // 确保 id 是数字类型
-    const userId = typeof id === 'string' ? parseInt(id) : id;
+    const userId = typeof id === 'string' ? parseInt(id, 10) : id;
+    
+    // 验证 ID 有效性
+    if (isNaN(userId) || userId <= 0) {
+      throw new Error('无效的用户ID');
+    }
     
     const user = await prisma.user.findUnique({
       where: { id: userId }
@@ -192,7 +216,12 @@ export class UserService {
 
   async deleteUser(id) {
     // 确保 id 是数字类型
-    const userId = typeof id === 'string' ? parseInt(id) : id;
+    const userId = typeof id === 'string' ? parseInt(id, 10) : id;
+    
+    // 验证 ID 有效性
+    if (isNaN(userId) || userId <= 0) {
+      throw new Error('无效的用户ID');
+    }
     
     const user = await prisma.user.findUnique({
       where: { id: userId }

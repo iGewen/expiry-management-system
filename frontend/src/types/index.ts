@@ -20,6 +20,7 @@ export interface RegisterForm {
   password: string
   confirmPassword: string
   phone: string
+  verifyCode: string
 }
 
 // 商品相关类型
