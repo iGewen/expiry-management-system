@@ -1,6 +1,11 @@
 import prisma from '../config/database.js';
 import dayjs from 'dayjs';
 
+import { store } from '../config/redis.js';
+
+const PRODUCT_LIST_CACHE_TTL = 30; // 商品列表缓存30秒
+const STATS_CACHE_TTL = 60; // 统计数据缓存60秒
+
 export class ProductService {
   /**
    * 计算商品状态
@@ -22,6 +27,14 @@ export class ProductService {
    */
   calculateExpiryDate(productionDate, shelfLife) {
     return dayjs(productionDate).add(shelfLife, 'day').toDate();
+  }
+
+  /**
+   * 清除商品列表缓存（通过增加版本号）
+   */
+  async invalidateProductsCache(userId) {
+    const currentVersion = await store.get(`products:version:${userId}`) || 0;
+    await store.set(`products:version:${userId}`, currentVersion + 1, 3600); // 版本号缓存1小时
   }
 
   /**
@@ -55,6 +68,9 @@ export class ProductService {
         category: true
       }
     });
+    
+    // 清除商品列表缓存
+    await this.invalidateProductsCache(userId);
 
     return this.formatProduct(product);
   }
@@ -75,6 +91,17 @@ export class ProductService {
     // 导出模式或 exportAll=true 时不限制数量，否则限制最大为 100
     const isExportAll = exportAll === 'true' || exportAll === true;
     if (!isExportAll && pageSizeNum > 100) pageSizeNum = 100;
+    
+    // 导出模式不使用缓存
+    if (!isExportAll) {
+      // 尝试从缓存获取（检查缓存版本）
+      const cacheVersion = await store.get(`products:version:${userId}`) || 0;
+      const cacheKey = `products:${userId}:${cacheVersion}:${pageNum}:${pageSizeNum}:${name || ''}:${status || ''}:${categoryId || ''}:${startDate || ''}:${endDate || ''}`;
+      const cached = await store.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
     
     const skip = (pageNum - 1) * pageSizeNum;
   
@@ -188,13 +215,22 @@ export class ProductService {
       paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
     }
 
-    return {
+    const result = {
       products: paginatedProducts,
       total,
       page: pageNum,
       pageSize: pageSizeNum,
       totalPages: Math.ceil(total / pageSizeNum)
     };
+    
+    // 缓存结果（非导出模式）
+    if (!isExportAll) {
+      const cacheVersion = await store.get(`products:version:${userId}`) || 0;
+      const cacheKey = `products:${userId}:${cacheVersion}:${pageNum}:${pageSizeNum}:${name || ''}:${status || ''}:${categoryId || ''}:${startDate || ''}:${endDate || ''}`;
+      await store.set(cacheKey, result, PRODUCT_LIST_CACHE_TTL);
+    }
+
+    return result;
   }
 
   /**
@@ -291,6 +327,9 @@ export class ProductService {
         category: true
       }
     });
+    
+    // 清除商品列表缓存
+    await this.invalidateProductsCache(product.userId);
 
     return this.formatProduct(updated, userRole);
   }
@@ -320,6 +359,9 @@ export class ProductService {
       where: { id },
       data: { isDeleted: true }
     });
+    
+    // 清除商品列表缓存
+    await this.invalidateProductsCache(product.userId);
 
     return true;
   }
@@ -420,6 +462,9 @@ export class ProductService {
         }
       }
     });
+    
+    // 清除商品列表缓存
+    await this.invalidateProductsCache(userId);
 
     return results;
   }
