@@ -104,11 +104,15 @@ const fetchBackups = async () => {
   loading.value = true
   try {
     const res = await request.get('/backup')
-    if (res.data.success) {
-      backups.value = res.data.data
+    console.log('Fetch backups response:', res)
+    if (res.success) {
+      backups.value = res.data
+    } else {
+      ElMessage.error(res.message || '获取备份列表失败')
     }
   } catch (error) {
     console.error('获取备份列表失败:', error)
+    ElMessage.error('获取备份列表失败')
   } finally {
     loading.value = false
   }
@@ -120,11 +124,11 @@ const createBackup = async () => {
   try {
     const res = await request.post('/backup')
     console.log('Create backup response:', res)
-    if (res.data.success) {
-      ElMessage.success(`备份创建成功！包含 ${res.data.data?.stats?.products || 0} 个商品`)
+    if (res.success) {
+      ElMessage.success(`备份创建成功！包含 ${res.data?.stats?.products || 0} 个商品`)
       await fetchBackups()
     } else {
-      ElMessage.error(res.data.message || '创建备份失败')
+      ElMessage.error(res.message || '创建备份失败')
     }
   } catch (error) {
     console.error('Create backup error:', error)
@@ -153,9 +157,11 @@ const restoreBackup = async () => {
     const res = await request.post('/backup/restore', {
       filename: selectedFilename.value
     })
-    if (res.data.success) {
-      ElMessage.success(res.data.message)
+    if (res.success) {
+      ElMessage.success(res.message)
       restoreDialogVisible.value = false
+    } else {
+      ElMessage.error(res.message || '恢复备份失败')
     }
   } catch (error) {
     ElMessage.error(error.response?.data?.message || '恢复备份失败')
@@ -175,10 +181,12 @@ const deleteBackup = async () => {
   deleting.value = true
   try {
     const res = await request.delete(`/backup/${selectedFilename.value}`)
-    if (res.data.success) {
+    if (res.success) {
       ElMessage.success('删除成功')
       deleteDialogVisible.value = false
-      fetchBackups()
+      await fetchBackups()
+    } else {
+      ElMessage.error(res.message || '删除备份失败')
     }
   } catch (error) {
     ElMessage.error(error.response?.data?.message || '删除备份失败')
