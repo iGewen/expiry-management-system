@@ -37,9 +37,6 @@ export class ProductController {
       const userId = req.user.id;
       const userRole = req.user.role;
       const filters = req.query;
-      
-      // 调试：打印接收到的参数
-      logger.info(`[DEBUG] getList called with query: ${JSON.stringify(req.query)}`);
 
       const result = await productService.getProducts(userId, userRole, filters);
 
