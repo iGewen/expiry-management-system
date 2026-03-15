@@ -119,11 +119,15 @@ const createBackup = async () => {
   creating.value = true
   try {
     const res = await request.post('/backup')
+    console.log('Create backup response:', res)
     if (res.data.success) {
-      ElMessage.success(`备份创建成功！包含 ${res.data.data.stats.products} 个商品`)
-      fetchBackups()
+      ElMessage.success(`备份创建成功！包含 ${res.data.data?.stats?.products || 0} 个商品`)
+      await fetchBackups()
+    } else {
+      ElMessage.error(res.data.message || '创建备份失败')
     }
   } catch (error) {
+    console.error('Create backup error:', error)
     ElMessage.error(error.response?.data?.message || '创建备份失败')
   } finally {
     creating.value = false
