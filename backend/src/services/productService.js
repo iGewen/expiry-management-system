@@ -65,6 +65,9 @@ export class ProductService {
   async getProducts(userId, userRole, filters = {}) {
     const { page = 1, pageSize = 20, name, status, categoryId, startDate, endDate, searchUserId, exportAll } = filters;
     
+    // 调试日志
+    logger.info(`getProducts called with filters: ${JSON.stringify({ exportAll, page, pageSize, name, status })}`);
+    
     // 参数验证和规范化
     let pageNum = parseInt(page, 10);
     let pageSizeNum = parseInt(pageSize, 10);
@@ -73,7 +76,10 @@ export class ProductService {
     if (isNaN(pageSizeNum) || pageSizeNum < 1) pageSizeNum = 20;
     
     // 导出模式或 exportAll=true 时不限制数量，否则限制最大为 100
-    if (!exportAll && pageSizeNum > 100) pageSizeNum = 100;
+    const isExportAll = exportAll === 'true' || exportAll === true;
+    if (!isExportAll && pageSizeNum > 100) pageSizeNum = 100;
+    
+    logger.info(`isExportAll: ${isExportAll}, pageSizeNum: ${pageSizeNum}`);
     
     const skip = (pageNum - 1) * pageSizeNum;
   
@@ -154,10 +160,12 @@ export class ProductService {
 
     // 分页 - 导出全部时返回所有数据
     let paginatedProducts;
-    if (exportAll === 'true' || exportAll === true) {
+    if (isExportAll) {
       paginatedProducts = formattedProducts;
+      logger.info(`Export all mode: returning ${paginatedProducts.length} products`);
     } else {
       paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
+      logger.info(`Pagination mode: returning ${paginatedProducts.length} products (skip: ${skip}, pageSize: ${pageSizeNum})`);
     }
 
     return {
