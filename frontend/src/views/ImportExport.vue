@@ -98,26 +98,32 @@
                     <el-option label="已过期" value="EXPIRED" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="开始日期 (创建时间)">
-                  <el-date-picker
-                    v-model="exportForm.startDate"
-                    type="date"
-                    placeholder="选择开始日期"
-                    value-format="YYYY-MM-DD"
-                    style="width: 100%;"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="结束日期 (创建时间)">
-                  <el-date-picker
-                    v-model="exportForm.endDate"
-                    type="date"
-                    placeholder="选择结束日期"
-                    value-format="YYYY-MM-DD"
-                    style="width: 100%;"
-                    clearable
-                  />
-                </el-form-item>
+                <el-row :gutter="20">
+                  <el-col :span="12">
+                    <el-form-item label="开始日期">
+                      <el-date-picker
+                        v-model="exportForm.startDate"
+                        type="date"
+                        placeholder="选择开始日期"
+                        value-format="YYYY-MM-DD"
+                        style="width: 100%;"
+                        clearable
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="结束日期">
+                      <el-date-picker
+                        v-model="exportForm.endDate"
+                        type="date"
+                        placeholder="选择结束日期"
+                        value-format="YYYY-MM-DD"
+                        style="width: 100%;"
+                        clearable
+                      />
+                    </el-form-item>
+                  </el-col>
+                </el-row>
                 <el-form-item label="导出格式">
                   <el-radio-group v-model="exportForm.format">
                     <el-radio value="xlsx">Excel (.xlsx)</el-radio>
