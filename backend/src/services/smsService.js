@@ -204,9 +204,6 @@ export class SmsService {
       message: '验证成功'
     };
   }
-      message: '验证成功'
-    };
-  }
 
   /**
    * 检查短信服务是否启用
