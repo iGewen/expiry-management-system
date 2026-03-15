@@ -1,6 +1,9 @@
 import cron from 'node-cron';
 import reminderService from './reminderService.js';
+import { PrismaClient } from '@prisma/client';
 import logger from '../utils/logger.js';
+
+const prisma = new PrismaClient();
 
 class SchedulerService {
   constructor() {
@@ -11,11 +14,41 @@ class SchedulerService {
    * 启动所有定时任务
    */
   start() {
-    // 每天早上 9:00 发送过期提醒
-    const reminderJob = cron.schedule('0 9 * * *', async () => {
-      logger.info('Running scheduled reminder job...');
+    // 每小时整点检查提醒，根据用户设置的提醒时间发送
+    const reminderJob = cron.schedule('0 * * * *', async () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentTimeStr = `${String(currentHour).padStart(2, '0')}:00`;
+      
+      logger.info(`Running scheduled reminder check at ${currentTimeStr}...`);
+      
       try {
-        await reminderService.sendAllReminders();
+        // 查找设置了当前时间提醒的用户
+        const settings = await prisma.reminderSetting.findMany({
+          where: {
+            enabled: true,
+            reminderTime: currentTimeStr
+          },
+          include: {
+            user: true
+          }
+        });
+
+        if (settings.length === 0) {
+          logger.info(`No users configured for ${currentTimeStr} reminder`);
+          return;
+        }
+
+        logger.info(`Found ${settings.length} users for ${currentTimeStr} reminder`);
+        
+        // 为每个用户发送提醒
+        for (const setting of settings) {
+          try {
+            await reminderService.sendReminder(setting.userId, setting.user.role);
+          } catch (error) {
+            logger.error(`Failed to send reminder to user ${setting.userId}:`, error);
+          }
+        }
       } catch (error) {
         logger.error('Scheduled reminder job failed:', error);
       }
@@ -24,7 +57,7 @@ class SchedulerService {
     });
 
     this.jobs.push({ name: 'reminder', job: reminderJob });
-    logger.info('Scheduler started: reminder job at 09:00 daily');
+    logger.info('Scheduler started: reminder job runs hourly at :00');
 
     // 每天凌晨 00:05 更新商品状态
     const statusUpdateJob = cron.schedule('5 0 * * *', async () => {
