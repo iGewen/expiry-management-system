@@ -152,8 +152,13 @@ export class ProductService {
     // 计算总数
     const total = formattedProducts.length;
 
-    // 分页
-    const paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
+    // 分页 - 导出全部时返回所有数据
+    let paginatedProducts;
+    if (exportAll === 'true' || exportAll === true) {
+      paginatedProducts = formattedProducts;
+    } else {
+      paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
+    }
 
     return {
       products: paginatedProducts,
