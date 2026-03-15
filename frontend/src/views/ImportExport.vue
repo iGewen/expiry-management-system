@@ -132,8 +132,6 @@
                 </el-form-item>
               </el-form>
               
-              <!-- 占位，使高度与左侧上传区域对齐 -->
-              <div style="height: 180px;"></div>
             </div>
 
             <el-button
