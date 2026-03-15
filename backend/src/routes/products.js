@@ -53,7 +53,20 @@ router.delete('/:id', validateId('id'), handleValidationErrors, logAction, produ
 router.post('/batch/delete', batchDeleteValidation, handleValidationErrors, logAction, productController.batchDelete.bind(productController));
 router.post('/batch/import', logAction, upload.single('file'), productController.batchImport.bind(productController));
 
+// 批量更新
+router.post('/batch/update', [
+  body('ids').isArray({ min: 1, max: 100 }).withMessage('批量更新数量应为1-100'),
+  body('ids.*').isInt({ min: 1 }).withMessage('商品ID必须为正整数'),
+  body('categoryId').optional().isInt({ min: 1 }).withMessage('分类ID格式不正确'),
+  body('reminderDays').optional().isInt({ min: 1, max: 90 }).withMessage('提醒天数应为1-90天')
+], handleValidationErrors, logAction, productController.batchUpdate.bind(productController));
+
 // 导出模板
 router.get('/template/export', productController.exportTemplate.bind(productController));
+
+// 导出即将过期商品
+router.get('/export/expiring', [
+  query('days').optional().isInt({ min: 1, max: 365 }).withMessage('天数应为1-365')
+], handleValidationErrors, productController.exportExpiringProducts.bind(productController));
 
 export default router;

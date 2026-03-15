@@ -1,9 +1,11 @@
 import { ProductService } from '../services/productService.js';
 import { ImportHistoryService } from '../services/importHistoryService.js';
+import prisma from '../config/database.js';
 import logger from '../utils/logger.js';
 import XLSX from 'xlsx';
 import path from 'path';
 import fs from 'fs';
+import dayjs from 'dayjs';
 
 const productService = new ProductService();
 const importHistoryService = new ImportHistoryService();
@@ -281,6 +283,117 @@ export class ProductController {
       res.status(500).json({
         success: false,
         message: '导出模板失败'
+      });
+    }
+  }
+
+  /**
+   * 批量更新商品
+   */
+  async batchUpdate(req, res) {
+    try {
+      const userId = req.user.id;
+      const { ids, categoryId, reminderDays } = req.body;
+
+      if (!ids || ids.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: '请选择要更新的商品'
+        });
+      }
+
+      // 验证至少有一个更新字段
+      if (categoryId === undefined && reminderDays === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: '请选择要更新的内容（分类或提醒天数）'
+        });
+      }
+
+      const updateData = {};
+      if (categoryId !== undefined) updateData.categoryId = categoryId;
+      if (reminderDays !== undefined) updateData.reminderDays = reminderDays;
+
+      // 更新商品
+      const result = await prisma.product.updateMany({
+        where: {
+          id: { in: ids },
+          userId,
+          isDeleted: false
+        },
+        data: updateData
+      });
+
+      // 记录修改详情
+      let changeDetails = [];
+      if (categoryId !== undefined) changeDetails.push(`分类: ${categoryId === null ? '取消分类' : '修改分类'}`);
+      if (reminderDays !== undefined) changeDetails.push(`提醒天数: ${reminderDays}天`);
+
+      logger.info(`Batch update products: ${ids.length} items, changes: ${changeDetails.join(', ')} by user ${userId}`);
+
+      res.json({
+        success: true,
+        message: `成功更新 ${result.count} 个商品`,
+        data: {
+          updatedCount: result.count
+        }
+      });
+    } catch (error) {
+      logger.error('Batch update error:', error);
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  /**
+   * 导出即将过期商品
+   */
+  async exportExpiringProducts(req, res) {
+    try {
+      const userId = req.user.id;
+      const days = parseInt(req.query.days) || 7; // 默认7天
+
+      const products = await productService.getExpiringProducts(userId, days);
+
+      // 生成Excel数据
+      const data = products.map(p => ({
+        '商品名称': p.name,
+        '生产日期': dayjs(p.productionDate).format('YYYY-MM-DD'),
+        '保质期(天)': p.shelfLife,
+        '过期日期': dayjs(p.expiryDate).format('YYYY-MM-DD'),
+        '剩余天数': p.remainingDays,
+        '状态': p.status === 'EXPIRED' ? '已过期' : p.status === 'WARNING' ? '即将过期' : '正常',
+        '提醒天数': p.reminderDays
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, '即将过期商品');
+
+      // 设置列宽
+      worksheet['!cols'] = [
+        { wch: 20 }, // 商品名称
+        { wch: 12 }, // 生产日期
+        { wch: 10 }, // 保质期
+        { wch: 12 }, // 过期日期
+        { wch: 10 }, // 剩余天数
+        { wch: 10 }, // 状态
+        { wch: 10 }  // 提醒天数
+      ];
+
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      const filename = `即将过期商品_${days}天_${dayjs().format('YYYYMMDD')}.xlsx`;
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=${encodeURIComponent(filename)}`);
+      res.send(buffer);
+    } catch (error) {
+      logger.error('Export expiring products error:', error);
+      res.status(500).json({
+        success: false,
+        message: '导出失败'
       });
     }
   }

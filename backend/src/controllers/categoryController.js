@@ -133,6 +133,29 @@ class CategoryController {
       });
     }
   }
+
+  /**
+   * 获取分类详情（带商品列表）
+   */
+  async getCategoryDetail(req, res) {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+
+      const detail = await categoryService.getCategoryDetail(userId, parseInt(id));
+
+      res.json({
+        success: true,
+        data: detail
+      });
+    } catch (error) {
+      logger.error('Get category detail error:', error);
+      res.status(400).json({
+        success: false,
+        message: error.message || '获取分类详情失败'
+      });
+    }
+  }
 }
 
 export default new CategoryController();

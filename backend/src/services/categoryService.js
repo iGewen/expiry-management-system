@@ -1,9 +1,10 @@
 import prisma from '../config/database.js';
 import logger from '../utils/logger.js';
+import dayjs from 'dayjs';
 
 class CategoryService {
   /**
-   * 获取用户的所有分类
+   * 获取用户的所有分类（带详细统计）
    */
   async getCategories(userId) {
     const categories = await prisma.category.findMany({
@@ -16,10 +17,116 @@ class CategoryService {
       }
     });
     
-    return categories.map(cat => ({
-      ...cat,
-      productCount: cat._count.products
-    }));
+    // 获取每个分类的详细统计
+    const categoriesWithStats = await Promise.all(
+      categories.map(async (cat) => {
+        const products = await prisma.product.findMany({
+          where: { 
+            categoryId: cat.id, 
+            isDeleted: false 
+          },
+          select: {
+            expiryDate: true,
+            productionDate: true,
+            shelfLife: true,
+            reminderDays: true
+          }
+        });
+
+        let normalCount = 0;
+        let warningCount = 0;
+        let expiredCount = 0;
+        const today = dayjs().startOf('day');
+
+        products.forEach(p => {
+          let expiryDate = p.expiryDate;
+          if (!expiryDate) {
+            expiryDate = dayjs(p.productionDate).add(p.shelfLife, 'day').toDate();
+          }
+          const remainingDays = dayjs(expiryDate).diff(today, 'day');
+          
+          if (remainingDays <= 0) expiredCount++;
+          else if (remainingDays <= p.reminderDays) warningCount++;
+          else normalCount++;
+        });
+
+        return {
+          ...cat,
+          productCount: cat._count.products,
+          stats: {
+            normal: normalCount,
+            warning: warningCount,
+            expired: expiredCount
+          }
+        };
+      })
+    );
+    
+    return categoriesWithStats;
+  }
+
+  /**
+   * 获取分类详情（包含商品列表）
+   */
+  async getCategoryDetail(userId, categoryId) {
+    const category = await prisma.category.findFirst({
+      where: { id: categoryId, userId }
+    });
+
+    if (!category) {
+      throw new Error('分类不存在');
+    }
+
+    const products = await prisma.product.findMany({
+      where: { 
+        categoryId, 
+        isDeleted: false,
+        userId
+      },
+      orderBy: { expiryDate: 'asc' }
+    });
+
+    const today = dayjs().startOf('day');
+    let normalCount = 0;
+    let warningCount = 0;
+    let expiredCount = 0;
+
+    const formattedProducts = products.map(p => {
+      let expiryDate = p.expiryDate;
+      if (!expiryDate) {
+        expiryDate = dayjs(p.productionDate).add(p.shelfLife, 'day').toDate();
+      }
+      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      let status;
+      if (remainingDays <= 0) {
+        status = 'EXPIRED';
+        expiredCount++;
+      } else if (remainingDays <= p.reminderDays) {
+        status = 'WARNING';
+        warningCount++;
+      } else {
+        status = 'NORMAL';
+        normalCount++;
+      }
+
+      return {
+        ...p,
+        expiryDate,
+        remainingDays,
+        status
+      };
+    });
+
+    return {
+      ...category,
+      productCount: products.length,
+      stats: {
+        normal: normalCount,
+        warning: warningCount,
+        expired: expiredCount
+      },
+      products: formattedProducts
+    };
   }
 
   /**

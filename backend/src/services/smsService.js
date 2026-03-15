@@ -244,12 +244,11 @@ export class SmsService {
   }
 
   /**
-   * 发送过期提醒短信
+   * 发送过期提醒短信（批量提醒）
    * @param {string} phone - 手机号
-   * @param {string} productName - 商品名称
-   * @param {number} daysLeft - 剩余天数
+   * @param {number} productCount - 即将过期的商品数量
    */
-  async sendExpiryReminder(phone, productName, daysLeft) {
+  async sendExpiryReminder(phone, productCount) {
     if (!this.isEnabled()) {
       logger.warn('SMS service not enabled, cannot send expiry reminder');
       return { success: false, error: 'SMS service not enabled' };
@@ -268,15 +267,14 @@ export class SmsService {
         SignName: config.sms.signName,
         TemplateCode: config.sms.reminderTemplateCode,
         TemplateParam: JSON.stringify({
-          product_name: productName,
-          days_left: daysLeft
+          other_number2: productCount
         })
       };
 
       const result = await this.client.request('SendSms', params, { method: 'POST' });
       
       if (result.Code === 'OK') {
-        logger.info(`Expiry reminder SMS sent to ${phone} for product "${productName}"`);
+        logger.info(`Expiry reminder SMS sent to ${phone}: ${productCount} products`);
         return { success: true };
       } else {
         logger.error(`Failed to send expiry reminder SMS: ${result.Message}`);

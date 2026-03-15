@@ -13,6 +13,18 @@
             </div>
           </template>
 
+          <!-- 统计概览 -->
+          <div class="stats-overview">
+            <el-row :gutter="20">
+              <el-col :xs="12" :sm="6" v-for="stat in totalStats" :key="stat.label">
+                <div class="stat-card" :style="{ background: stat.color }">
+                  <div class="stat-value">{{ stat.value }}</div>
+                  <div class="stat-label">{{ stat.label }}</div>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
+
           <el-table :data="categories" v-loading="loading" style="width: 100%">
             <el-table-column type="index" label="序号" width="60" />
             <el-table-column label="分类名称" min-width="150">
@@ -31,15 +43,27 @@
                 <el-tag type="info">{{ row.productCount }} 个</el-tag>
               </template>
             </el-table-column>
+            <el-table-column label="状态分布" min-width="200">
+              <template #default="{ row }">
+                <div class="status-distribution">
+                  <el-tag type="success" size="small">正常: {{ row.stats?.normal || 0 }}</el-tag>
+                  <el-tag type="warning" size="small">预警: {{ row.stats?.warning || 0 }}</el-tag>
+                  <el-tag type="danger" size="small">过期: {{ row.stats?.expired || 0 }}</el-tag>
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column label="创建时间" width="160">
               <template #default="{ row }">
                 {{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm') }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
+            <el-table-column label="操作" width="250" fixed="right">
               <template #default="{ row }">
                 <el-button type="primary" size="small" @click="showEditDialog(row)">
                   <el-icon><Edit /></el-icon>
+                </el-button>
+                <el-button type="info" size="small" @click="viewProducts(row)" title="查看商品">
+                  <el-icon><View /></el-icon>
                 </el-button>
                 <el-button type="danger" size="small" @click="handleDelete(row)" :disabled="row.productCount > 0">
                   <el-icon><Delete /></el-icon>
@@ -89,23 +113,83 @@
         <el-button type="primary" @click="handleSubmit" :loading="submitting">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 查看分类商品对话框 -->
+    <el-dialog
+      v-model="categoryProductsVisible"
+      :title="`${currentCategory?.name || '分类'} 的商品列表`"
+      width="800px"
+    >
+      <el-form :inline="true" :model="categorySearch" class="search-form">
+        <el-form-item label="状态筛选">
+          <el-select v-model="categorySearch.status" placeholder="全部状态" clearable style="width: 120px;">
+            <el-option label="全部" value="" />
+            <el-option label="正常" value="NORMAL" />
+            <el-option label="即将过期" value="WARNING" />
+            <el-option label="已过期" value="EXPIRED" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="loadCategoryProducts">筛选</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-table :data="categoryProducts" v-loading="productsLoading" border>
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="name" label="商品名称" min-width="150" />
+        <el-table-column prop="expiryDate" label="过期日期" width="120">
+          <template #default="{ row }">
+            {{ dayjs(row.expiryDate).format('YYYY-MM-DD') }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="remainingDays" label="剩余天数" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.status)">
+              {{ row.remainingDays }}天
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag v-if="row.status === 'EXPIRED'" type="danger">已过期</el-tag>
+            <el-tag v-else-if="row.status === 'WARNING'" type="warning">即将过期</el-tag>
+            <el-tag v-else type="success">正常</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="reminderDays" label="提醒天数" width="100" />
+      </el-table>
+
+      <el-empty v-if="categoryProducts.length === 0" description="该分类下暂无商品" />
+
+      <template #footer>
+        <el-button @click="categoryProductsVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, View } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import { getCategories, createCategory, updateCategory, deleteCategory } from '@/api/category'
+import { getCategories, createCategory, updateCategory, deleteCategory, getCategoryDetail } from '@/api/category'
 
 const loading = ref(false)
+const productsLoading = ref(false)
 const submitting = ref(false)
 const dialogVisible = ref(false)
+const categoryProductsVisible = ref(false)
 const showColorPicker = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const categories = ref<any[]>([])
+const categoryProducts = ref<any[]>([])
+const currentCategory = ref<any>(null)
+
+const categorySearch = reactive({
+  status: ''
+})
 
 const form = ref({
   id: null,
@@ -136,16 +220,27 @@ const predefineColors = [
   '#9370DB'
 ]
 
+// 计算总统计
+const totalStats = computed(() => {
+  const totalProducts = categories.value.reduce((sum, cat) => sum + (cat.productCount || 0), 0)
+  const totalNormal = categories.value.reduce((sum, cat) => sum + (cat.stats?.normal || 0), 0)
+  const totalWarning = categories.value.reduce((sum, cat) => sum + (cat.stats?.warning || 0), 0)
+  const totalExpired = categories.value.reduce((sum, cat) => sum + (cat.stats?.expired || 0), 0)
+
+  return [
+    { label: '总商品数', value: totalProducts, color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+    { label: '正常商品', value: totalNormal, color: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
+    { label: '即将过期', value: totalWarning, color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+    { label: '已过期', value: totalExpired, color: 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)' }
+  ]
+})
+
 const loadCategories = async () => {
   loading.value = true
-  console.log('开始加载分类...')
   try {
     const res = await getCategories()
-    console.log('分类数据:', res)
     categories.value = res.data || []
-    console.log('分类列表:', categories.value)
   } catch (error: any) {
-    console.error('获取分类失败:', error)
     ElMessage.error(error.response?.data?.message || '获取分类列表失败')
   } finally {
     loading.value = false
@@ -226,6 +321,43 @@ const handleDelete = async (row: any) => {
   }
 }
 
+// 查看分类商品
+const viewProducts = async (row: any) => {
+  currentCategory.value = row
+  categoryProducts.value = []
+  categorySearch.status = ''
+  categoryProductsVisible.value = true
+  await loadCategoryProducts()
+}
+
+// 加载分类商品
+const loadCategoryProducts = async () => {
+  if (!currentCategory.value) return
+  
+  productsLoading.value = true
+  try {
+    const res = await getCategoryDetail(currentCategory.value.id)
+    let products = res.data?.products || []
+    
+    // 筛选状态
+    if (categorySearch.status) {
+      products = products.filter((p: any) => p.status === categorySearch.status)
+    }
+    
+    categoryProducts.value = products
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '获取商品列表失败')
+  } finally {
+    productsLoading.value = false
+  }
+}
+
+const getStatusType = (status: string) => {
+  if (status === 'EXPIRED') return 'danger'
+  if (status === 'WARNING') return 'warning'
+  return 'success'
+}
+
 onMounted(() => {
   loadCategories()
 })
@@ -250,6 +382,35 @@ onMounted(() => {
   font-size: 16px;
 }
 
+// 统计概览
+.stats-overview {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+}
+
 .category-name {
   display: flex;
   align-items: center;
@@ -260,6 +421,12 @@ onMounted(() => {
     height: 16px;
     border-radius: 4px;
   }
+}
+
+.status-distribution {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .color-picker-wrapper {
@@ -300,9 +467,29 @@ onMounted(() => {
   }
 }
 
+.search-form {
+  margin-bottom: 16px;
+}
+
 @media (max-width: 576px) {
   .category-manage {
     padding: 12px;
+  }
+  
+  .stat-card {
+    margin-bottom: 12px;
+    
+    .stat-value {
+      font-size: 20px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+    }
+  }
+  
+  .status-distribution {
+    gap: 4px;
   }
 }
 </style>

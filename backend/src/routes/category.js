@@ -16,6 +16,9 @@ router.get('/', categoryController.getCategories.bind(categoryController));
 // 获取默认分类
 router.get('/defaults', categoryController.getDefaultCategories.bind(categoryController));
 
+// 获取分类详情（带商品列表）
+router.get('/:id/detail', categoryController.getCategoryDetail.bind(categoryController));
+
 // 创建分类
 router.post('/', [
   body('name').notEmpty().withMessage('分类名称不能为空').trim(),

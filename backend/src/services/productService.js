@@ -112,50 +112,7 @@ export class ProductService {
       if (endDate) where.productionDate.lte = new Date(endDate);
     }
   
-    // 状态筛选 - 使用数据库查询优化
-    if (status) {
-      const statusArray = status.split(',').map(s => s.trim().toUpperCase());
-      
-      // 验证状态值
-      const validStatuses = ['NORMAL', 'WARNING', 'EXPIRED'];
-      const filteredStatuses = statusArray.filter(s => validStatuses.includes(s));
-      
-      if (filteredStatuses.length > 0) {
-        where.status = { in: filteredStatuses };
-      }
-      
-      // 如果有状态筛选，先计算总数再分页
-      const includeUser = userRole === 'SUPER_ADMIN' ? {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            role: true
-          }
-        }
-      } : {};
-      
-      const [products, total] = await Promise.all([
-        prisma.product.findMany({
-          where,
-          skip,
-          take: pageSizeNum,
-          orderBy: { createdAt: 'desc' },
-          include: includeUser
-        }),
-        prisma.product.count({ where })
-      ]);
-  
-      return {
-        products: products.map(p => this.formatProduct(p, userRole)),
-        total,
-        page: pageNum,
-        pageSize: pageSizeNum,
-        totalPages: Math.ceil(total / pageSizeNum)
-      };
-    }
-  
-    // 无状态筛选的标准查询
+    // 状态筛选 - 由于状态需要实时计算，改为内存筛选
     const includeUser = userRole === 'SUPER_ADMIN' ? {
       user: {
         select: {
@@ -165,20 +122,36 @@ export class ProductService {
         }
       }
     } : {};
-  
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        skip,
-        take: pageSizeNum,
-        orderBy: { createdAt: 'desc' },
-        include: includeUser
-      }),
-      prisma.product.count({ where })
-    ]);
-  
+
+    // 先获取所有符合条件的商品
+    const allProducts = await prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: includeUser
+    });
+
+    // 格式化并计算状态
+    let formattedProducts = allProducts.map(p => this.formatProduct(p, userRole));
+
+    // 如果有状态筛选，在内存中过滤
+    if (status) {
+      const statusArray = status.split(',').map(s => s.trim().toUpperCase());
+      const validStatuses = ['NORMAL', 'WARNING', 'EXPIRED'];
+      const filteredStatuses = statusArray.filter(s => validStatuses.includes(s));
+      
+      if (filteredStatuses.length > 0) {
+        formattedProducts = formattedProducts.filter(p => filteredStatuses.includes(p.status));
+      }
+    }
+
+    // 计算总数
+    const total = formattedProducts.length;
+
+    // 分页
+    const paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
+
     return {
-      products: products.map(p => this.formatProduct(p, userRole)),
+      products: paginatedProducts,
       total,
       page: pageNum,
       pageSize: pageSizeNum,
@@ -425,77 +398,125 @@ export class ProductService {
       where.userId = userId;
     }
     
-    // 使用数据库聚合查询替代内存计算
-    const [total, statusCounts, todayAdded] = await Promise.all([
-      // 总数
-      prisma.product.count({ where }),
+    // 获取所有商品并实时计算状态
+    const allProducts = await prisma.product.findMany({
+      where,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // 实时计算状态统计
+    const today = dayjs().startOf('day');
+    let normalCount = 0;
+    let warningCount = 0;
+    let expiredCount = 0;
+
+    const formattedProducts = allProducts.map(product => {
+      let expiryDate = product.expiryDate;
+      if (!expiryDate) {
+        expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
+      }
       
-      // 状态分布（使用 groupBy）
-      prisma.product.groupBy({
-        by: ['status'],
-        where,
-        _count: true
-      }),
+      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      let status;
+      if (remainingDays <= 0) {
+        status = 'EXPIRED';
+        expiredCount++;
+      } else if (remainingDays <= product.reminderDays) {
+        status = 'WARNING';
+        warningCount++;
+      } else {
+        status = 'NORMAL';
+        normalCount++;
+      }
       
-      // 今日新增
-      prisma.product.count({
-        where: {
-          ...where,
-          createdAt: {
-            gte: dayjs().startOf('day').toDate(),
-            lt: dayjs().endOf('day').toDate()
-          }
+      return { ...product, status, remainingDays, expiryDate };
+    });
+
+    // 今日新增
+    const todayAdded = await prisma.product.count({
+      where: {
+        ...where,
+        createdAt: {
+          gte: dayjs().startOf('day').toDate(),
+          lt: dayjs().endOf('day').toDate()
         }
-      })
-    ]);
+      }
+    });
 
     // 格式化状态统计
     const stats = {
-      total,
-      normal: 0,
-      warning: 0,
-      expired: 0,
+      total: allProducts.length,
+      normal: normalCount,
+      warning: warningCount,
+      expired: expiredCount,
       todayAdded
     };
 
-    statusCounts.forEach(item => {
-      if (item.status === 'NORMAL') stats.normal = item._count;
-      else if (item.status === 'WARNING') stats.warning = item._count;
-      else if (item.status === 'EXPIRED') stats.expired = item._count;
-    });
-
     // 状态分布
     stats.statusDistribution = [
-      { name: '正常', value: stats.normal },
-      { name: '即将过期', value: stats.warning },
-      { name: '已过期', value: stats.expired }
+      { name: '正常', value: normalCount },
+      { name: '即将过期', value: warningCount },
+      { name: '已过期', value: expiredCount }
     ];
 
     // 月度新增趋势（最近6个月）
     stats.monthlyTrend = await this.getMonthlyTrend(where);
 
-    // 即将过期的商品列表（7天内）- 使用数据库查询
-    const sevenDaysLater = dayjs().add(7, 'day').toDate();
+    // 即将过期的商品列表（7天内）- 使用实时计算的状态
     const now = dayjs().toDate();
-    
-    const upcomingExpiry = await prisma.product.findMany({
-      where: {
-        ...where,
-        status: 'WARNING',
-        expiryDate: {
-          gt: now,
-          lte: sevenDaysLater
-        }
-      },
-      orderBy: {
-        expiryDate: 'asc'
-      },
-      take: 10
-    });
+    const upcomingExpiry = formattedProducts
+      .filter(p => p.status === 'WARNING' && dayjs(p.expiryDate).isAfter(now))
+      .sort((a, b) => dayjs(a.expiryDate).diff(dayjs(b.expiryDate)))
+      .slice(0, 10);
 
     stats.upcomingExpiry = upcomingExpiry.map(p => this.formatProduct(p));
 
     return stats;
+  }
+
+  /**
+   * 获取即将过期商品（用于导出）
+   * @param {number} userId - 用户ID
+   * @param {number} days - 天数（7天或30天）
+   */
+  async getExpiringProducts(userId, days = 7) {
+    const today = dayjs().startOf('day');
+    const endDate = today.add(days, 'day').toDate();
+    
+    const products = await prisma.product.findMany({
+      where: {
+        userId,
+        isDeleted: false,
+        expiryDate: {
+          lte: endDate
+        }
+      },
+      orderBy: { expiryDate: 'asc' }
+    });
+
+    return products.map(product => {
+      let expiryDate = product.expiryDate;
+      if (!expiryDate) {
+        expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
+      }
+      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      
+      let status;
+      if (remainingDays <= 0) {
+        status = 'EXPIRED';
+      } else if (remainingDays <= product.reminderDays) {
+        status = 'WARNING';
+      } else {
+        status = 'NORMAL';
+      }
+
+      return {
+        ...product,
+        expiryDate,
+        remainingDays,
+        status
+      };
+    });
   }
 
   /**
@@ -533,25 +554,26 @@ export class ProductService {
    * 格式化商品数据
    */
   formatProduct(product, userRole = 'USER') {
-    // 如果没有冗余字段（从旧数据迁移），动态计算
+    // 始终根据当前时间动态计算状态，确保显示准确
     let expiryDate = product.expiryDate;
-    let remainingDays;
-    let status = product.status;
     
+    // 如果没有冗余字段（从旧数据迁移），动态计算
     if (!expiryDate) {
       // 兼容旧数据
       expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
-      remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
-      
-      if (remainingDays <= 0) {
-        status = 'EXPIRED';
-      } else if (remainingDays <= product.reminderDays) {
-        status = 'WARNING';
-      } else {
-        status = 'NORMAL';
-      }
+    }
+    
+    // 计算剩余天数
+    const remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
+    
+    // 重新计算状态：根据当前时间判断
+    let status;
+    if (remainingDays <= 0) {
+      status = 'EXPIRED';
+    } else if (remainingDays <= product.reminderDays) {
+      status = 'WARNING';
     } else {
-      remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
+      status = 'NORMAL';
     }
 
     const result = {

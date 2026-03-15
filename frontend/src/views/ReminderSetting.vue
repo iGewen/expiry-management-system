@@ -14,7 +14,7 @@
             </div>
           </template>
 
-          <el-form :model="form" label-width="120px" :disabled="!form.enabled">
+          <el-form :model="form" label-width="120px">
             <el-form-item label="提醒状态">
               <el-tag :type="form.enabled ? 'success' : 'info'" effect="dark">
                 {{ form.enabled ? '已开启' : '已关闭' }}
@@ -101,10 +101,10 @@
           </template>
           <div class="info-content">
             <ul>
-              <li>系统会根据每个商品单独设置的 <strong>提醒天数</strong> 发送提醒</li>
-              <li>在商品管理页面可以为每个商品设置不同的提醒提前天数</li>
+              <li>系统会在商品<strong>剩余天数等于提醒天数</strong>时发送提醒（只提醒一次）</li>
+              <li>例如：设置提醒天数为7天，则会在过期前第7天发送提醒</li>
+              <li>在商品管理页面可以为每个商品设置不同的提醒天数</li>
               <li>短信提醒使用阿里云服务，需要在阿里云控制台申请模板</li>
-              <li>每天定时检查，过期商品不再发送提醒</li>
               <li>所有用户均可使用短信提醒功能，只需填写手机号并开启提醒</li>
             </ul>
           </div>
@@ -248,6 +248,12 @@ const form = ref({
   remindByEmail: false
 })
 
+// 保存已加载的设置（用于发送测试时检查）
+const savedSetting = ref({
+  phones: [] as string[],
+  enabled: true
+})
+
 const saving = ref(false)
 const upcomingProducts = ref<any[]>([])
 const upcomingProductsLoading = ref(false)
@@ -280,6 +286,12 @@ const loadSetting = async () => {
       form.value.phones = res.data.phones?.length > 0 ? res.data.phones : ['']
       form.value.remindBySms = res.data.remindBySms ?? true
       form.value.remindByEmail = res.data.remindByEmail ?? false
+      
+      // 保存已加载的设置
+      savedSetting.value = {
+        phones: res.data.phones || [],
+        enabled: res.data.enabled ?? true
+      }
     }
   } catch (error: any) {
     ElMessage.error(error.response?.data?.message || '获取设置失败')
@@ -315,6 +327,11 @@ const handleSave = async () => {
     ElMessage.success('设置保存成功')
     // 更新表单中的phones为有效手机号
     form.value.phones = validPhones.length > 0 ? validPhones : ['']
+    // 更新已保存的设置
+    savedSetting.value = {
+      phones: validPhones,
+      enabled: form.value.enabled
+    }
   } catch (error: any) {
     ElMessage.error(error.response?.data?.message || '保存失败')
   } finally {
@@ -323,10 +340,9 @@ const handleSave = async () => {
 }
 
 const handleTest = async () => {
-  // 验证手机号
-  const validPhones = form.value.phones.filter(p => p.trim() !== '')
-  if (validPhones.length === 0) {
-    ElMessage.warning('请先填写手机号')
+  // 检查是否已保存手机号（使用数据库中已保存的设置）
+  if (savedSetting.value.phones.length === 0) {
+    ElMessage.warning('请先填写手机号并保存设置')
     return
   }
   
@@ -338,7 +354,7 @@ const handleTest = async () => {
       const reasonMap: Record<string, string> = {
         no_products: '没有需要提醒的商品',
         reminder_disabled: '提醒已关闭',
-        no_phones: '未配置提醒手机号'
+        no_phones: '未配置提醒手机号，请先保存设置'
       }
       ElMessage.info(reasonMap[res.data?.reason] || '无需发送')
     }

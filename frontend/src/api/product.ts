@@ -32,6 +32,15 @@ export const productApi = {
     return request.post<ApiResponse>('/products/batch/delete', { ids })
   },
 
+  // 批量更新
+  batchUpdate(data: {
+    ids: number[]
+    categoryId?: number | null
+    reminderDays?: number
+  }) {
+    return request.post<ApiResponse>('/products/batch/update', data)
+  },
+
   // 批量导入
   batchImport(file: File) {
     const formData = new FormData()
@@ -50,6 +59,14 @@ export const productApi = {
     })
   },
 
+  // 导出即将过期商品
+  exportExpiring(days: number) {
+    return request.get(`/products/export/expiring`, {
+      params: { days },
+      responseType: 'blob'
+    })
+  },
+
   // 获取统计数据
   getStatistics() {
     return request.get<ApiResponse<Statistics>>('/products/stats')
@@ -63,6 +80,8 @@ export const createProduct = (data: ProductForm) => productApi.create(data).then
 export const updateProduct = (id: number, data: ProductForm) => productApi.update(id, data).then(res => res.data)
 export const deleteProduct = (id: number) => productApi.delete(id).then(res => res.data)
 export const batchDeleteProducts = (ids: number[]) => productApi.batchDelete(ids).then(res => res.data)
+export const batchUpdateProducts = (data: { ids: number[], categoryId?: number | null, reminderDays?: number }) => productApi.batchUpdate(data).then(res => res.data)
 export const getProductStats = () => productApi.getStatistics().then(res => res.data)
 export const importProducts = (file: File) => productApi.batchImport(file).then(res => res.data)
 export const exportProducts = (params?: any) => productApi.getList(params).then(res => res.data?.products || [])
+export const exportExpiringProducts = (days: number) => productApi.exportExpiring(days).then(res => res)

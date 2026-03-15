@@ -11,16 +11,15 @@ export const logAction = async (req, res, next) => {
       const action = getActionType(req);
       const ipAddress = req.ip || req.connection.remoteAddress;
       const userAgent = req.get('user-agent');
+      
+      // 构建详细的日志内容
+      const logDetails = buildLogDetails(req, data);
 
       prisma.log.create({
         data: {
           userId: req.user.id,
           action,
-          details: JSON.stringify({
-            method: req.method,
-            path: req.path,
-            body: sanitizeBody(req.body)
-          }),
+          details: JSON.stringify(logDetails),
           ipAddress,
           userAgent
         }
@@ -34,6 +33,65 @@ export const logAction = async (req, res, next) => {
 
   next();
 };
+
+function buildLogDetails(req, responseData) {
+  const details = {
+    method: req.method,
+    path: req.path
+  };
+  
+  // 根据不同的操作类型记录不同的详情
+  if (req.method === 'POST') {
+    // 创建操作
+    if (req.path.includes('/products')) {
+      details.message = `创建商品: ${req.body?.name || '未知'}`;
+      details.created = req.body;
+    } else if (req.path.includes('/categories')) {
+      details.message = `创建分类: ${req.body?.name || '未知'}`;
+      details.created = req.body;
+    }
+  } else if (req.method === 'PUT') {
+    // 更新操作 - 记录修改的字段
+    const updateDetails = {};
+    const body = req.body;
+    
+    if (req.path.includes('/products')) {
+      if (body.name) updateDetails.name = body.name;
+      if (body.categoryId !== undefined) updateDetails.categoryId = body.categoryId;
+      if (body.reminderDays !== undefined) updateDetails.reminderDays = body.reminderDays;
+      if (body.shelfLife !== undefined) updateDetails.shelfLife = body.shelfLife;
+      if (body.productionDate) updateDetails.productionDate = body.productionDate;
+      
+      details.message = `更新商品 ID: ${req.params?.id}`;
+      details.updates = updateDetails;
+    } else if (req.path.includes('/categories')) {
+      if (body.name) updateDetails.name = body.name;
+      if (body.color) updateDetails.color = body.color;
+      
+      details.message = `更新分类 ID: ${req.params?.id}`;
+      details.updates = updateDetails;
+    } else if (req.path.includes('/users')) {
+      details.message = `更新用户 ID: ${req.params?.id}`;
+      details.updates = body;
+    }
+  } else if (req.method === 'DELETE') {
+    // 删除操作
+    if (req.path.includes('/products')) {
+      details.message = `删除商品 ID: ${req.params?.id}`;
+    } else if (req.path.includes('/categories')) {
+      details.message = `删除分类 ID: ${req.params?.id}`;
+    } else if (req.path.includes('/users')) {
+      details.message = `删除用户 ID: ${req.params?.id}`;
+    }
+  }
+  
+  // 添加响应信息
+  if (responseData?.message) {
+    details.responseMessage = responseData.message;
+  }
+  
+  return details;
+}
 
 function getActionType(req) {
   const { method, path } = req;

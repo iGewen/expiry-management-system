@@ -66,7 +66,8 @@ class ReminderService {
   }
 
   /**
-   * 获取需要提醒的商品 - 根据每个商品的 reminderDays 判断
+   * 获取需要提醒的商品 - 只获取今天刚进入提醒范围的商品
+   * 即：剩余天数 = 设置的提醒天数（只提醒一次）
    */
   async getProductsToRemind(userId) {
     const today = startOfDay(new Date());
@@ -85,13 +86,14 @@ class ReminderService {
       orderBy: { expiryDate: 'asc' }
     });
 
-    // 根据每个商品自己的 reminderDays 筛选出需要提醒的
+    // 只获取今天刚进入提醒范围的商品（剩余天数 = reminderDays）
+    // 即：expiryDate - today = reminderDays
     const productsToRemind = products.filter(product => {
       const expiryDate = startOfDay(new Date(product.expiryDate));
-      const remindBeforeDate = addDays(today, product.reminderDays);
+      const daysLeft = differenceInDays(expiryDate, today);
       
-      // 如果过期日期在提醒日期之前（包含等于），则需要提醒
-      return expiryDate <= remindBeforeDate;
+      // 只提醒今天刚进入范围的商品（剩余天数等于提醒天数）
+      return daysLeft === product.reminderDays;
     });
 
     return productsToRemind;
@@ -129,7 +131,7 @@ class ReminderService {
   }
 
   /**
-   * 发送提醒 - 根据每个商品自己的 reminderDays，发送到配置的手机号列表
+   * 发送提醒 - 统计商品数量，批量发送一条短信
    */
   async sendReminder(userId) {
     const setting = await this.getReminderSetting(userId);
@@ -159,22 +161,16 @@ class ReminderService {
 
     // 发送短信提醒到所有配置的手机号
     if (setting.remindBySms && smsService.isEnabled()) {
-      for (const product of products) {
+      // 统计商品数量
+      const productCount = products.length;
+      
+      // 发送到所有配置的手机号
+      for (const phone of phones) {
         try {
-          const daysLeft = differenceInDays(
-            startOfDay(new Date(product.expiryDate)),
-            today
-          );
+          const result = await smsService.sendExpiryReminder(phone, productCount);
 
-          // 发送到所有配置的手机号
-          for (const phone of phones) {
-            const result = await smsService.sendExpiryReminder(
-              phone,
-              product.name,
-              daysLeft
-            );
-
-            // 记录提醒日志
+          // 记录提醒日志（记录本次提醒的商品列表）
+          for (const product of products) {
             await prisma.reminderLog.create({
               data: {
                 userId,
@@ -186,24 +182,28 @@ class ReminderService {
                 errorMsg: result.error
               }
             });
-
-            results.push({ 
-              productId: product.id, 
-              phone, 
-              success: result.success, 
-              daysLeft 
-            });
           }
+
+          results.push({ 
+            phone, 
+            success: result.success, 
+            productCount 
+          });
         } catch (error) {
-          logger.error(`Failed to send reminder for product ${product.id}:`, error);
-          results.push({ productId: product.id, success: false, error: error.message });
+          logger.error(`Failed to send reminder to ${phone}:`, error);
+          results.push({ phone, success: false, error: error.message });
         }
       }
     }
 
     const successCount = results.filter(r => r.success).length;
-    logger.info(`Reminder sent to user ${userId}: ${successCount}/${results.length} messages`);
-    return { sent: true, results, totalProducts: products.length, totalMessages: results.length };
+    logger.info(`Reminder sent to user ${userId}: ${successCount}/${phones.length} phones, ${products.length} products`);
+    return { 
+      sent: true, 
+      results, 
+      totalProducts: products.length, 
+      totalMessages: successCount 
+    };
   }
 
   /**
