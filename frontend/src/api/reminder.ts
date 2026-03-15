@@ -10,6 +10,8 @@ export function updateReminderSetting(data: {
   phones?: string[]
   remindBySms?: boolean
   remindByEmail?: boolean
+  feishuEnabled?: boolean
+  feishuWebhook?: string
 }) {
   return request.put('/reminders/setting', data)
 }
@@ -24,4 +26,8 @@ export function getReminderLogs(params?: { page?: number; pageSize?: number }) {
 
 export function getUpcomingProducts() {
   return request.get('/reminders/upcoming')
+}
+
+export function testFeishuWebhook(webhookUrl: string) {
+  return request.post('/reminders/test-feishu', { webhookUrl })
 }

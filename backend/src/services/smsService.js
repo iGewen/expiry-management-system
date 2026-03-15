@@ -70,7 +70,8 @@ export class SmsService {
       if (config.env === 'development') {
         const mockCode = '123456';
         await this.storeCode(phone, mockCode, purpose);
-        logger.info(`[DEV] Mock SMS code sent to ${phone}: ${mockCode}`);
+        // 开发环境可以记录模拟验证码
+        logger.info(`[DEV] Mock SMS code sent to ${phone.slice(0, 3)}****${phone.slice(-4)}`);
         return {
           success: true,
           message: '验证码已发送（开发模式使用模拟验证码 123456）',
@@ -123,7 +124,7 @@ export class SmsService {
         // 记录最后发送时间（60秒过期）
         await store.set(lastSentKey, Date.now(), 60);
 
-        logger.info(`SMS code sent to ${phone}`);
+        logger.info(`SMS code sent to ${phone.slice(0, 3)}****${phone.slice(-4)}`);
         
         return {
           success: true,
@@ -170,9 +171,11 @@ export class SmsService {
       };
     }
 
-    // 检查尝试次数（最多3次）
-    if (record.attempts >= 3) {
+    // 检查尝试次数（最多5次，从配置读取）
+    const maxAttempts = config.security.smsCodeMaxAttempts || 5;
+    if (record.attempts >= maxAttempts) {
       await store.del(key);
+      logger.warn(`SMS code exceeded max attempts for phone: ${phone.slice(0, 3)}****${phone.slice(-4)}, purpose: ${purpose}`);
       return {
         valid: false,
         message: '验证失败次数过多，请重新获取验证码'
@@ -186,9 +189,10 @@ export class SmsService {
       const ttlSeconds = config.security.smsCodeExpireMinutes * 60;
       await store.set(key, record, ttlSeconds);
       
+      const remainingAttempts = maxAttempts - record.attempts;
       return {
         valid: false,
-        message: '验证码错误'
+        message: remainingAttempts > 0 ? `验证码错误，还可尝试 ${remainingAttempts} 次` : '验证码错误，请重新获取'
       };
     }
 
@@ -197,6 +201,9 @@ export class SmsService {
     
     return {
       valid: true,
+      message: '验证成功'
+    };
+  }
       message: '验证成功'
     };
   }
@@ -231,7 +238,7 @@ export class SmsService {
       const result = await this.client.request('SendSms', params, { method: 'POST' });
       
       if (result.Code === 'OK') {
-        logger.info(`Custom SMS sent to ${phone}`);
+        logger.info(`Custom SMS sent to ${phone.slice(0, 3)}****${phone.slice(-4)}`);
         return { success: true };
       } else {
         logger.error(`Failed to send custom SMS: ${result.Message}`);
@@ -274,7 +281,7 @@ export class SmsService {
       const result = await this.client.request('SendSms', params, { method: 'POST' });
       
       if (result.Code === 'OK') {
-        logger.info(`Expiry reminder SMS sent to ${phone}: ${productCount} products`);
+        logger.info(`Expiry reminder SMS sent to ${phone.slice(0, 3)}****${phone.slice(-4)}: ${productCount} products`);
         return { success: true };
       } else {
         logger.error(`Failed to send expiry reminder SMS: ${result.Message}`);

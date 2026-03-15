@@ -4,6 +4,7 @@ import logger from '../utils/logger.js';
 
 let redis = null;
 let isConnected = false;
+let cleanupInterval = null;
 
 /**
  * 初始化 Redis 连接
@@ -40,6 +41,9 @@ export function initRedis() {
       logger.warn('Redis connection closed');
     });
 
+    // 启动内存存储清理定时器
+    cleanupInterval = setInterval(() => store.cleanupExpired(), 60000);
+
     return redis;
   } catch (error) {
     logger.error('Failed to initialize Redis:', error);
@@ -65,6 +69,12 @@ export function isRedisAvailable() {
  * 关闭 Redis 连接
  */
 export async function closeRedis() {
+  // 清理定时器
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval);
+    cleanupInterval = null;
+  }
+  
   if (redis) {
     await redis.quit();
     redis = null;
@@ -146,8 +156,5 @@ export const store = {
     }
   }
 };
-
-// 定期清理内存存储
-setInterval(() => store.cleanupExpired(), 60000);
 
 export default { initRedis, getRedis, isRedisAvailable, closeRedis, store };

@@ -30,6 +30,7 @@ interface RequestConfig extends AxiosRequestConfig {
 class HttpClient {
   private instance: AxiosInstance
   private refreshPromise: Promise<void> | null = null
+  private isRefreshing = false
 
   constructor() {
     this.instance = axios.create({
@@ -76,14 +77,17 @@ class HttpClient {
 
         // 处理 401 - Token 过期
         if (status === 401 && data?.code === 'AUTH_TOKEN_EXPIRED') {
-          // 尝试刷新 Token
-          if (!this.refreshPromise) {
-            this.refreshPromise = this.refreshToken()
+          // 尝试刷新 Token（防止并发刷新）
+          if (!this.isRefreshing) {
+            this.isRefreshing = true
+            this.refreshPromise = this.refreshToken().finally(() => {
+              this.isRefreshing = false
+              this.refreshPromise = null
+            })
           }
 
           try {
             await this.refreshPromise
-            this.refreshPromise = null
             
             // 重试原请求
             const token = localStorage.getItem('token')
@@ -92,7 +96,6 @@ class HttpClient {
             }
             return this.instance.request(config)
           } catch (refreshError) {
-            this.refreshPromise = null
             this.handleLogout()
             return Promise.reject(refreshError)
           }

@@ -277,7 +277,7 @@ import {
   ChatDotRound
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import { getReminderSetting, updateReminderSetting, triggerReminder, getReminderLogs, getUpcomingProducts } from '@/api/reminder'
+import { getReminderSetting, updateReminderSetting, triggerReminder, getReminderLogs, getUpcomingProducts, testFeishuWebhook as testFeishuWebhookAPI } from '@/api/reminder'
 
 const form = ref({
   enabled: true,
@@ -420,9 +420,7 @@ const testFeishuWebhook = async () => {
   
   testingFeishu.value = true
   try {
-    const res = await request.post('/reminders/test-feishu', {
-      webhookUrl: form.value.feishuWebhook
-    })
+    const res = await testFeishuWebhookAPI(form.value.feishuWebhook)
     if (res.success) {
       ElMessage.success(res.message || '飞书连接测试成功')
     } else {
@@ -434,8 +432,6 @@ const testFeishuWebhook = async () => {
     testingFeishu.value = false
   }
 }
-
-import request from '@/utils/request'
 
 const loadUpcoming = async () => {
   upcomingProductsLoading.value = true

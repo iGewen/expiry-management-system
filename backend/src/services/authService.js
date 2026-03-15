@@ -10,7 +10,8 @@ import categoryService from './categoryService.js';
 // 登录失败计数器键前缀
 const LOGIN_FAIL_PREFIX = 'login:fail:';
 const LOGIN_LOCK_PREFIX = 'login:lock:';
-const LOCKOUT_DURATION = 30 * 60; // 30分钟锁定
+// 从配置读取锁定时长（分钟转秒）
+const LOCKOUT_DURATION = (config.security.lockoutMinutes || 30) * 60;
 
 export class AuthService {
   /**
@@ -171,13 +172,20 @@ export class AuthService {
       where: { username }
     });
 
+    // 统一错误响应，防止用户枚举
+    const authError = () => {
+      throw new Error('用户名或密码错误');
+    };
+
     if (!user) {
       await this.recordLoginFailure(username);
-      throw new Error('用户名或密码错误');
+      authError();
     }
 
     if (!user.isActive) {
-      throw new Error('账号已禁用，请联系管理员');
+      // 同样记录失败次数，但返回统一错误
+      await this.recordLoginFailure(username);
+      authError();
     }
 
     // 验证密码

@@ -140,7 +140,8 @@ export const config = {
     maxLoginAttempts: 5, // 最大登录尝试次数
     lockoutMinutes: 30, // 锁定时间
     smsCodeExpireMinutes: 5, // 验证码有效期 5 分钟
-    smsCodeLength: 6 // 验证码长度
+    smsCodeLength: 6, // 验证码长度
+    smsCodeMaxAttempts: 5 // 验证码验证最大尝试次数
   },
   
   // Redis 配置
