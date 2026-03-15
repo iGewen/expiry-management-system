@@ -7,7 +7,7 @@ export function getReminderSetting() {
 export function updateReminderSetting(data: {
   enabled?: boolean
   reminderTime?: string
-  advanceDays?: number
+  phones?: string[]
   remindBySms?: boolean
   remindByEmail?: boolean
 }) {

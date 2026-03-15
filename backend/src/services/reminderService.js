@@ -1,7 +1,7 @@
 import prisma from '../config/database.js';
 import smsService from './smsService.js';
 import logger from '../utils/logger.js';
-import { subDays, format, isAfter, isBefore, startOfDay, addDays } from 'date-fns';
+import { startOfDay, addDays, differenceInDays } from 'date-fns';
 
 class ReminderService {
   /**
@@ -19,19 +19,33 @@ class ReminderService {
       });
     }
 
-    return setting;
+    // 解析 phones JSON
+    let phones = [];
+    try {
+      phones = JSON.parse(setting.phones || '[]');
+    } catch (e) {
+      phones = [];
+    }
+
+    return {
+      ...setting,
+      phones
+    };
   }
 
   /**
    * 更新提醒设置
    */
   async updateReminderSetting(userId, data) {
+    // 将 phones 数组转为 JSON 字符串存储
+    const phonesJson = JSON.stringify(data.phones || []);
+    
     const setting = await prisma.reminderSetting.upsert({
       where: { userId },
       update: {
         enabled: data.enabled,
         reminderTime: data.reminderTime,
-        advanceDays: data.advanceDays,
+        phones: phonesJson,
         remindBySms: data.remindBySms,
         remindByEmail: data.remindByEmail
       },
@@ -39,95 +53,147 @@ class ReminderService {
         userId,
         enabled: data.enabled ?? true,
         reminderTime: data.reminderTime || '09:00',
-        advanceDays: data.advanceDays || 3,
+        phones: phonesJson,
         remindBySms: data.remindBySms ?? true,
         remindByEmail: data.remindByEmail ?? false
       }
     });
 
-    return setting;
+    return {
+      ...setting,
+      phones: data.phones || []
+    };
   }
 
   /**
-   * 获取需要提醒的商品
+   * 获取需要提醒的商品 - 根据每个商品的 reminderDays 判断
    */
-  async getProductsToRemind(userId, advanceDays) {
+  async getProductsToRemind(userId) {
     const today = startOfDay(new Date());
-    const remindBeforeDate = addDays(today, advanceDays);
-
+    
+    // 获取所有未删除、未过期或即将过期的商品
     const products = await prisma.product.findMany({
       where: {
         userId,
         isDeleted: false,
         status: { in: ['NORMAL', 'WARNING'] },
         expiryDate: {
-          gte: today,
-          lte: remindBeforeDate
-        }
+          gte: today
+        },
+        reminderDays: { gt: 0 }  // 只获取设置了提醒天数的商品
       },
       orderBy: { expiryDate: 'asc' }
     });
 
-    return products;
+    // 根据每个商品自己的 reminderDays 筛选出需要提醒的
+    const productsToRemind = products.filter(product => {
+      const expiryDate = startOfDay(new Date(product.expiryDate));
+      const remindBeforeDate = addDays(today, product.reminderDays);
+      
+      // 如果过期日期在提醒日期之前（包含等于），则需要提醒
+      return expiryDate <= remindBeforeDate;
+    });
+
+    return productsToRemind;
   }
 
   /**
-   * 发送提醒
+   * 获取即将过期的商品预览（用于前端展示）
+   */
+  async getUpcomingProducts(userId) {
+    const today = startOfDay(new Date());
+    
+    const products = await prisma.product.findMany({
+      where: {
+        userId,
+        isDeleted: false,
+        status: { in: ['NORMAL', 'WARNING'] },
+        expiryDate: {
+          gte: today
+        }
+      },
+      orderBy: { expiryDate: 'asc' },
+      take: 50  // 最多显示50个
+    });
+
+    return products.map(product => {
+      const daysLeft = differenceInDays(
+        startOfDay(new Date(product.expiryDate)),
+        today
+      );
+      return {
+        ...product,
+        remainingDays: daysLeft
+      };
+    });
+  }
+
+  /**
+   * 发送提醒 - 根据每个商品自己的 reminderDays，发送到配置的手机号列表
    */
   async sendReminder(userId) {
     const setting = await this.getReminderSetting(userId);
 
+    // 检查是否启用提醒
     if (!setting.enabled) {
       logger.info(`Reminder disabled for user ${userId}`);
       return { sent: false, reason: 'reminder_disabled' };
     }
 
-    const products = await this.getProductsToRemind(userId, setting.advanceDays);
+    // 检查是否配置了手机号
+    const phones = setting.phones || [];
+    if (phones.length === 0) {
+      logger.info(`No reminder phones configured for user ${userId}`);
+      return { sent: false, reason: 'no_phones' };
+    }
+
+    const products = await this.getProductsToRemind(userId);
 
     if (products.length === 0) {
       logger.info(`No products to remind for user ${userId}`);
       return { sent: false, reason: 'no_products' };
     }
 
-    // 获取用户信息
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user || !user.phone) {
-      logger.warn(`User ${userId} has no phone number`);
-      return { sent: false, reason: 'no_phone' };
-    }
-
     const results = [];
+    const today = startOfDay(new Date());
 
-    // 发送短信提醒
+    // 发送短信提醒到所有配置的手机号
     if (setting.remindBySms && smsService.isEnabled()) {
       for (const product of products) {
         try {
-          const daysLeft = Math.ceil(
-            (new Date(product.expiryDate) - new Date()) / (1000 * 60 * 60 * 24)
+          const daysLeft = differenceInDays(
+            startOfDay(new Date(product.expiryDate)),
+            today
           );
 
-          const message = `【过期提醒】您有商品"${product.name}"将在${daysLeft}天后过期（${format(new Date(product.expiryDate), 'yyyy-MM-dd')}），请及时处理。`;
+          // 发送到所有配置的手机号
+          for (const phone of phones) {
+            const result = await smsService.sendExpiryReminder(
+              phone,
+              product.name,
+              daysLeft
+            );
 
-          // 使用提醒专用模板（如果没有，使用重置密码模板）
-          const result = await smsService.sendCustomMessage(user.phone, message);
+            // 记录提醒日志
+            await prisma.reminderLog.create({
+              data: {
+                userId,
+                productId: product.id,
+                productName: product.name,
+                expiryDate: product.expiryDate,
+                channel: 'sms',
+                status: result.success ? 'success' : 'failed',
+                errorMsg: result.error
+              }
+            });
 
-          // 记录提醒日志
-          await prisma.reminderLog.create({
-            data: {
-              userId,
-              productId: product.id,
-              productName: product.name,
-              expiryDate: product.expiryDate,
-              channel: 'sms',
-              status: result.success ? 'success' : 'failed',
-              errorMsg: result.error
-            }
-          });
-
-          results.push({ productId: product.id, success: result.success });
+            results.push({ 
+              productId: product.id, 
+              phone, 
+              success: result.success, 
+              daysLeft 
+            });
+          }
         } catch (error) {
           logger.error(`Failed to send reminder for product ${product.id}:`, error);
           results.push({ productId: product.id, success: false, error: error.message });
@@ -135,8 +201,9 @@ class ReminderService {
       }
     }
 
-    logger.info(`Reminder sent to user ${userId}: ${results.filter(r => r.success).length}/${products.length} products`);
-    return { sent: true, results, totalProducts: products.length };
+    const successCount = results.filter(r => r.success).length;
+    logger.info(`Reminder sent to user ${userId}: ${successCount}/${results.length} messages`);
+    return { sent: true, results, totalProducts: products.length, totalMessages: results.length };
   }
 
   /**

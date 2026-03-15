@@ -46,18 +46,42 @@ class SchedulerService {
           data: { status: 'EXPIRED' }
         });
 
-        // 更新即将过期的商品（默认3天内）
-        const warning = await prisma.product.updateMany({
+        // 获取所有正常状态的商品，根据各自的 reminderDays 判断是否设置为 WARNING
+        const products = await prisma.product.findMany({
           where: {
             expiryDate: { gte: today },
             status: 'NORMAL',
             isDeleted: false,
             reminderDays: { gt: 0 }
           },
-          data: { status: 'WARNING' }
+          select: {
+            id: true,
+            expiryDate: true,
+            reminderDays: true
+          }
         });
 
-        logger.info(`Status update completed: ${expired.count} expired, ${warning.count} warning`);
+        // 筛选出需要标记为 WARNING 的商品（根据各自 reminderDays）
+        const warningIds = products.filter(p => {
+          const expiryDate = new Date(p.expiryDate);
+          expiryDate.setHours(0, 0, 0, 0);
+          const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+          return diffDays <= p.reminderDays;
+        }).map(p => p.id);
+
+        // 批量更新 WARNING 状态
+        let warningCount = 0;
+        if (warningIds.length > 0) {
+          const warningResult = await prisma.product.updateMany({
+            where: {
+              id: { in: warningIds }
+            },
+            data: { status: 'WARNING' }
+          });
+          warningCount = warningResult.count;
+        }
+
+        logger.info(`Status update completed: ${expired.count} expired, ${warningCount} warning`);
         await prisma.$disconnect();
       } catch (error) {
         logger.error('Scheduled status update job failed:', error);

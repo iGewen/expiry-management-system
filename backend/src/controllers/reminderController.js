@@ -29,12 +29,12 @@ class ReminderController {
   async updateSetting(req, res) {
     try {
       const userId = req.user.id;
-      const { enabled, reminderTime, advanceDays, remindBySms, remindByEmail } = req.body;
+      const { enabled, reminderTime, phones, remindBySms, remindByEmail } = req.body;
       
       const setting = await reminderService.updateReminderSetting(userId, {
         enabled,
         reminderTime,
-        advanceDays,
+        phones,
         remindBySms,
         remindByEmail
       });
@@ -104,8 +104,8 @@ class ReminderController {
   async getUpcomingProducts(req, res) {
     try {
       const userId = req.user.id;
-      const setting = await reminderService.getReminderSetting(userId);
-      const products = await reminderService.getProductsToRemind(userId, setting.advanceDays);
+      // 使用 getUpcomingProducts 获取即将过期的商品预览
+      const products = await reminderService.getUpcomingProducts(userId);
       
       res.json({
         success: true,

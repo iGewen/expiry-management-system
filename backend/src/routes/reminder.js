@@ -16,7 +16,8 @@ router.get('/setting', reminderController.getSetting.bind(reminderController));
 router.put('/setting', [
   body('enabled').optional().isBoolean().withMessage('enabled 必须是布尔值'),
   body('reminderTime').optional().matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('时间格式不正确，应为 HH:mm'),
-  body('advanceDays').optional().isInt({ min: 1, max: 30 }).withMessage('提前天数应在 1-30 之间'),
+  body('phones').optional().isArray().withMessage('phones 必须是数组'),
+  body('phones.*').optional().isMobilePhone('zh-CN').withMessage('手机号格式不正确'),
   body('remindBySms').optional().isBoolean().withMessage('remindBySms 必须是布尔值'),
   body('remindByEmail').optional().isBoolean().withMessage('remindByEmail 必须是布尔值'),
   handleValidationErrors

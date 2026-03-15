@@ -242,6 +242,51 @@ export class SmsService {
       return { success: false, error: error.message };
     }
   }
+
+  /**
+   * 发送过期提醒短信
+   * @param {string} phone - 手机号
+   * @param {string} productName - 商品名称
+   * @param {number} daysLeft - 剩余天数
+   */
+  async sendExpiryReminder(phone, productName, daysLeft) {
+    if (!this.isEnabled()) {
+      logger.warn('SMS service not enabled, cannot send expiry reminder');
+      return { success: false, error: 'SMS service not enabled' };
+    }
+
+    // 检查是否配置了过期提醒模板
+    if (!config.sms.reminderTemplateCode) {
+      logger.warn('Expiry reminder template not configured');
+      return { success: false, error: 'Reminder template not configured' };
+    }
+
+    try {
+      const params = {
+        RegionId: config.sms.region,
+        PhoneNumbers: phone,
+        SignName: config.sms.signName,
+        TemplateCode: config.sms.reminderTemplateCode,
+        TemplateParam: JSON.stringify({
+          product_name: productName,
+          days_left: daysLeft
+        })
+      };
+
+      const result = await this.client.request('SendSms', params, { method: 'POST' });
+      
+      if (result.Code === 'OK') {
+        logger.info(`Expiry reminder SMS sent to ${phone} for product "${productName}"`);
+        return { success: true };
+      } else {
+        logger.error(`Failed to send expiry reminder SMS: ${result.Message}`);
+        return { success: false, error: result.Message };
+      }
+    } catch (error) {
+      logger.error('Error sending expiry reminder SMS:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // 创建单例实例

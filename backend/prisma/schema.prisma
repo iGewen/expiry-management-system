@@ -97,7 +97,7 @@ model ReminderSetting {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   enabled         Boolean  @default(true) // 是否启用提醒
   reminderTime    String   @default("09:00") // 提醒时间，如 "09:00"
-  advanceDays     Int      @default(3) // 提前几天提醒
+  phones          String   @default("[]") // 提醒手机号列表，JSON数组格式，如 ["13800138000", "13900139000"]
   remindBySms     Boolean  @default(true) // 短信提醒
   remindByEmail   Boolean  @default(false) // 邮件提醒
   createdAt       DateTime @default(now())

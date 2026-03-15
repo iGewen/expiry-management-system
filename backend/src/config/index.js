@@ -45,6 +45,7 @@ function getSmsConfig() {
   const signName = process.env.ALIYUN_SMS_SIGN_NAME;
   const registerTemplateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE_REGISTER;
   const resetTemplateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE_RESET;
+  const reminderTemplateCode = process.env.ALIYUN_SMS_TEMPLATE_CODE_REMINDER;
   
   // 检查是否配置了短信服务（需要两个模板都配置）
   if (accessKeyId && accessKeySecret && signName && registerTemplateCode && resetTemplateCode) {
@@ -55,6 +56,7 @@ function getSmsConfig() {
       signName,
       registerTemplateCode,
       resetTemplateCode,
+      reminderTemplateCode,
       region: process.env.ALIYUN_SMS_REGION || 'cn-hangzhou'
     };
   }
