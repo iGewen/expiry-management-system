@@ -47,8 +47,7 @@ class FeishuService {
   /**
    * 发送富文本消息（带格式的卡片消息）
    * @param webhookUrl 飞书群机器人 webhook 地址
-   * @param title 消息标题
-   * @param products 商品列表
+   * @param products 商品列表 [{name, remainingDays, expiryDate, status}]
    * @returns {Promise<boolean>} 是否发送成功
    */
   async sendProductReminder(webhookUrl, products) {
@@ -60,13 +59,22 @@ class FeishuService {
     try {
       // 构建商品列表文本
       const productList = products.map((p, index) => {
-        const statusText = p.status === 'EXPIRED' ? '🔴 已过期' : 
-                          p.status === 'WARNING' ? '🟡 即将过期' : '🟢 正常';
-        const daysText = p.remainingDays <= 0 ? '已过期' : `剩余 ${p.remainingDays} 天`;
-        return `${index + 1}. ${p.name} - ${daysText} ${statusText}`;
-      }).join('\n');
+        const statusEmoji = p.remainingDays <= 0 ? '🔴' : '🟡';
+        const daysText = p.remainingDays <= 0 ? '已过期' : `还剩 ${p.remainingDays} 天`;
+        const expiryDateStr = new Date(p.expiryDate).toLocaleDateString('zh-CN', { 
+          month: '2-digit', 
+          day: '2-digit' 
+        });
+        return `${index + 1}. ${p.name}\n   📅 过期日期：${expiryDateStr}（${daysText}）${statusEmoji}`;
+      }).join('\n\n');
 
-      const content = `📦 商品过期提醒\n\n您有以下 ${products.length} 件商品需要注意：\n\n${productList}\n\n请及时处理，避免影响使用哦~`;
+      const now = new Date().toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const content = `📦 商品过期提醒\n📅 ${now}\n\n您有以下 ${products.length} 件商品需要关注：\n\n${productList}\n\n💡 请及时处理，避免影响使用！`;
 
       return await this.sendTextMessage(webhookUrl, content);
     } catch (error) {

@@ -204,9 +204,17 @@ class ReminderService {
     // 发送飞书提醒
     if (setting.feishuEnabled && setting.feishuWebhook) {
       try {
-        const feishuResult = await feishuService.sendAggregatedReminder(
+        // 构建商品详情列表
+        const productDetails = products.map(p => ({
+          name: p.name,
+          remainingDays: p.remainingDays,
+          expiryDate: p.expiryDate,
+          status: p.remainingDays <= 0 ? 'EXPIRED' : 'WARNING'
+        }));
+
+        const feishuResult = await feishuService.sendProductReminder(
           setting.feishuWebhook,
-          products.length
+          productDetails
         );
 
         // 记录飞书提醒日志
