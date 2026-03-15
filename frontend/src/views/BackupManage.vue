@@ -13,6 +13,19 @@
           <el-icon><Download /></el-icon>
           创建备份
         </el-button>
+        <el-upload
+          class="upload-backup"
+          action="#"
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="handleFileChange"
+          accept=".json"
+        >
+          <el-button type="success">
+            <el-icon><Upload /></el-icon>
+            上传恢复
+          </el-button>
+        </el-upload>
         <el-alert
           type="info"
           :closable="false"
@@ -20,6 +33,7 @@
         >
           <p>备份内容包括：商品数据、分类数据、提醒设置</p>
           <p>建议定期备份，防止数据丢失</p>
+          <p>点击「下载」可导出备份文件，点击「上传恢复」可导入备份文件</p>
         </el-alert>
       </div>
 
@@ -87,7 +101,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Download } from '@element-plus/icons-vue'
+import { Download, Upload } from '@element-plus/icons-vue'
 import request from '../utils/request'
 
 const backups = ref([])
@@ -195,6 +209,55 @@ const deleteBackup = async () => {
   }
 }
 
+// 上传文件并恢复
+const uploading = ref(false)
+const handleFileChange = async (file) => {
+  if (!file || !file.raw) return
+  
+  // 验证文件类型
+  if (!file.name.endsWith('.json')) {
+    ElMessage.error('请选择 .json 格式的备份文件')
+    return
+  }
+  
+  // 确认恢复
+  try {
+    await ElMessageBox.confirm(
+      '上传备份文件将导入其中的数据。已存在的相同商品不会重复导入。',
+      '确认恢复',
+      {
+        confirmButtonText: '确认恢复',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return // 用户取消
+  }
+  
+  uploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('backupFile', file.raw)
+    
+    const res = await request.post('/backup/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    
+    if (res.success) {
+      ElMessage.success(res.message)
+    } else {
+      ElMessage.error(res.message || '恢复失败')
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.message || '上传恢复失败')
+  } finally {
+    uploading.value = false
+  }
+}
+
 // 格式化日期
 const formatDate = (date) => {
   return new Date(date).toLocaleString('zh-CN')
@@ -230,6 +293,14 @@ onMounted(() => {
 
 .action-buttons {
   margin-bottom: 20px;
+}
+
+.action-buttons :deep(.el-button) {
+  margin-right: 10px;
+}
+
+.upload-backup {
+  display: inline-block;
 }
 
 .backup-list h3 {

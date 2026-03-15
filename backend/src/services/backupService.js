@@ -256,6 +256,111 @@ class BackupService {
   }
 
   /**
+   * 从上传的JSON内容恢复备份
+   */
+  async restoreFromJson(userId, jsonData) {
+    let backup;
+    
+    try {
+      backup = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+    } catch (e) {
+      throw new Error('无效的JSON格式');
+    }
+
+    if (!backup.data) {
+      throw new Error('无效的备份文件格式');
+    }
+
+    // 使用事务恢复数据
+    const result = await prisma.$transaction(async (tx) => {
+      let productsRestored = 0;
+      let categoriesRestored = 0;
+
+      // 恢复分类（先检查是否已存在）
+      for (const cat of backup.data.categories || []) {
+        const existing = await tx.category.findFirst({
+          where: { userId, name: cat.name }
+        });
+
+        if (!existing) {
+          await tx.category.create({
+            data: {
+              name: cat.name,
+              description: cat.description,
+              userId
+            }
+          });
+          categoriesRestored++;
+        }
+      }
+
+      // 获取当前用户的分类映射
+      const userCategories = await tx.category.findMany({ where: { userId } });
+      const categoryMap = new Map(userCategories.map(c => [c.name, c.id]));
+
+      // 恢复商品
+      for (const product of backup.data.products || []) {
+        // 检查是否已存在相同商品
+        const existing = await tx.product.findFirst({
+          where: {
+            userId,
+            name: product.name,
+            productionDate: new Date(product.productionDate)
+          }
+        });
+
+        if (!existing) {
+          await tx.product.create({
+            data: {
+              name: product.name,
+              barcode: product.barcode,
+              productionDate: new Date(product.productionDate),
+              shelfLife: product.shelfLife,
+              expiryDate: new Date(product.expiryDate),
+              reminderDays: product.reminderDays,
+              categoryId: categoryMap.get(product.categoryName) || null,
+              userId,
+              status: this.calculateStatus(new Date(product.productionDate), product.shelfLife, product.reminderDays)
+            }
+          });
+          productsRestored++;
+        }
+      }
+
+      // 恢复提醒设置
+      if (backup.data.reminderSettings?.length > 0) {
+        const setting = backup.data.reminderSettings[0];
+        await tx.reminderSetting.upsert({
+          where: { userId },
+          update: {
+            enabled: setting.enabled,
+            reminderTime: setting.reminderTime,
+            phones: setting.phones,
+            remindBySms: setting.remindBySms,
+            feishuEnabled: setting.feishuEnabled,
+            feishuWebhook: setting.feishuWebhook
+          },
+          create: {
+            userId,
+            enabled: setting.enabled,
+            reminderTime: setting.reminderTime,
+            phones: setting.phones,
+            remindBySms: setting.remindBySms,
+            feishuEnabled: setting.feishuEnabled,
+            feishuWebhook: setting.feishuWebhook
+          }
+        });
+      }
+
+      return { productsRestored, categoriesRestored };
+    });
+
+    logger.info(`Backup restored from upload by user ${userId}`);
+
+    return result;
+  }
+
+  /**
    * 计算商品状态
    */
   calculateStatus(productionDate, shelfLife, reminderDays) {
