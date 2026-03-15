@@ -410,6 +410,7 @@ const handleExport = async () => {
 .import-section,
 .export-section {
   padding: 10px 0;
+  min-height: 500px;
 }
 
 :deep(.el-upload-dragger) {
