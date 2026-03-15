@@ -92,6 +92,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '过期提醒' }
       },
       {
+        path: 'backup',
+        name: 'Backup',
+        component: () => import('@/views/BackupManage.vue'),
+        meta: { title: '数据备份', requiresAdmin: true }
+      },
+      {
         path: 'admin',
         name: 'Admin',
         component: () => import('@/views/AdminManage.vue'),

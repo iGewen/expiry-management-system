@@ -18,6 +18,7 @@ import logRoutes from './routes/logs.js';
 import importHistoryRoutes from './routes/importHistory.js';
 import categoryRoutes from './routes/category.js';
 import reminderRoutes from './routes/reminder.js';
+import backupRoutes from './routes/backup.js';
 import schedulerService from './services/schedulerService.js';
 
 const app = express();
@@ -207,6 +208,7 @@ app.use('/api/logs', logRoutes);
 app.use('/api/import-history', importHistoryRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/backup', backupRoutes);
 
 // 404 处理
 app.use(notFoundHandler);

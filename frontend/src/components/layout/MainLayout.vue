@@ -45,6 +45,10 @@
           <el-icon><Setting /></el-icon>
           <template #title>系统管理</template>
         </el-menu-item>
+        <el-menu-item v-if="userStore.isAdmin" index="/backup">
+          <el-icon><FolderOpened /></el-icon>
+          <template #title>数据备份</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
