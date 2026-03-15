@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 import { config } from './config/index.js';
 import { initRedis, closeRedis } from './config/redis.js';
 import logger, { requestLogger } from './utils/logger.js';
@@ -50,6 +51,25 @@ app.use(cors({
 // 请求体解析
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// 响应压缩（仅生产环境）
+if (config.env === 'production') {
+  app.use(compression({
+    level: 6, // 压缩级别 1-9，6是平衡点
+    filter: (req, res) => {
+      // 不压缩已经压缩的内容
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      // 仅压缩响应体 > 1KB 的请求
+      if (res.getHeader('Content-Length') && parseInt(res.getHeader('Content-Length')) < 1024) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    threshold: 1024 // 只有超过1KB才压缩
+  }));
+}
 
 // HTTP 请求日志
 if (config.env === 'development') {

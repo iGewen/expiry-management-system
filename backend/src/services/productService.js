@@ -129,11 +129,38 @@ export class ProductService {
       } : {})
     };
 
-    // 先获取所有符合条件的商品
+    // 先获取所有符合条件的商品（优化查询，仅返回必要字段）
     const allProducts = await prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: includeOptions
+      select: {
+        id: true,
+        name: true,
+        barcode: true,
+        productionDate: true,
+        shelfLife: true,
+        expiryDate: true,
+        reminderDays: true,
+        categoryId: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        category: includeOptions.category ? {
+          select: {
+            id: true,
+            name: true
+          }
+        } : false,
+        ...(userRole === 'SUPER_ADMIN' ? {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              role: true
+            }
+          }
+        } : {})
+      }
     });
 
     // 格式化并计算状态
@@ -409,10 +436,16 @@ export class ProductService {
       where.userId = userId;
     }
     
-    // 获取所有商品并实时计算状态
+    // 获取所有商品并实时计算状态（优化查询，仅返回必要字段）
     const allProducts = await prisma.product.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      select: {
+        id: true,
+        productionDate: true,
+        shelfLife: true,
+        expiryDate: true,
+        reminderDays: true
+      }
     });
 
     // 实时计算状态统计
