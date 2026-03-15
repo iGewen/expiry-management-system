@@ -154,9 +154,36 @@ const createBackup = async () => {
 }
 
 // 下载备份
-const downloadBackup = (filename) => {
-  const token = localStorage.getItem('token')
-  window.open(`/api/backup/download/${filename}?token=${token}`, '_blank')
+const downloadBackup = async (filename) => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`/api/backup/download/${filename}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    
+    if (!response.ok) {
+      const data = await response.json()
+      ElMessage.error(data.message || '下载失败')
+      return
+    }
+    
+    // 创建blob下载
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+    ElMessage.success('下载成功')
+  } catch (error) {
+    console.error('Download error:', error)
+    ElMessage.error('下载失败')
+  }
 }
 
 // 确认恢复
