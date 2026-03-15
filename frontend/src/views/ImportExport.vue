@@ -98,15 +98,24 @@
                     <el-option label="已过期" value="EXPIRED" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="日期范围">
+                <el-form-item label="开始日期">
                   <el-date-picker
-                    v-model="exportForm.dateRange"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                    v-model="exportForm.startDate"
+                    type="date"
+                    placeholder="选择开始日期"
                     value-format="YYYY-MM-DD"
                     style="width: 100%;"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="结束日期">
+                  <el-date-picker
+                    v-model="exportForm.endDate"
+                    type="date"
+                    placeholder="选择结束日期"
+                    value-format="YYYY-MM-DD"
+                    style="width: 100%;"
+                    clearable
                   />
                 </el-form-item>
                 <el-form-item label="导出格式">
@@ -202,7 +211,8 @@ const importProgress = ref(0)
 
 const exportForm = reactive({
   status: '',
-  dateRange: [] as string[],
+  startDate: '',
+  endDate: '',
   format: 'xlsx'
 })
 
@@ -353,13 +363,11 @@ const handleExport = async () => {
   exporting.value = true
   try {
     const params: any = {
-      pageSize: 10000  // 设置很大的值以获取所有数据
+      exportAll: true
     }
     if (exportForm.status) params.status = exportForm.status
-    if (exportForm.dateRange && exportForm.dateRange.length === 2) {
-      params.startDate = exportForm.dateRange[0]
-      params.endDate = exportForm.dateRange[1]
-    }
+    if (exportForm.startDate) params.startDate = exportForm.startDate
+    if (exportForm.endDate) params.endDate = exportForm.endDate
 
     const data = await exportProducts(params)
     
