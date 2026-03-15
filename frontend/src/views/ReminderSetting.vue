@@ -78,6 +78,44 @@
               <el-tag type="info" size="small" class="method-tag">当前仅支持短信</el-tag>
             </el-form-item>
 
+            <!-- 飞书机器人配置 -->
+            <el-divider content-position="left">
+              <el-icon><ChatDotRound /></el-icon>
+              飞书群机器人
+            </el-divider>
+
+            <el-form-item label="启用飞书提醒">
+              <el-switch v-model="form.feishuEnabled" active-text="开启" inactive-text="关闭" />
+              <span class="setting-desc">开启后将推送提醒到飞书群</span>
+            </el-form-item>
+
+            <el-form-item label="Webhook 地址">
+              <div class="webhook-container">
+                <el-input 
+                  v-model="form.feishuWebhook" 
+                  placeholder="请输入飞书群机器人 Webhook 地址"
+                  :disabled="!form.feishuEnabled"
+                  style="width: 100%"
+                />
+                <el-button 
+                  type="primary" 
+                  plain 
+                  @click="testFeishuWebhook"
+                  :loading="testingFeishu"
+                  :disabled="!form.feishuEnabled || !form.feishuWebhook"
+                >
+                  测试连接
+                </el-button>
+              </div>
+              <div class="webhook-tip">
+                <el-icon><InfoFilled /></el-icon>
+                在飞书群中添加「自定义机器人」，获取 Webhook 地址
+                <el-link type="primary" href="https://www.feishu.cn/hc/zh-CN/articles/360048487792" target="_blank">
+                  查看教程
+                </el-link>
+              </div>
+            </el-form-item>
+
             <el-form-item>
               <el-button type="primary" @click="handleSave" :loading="saving">
                 <el-icon><Check /></el-icon>
@@ -235,7 +273,8 @@ import {
   Message,
   Phone,
   Plus,
-  Delete
+  Delete,
+  ChatDotRound
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { getReminderSetting, updateReminderSetting, triggerReminder, getReminderLogs, getUpcomingProducts } from '@/api/reminder'
@@ -245,7 +284,9 @@ const form = ref({
   reminderTime: '09:00',
   phones: [''] as string[],
   remindBySms: true,
-  remindByEmail: false
+  remindByEmail: false,
+  feishuEnabled: false,
+  feishuWebhook: ''
 })
 
 // 保存已加载的设置（用于发送测试时检查）
@@ -255,6 +296,7 @@ const savedSetting = ref({
 })
 
 const saving = ref(false)
+const testingFeishu = ref(false)
 const upcomingProducts = ref<any[]>([])
 const upcomingProductsLoading = ref(false)
 const logs = ref<any[]>([])
@@ -286,6 +328,8 @@ const loadSetting = async () => {
       form.value.phones = res.data.phones?.length > 0 ? res.data.phones : ['']
       form.value.remindBySms = res.data.remindBySms ?? true
       form.value.remindByEmail = res.data.remindByEmail ?? false
+      form.value.feishuEnabled = res.data.feishuEnabled ?? false
+      form.value.feishuWebhook = res.data.feishuWebhook || ''
       
       // 保存已加载的设置
       savedSetting.value = {
@@ -322,7 +366,9 @@ const handleSave = async () => {
       reminderTime: form.value.reminderTime,
       phones: validPhones,
       remindBySms: form.value.remindBySms,
-      remindByEmail: form.value.remindByEmail
+      remindByEmail: form.value.remindByEmail,
+      feishuEnabled: form.value.feishuEnabled,
+      feishuWebhook: form.value.feishuWebhook
     })
     ElMessage.success('设置保存成功')
     // 更新表单中的phones为有效手机号
@@ -364,6 +410,32 @@ const handleTest = async () => {
     ElMessage.error(error.response?.data?.message || '发送失败')
   }
 }
+
+// 测试飞书 webhook
+const testFeishuWebhook = async () => {
+  if (!form.value.feishuWebhook) {
+    ElMessage.warning('请先填写飞书 Webhook 地址')
+    return
+  }
+  
+  testingFeishu.value = true
+  try {
+    const res = await request.post('/reminders/test-feishu', {
+      webhookUrl: form.value.feishuWebhook
+    })
+    if (res.success) {
+      ElMessage.success(res.message || '飞书连接测试成功')
+    } else {
+      ElMessage.error(res.message || '飞书连接测试失败')
+    }
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '测试失败')
+  } finally {
+    testingFeishu.value = false
+  }
+}
+
+import request from '@/utils/request'
 
 const loadUpcoming = async () => {
   upcomingProductsLoading.value = true
@@ -459,6 +531,25 @@ onMounted(() => {
   font-size: 12px;
   color: $text-placeholder;
   margin-top: 4px;
+}
+
+.webhook-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.webhook-tip {
+  font-size: 12px;
+  color: $text-secondary;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+  .el-link {
+    margin-left: 4px;
+  }
 }
 
 .remind-methods {

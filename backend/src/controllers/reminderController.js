@@ -1,4 +1,5 @@
 import reminderService from '../services/reminderService.js';
+import feishuService from '../services/feishuService.js';
 import logger from '../utils/logger.js';
 
 class ReminderController {
@@ -29,14 +30,16 @@ class ReminderController {
   async updateSetting(req, res) {
     try {
       const userId = req.user.id;
-      const { enabled, reminderTime, phones, remindBySms, remindByEmail } = req.body;
+      const { enabled, reminderTime, phones, remindBySms, remindByEmail, feishuEnabled, feishuWebhook } = req.body;
       
       const setting = await reminderService.updateReminderSetting(userId, {
         enabled,
         reminderTime,
         phones,
         remindBySms,
-        remindByEmail
+        remindByEmail,
+        feishuEnabled,
+        feishuWebhook
       });
 
       res.json({
@@ -116,6 +119,42 @@ class ReminderController {
       res.status(500).json({
         success: false,
         message: error.message || '获取即将过期商品失败'
+      });
+    }
+  }
+
+  /**
+   * 测试飞书 webhook
+   */
+  async testFeishuWebhook(req, res) {
+    try {
+      const { webhookUrl } = req.body;
+      
+      if (!webhookUrl) {
+        return res.status(400).json({
+          success: false,
+          message: '请提供飞书 webhook 地址'
+        });
+      }
+
+      const isValid = await feishuService.validateWebhook(webhookUrl);
+      
+      if (isValid) {
+        res.json({
+          success: true,
+          message: '飞书机器人配置成功，测试消息已发送'
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: '飞书 webhook 验证失败，请检查地址是否正确'
+        });
+      }
+    } catch (error) {
+      logger.error('Test Feishu webhook error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || '测试飞书 webhook 失败'
       });
     }
   }

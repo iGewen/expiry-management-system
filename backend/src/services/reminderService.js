@@ -1,5 +1,6 @@
 import prisma from '../config/database.js';
 import smsService from './smsService.js';
+import feishuService from './feishuService.js';
 import logger from '../utils/logger.js';
 import { startOfDay, addDays, differenceInDays } from 'date-fns';
 
@@ -47,7 +48,9 @@ class ReminderService {
         reminderTime: data.reminderTime,
         phones: phonesJson,
         remindBySms: data.remindBySms,
-        remindByEmail: data.remindByEmail
+        remindByEmail: data.remindByEmail,
+        feishuEnabled: data.feishuEnabled,
+        feishuWebhook: data.feishuWebhook
       },
       create: {
         userId,
@@ -55,7 +58,9 @@ class ReminderService {
         reminderTime: data.reminderTime || '09:00',
         phones: phonesJson,
         remindBySms: data.remindBySms ?? true,
-        remindByEmail: data.remindByEmail ?? false
+        remindByEmail: data.remindByEmail ?? false,
+        feishuEnabled: data.feishuEnabled ?? false,
+        feishuWebhook: data.feishuWebhook
       }
     });
 
@@ -193,6 +198,42 @@ class ReminderService {
           logger.error(`Failed to send reminder to ${phone}:`, error);
           results.push({ phone, success: false, error: error.message });
         }
+      }
+    }
+
+    // 发送飞书提醒
+    if (setting.feishuEnabled && setting.feishuWebhook) {
+      try {
+        const feishuResult = await feishuService.sendAggregatedReminder(
+          setting.feishuWebhook,
+          products.length
+        );
+
+        // 记录飞书提醒日志
+        for (const product of products) {
+          await prisma.reminderLog.create({
+            data: {
+              userId,
+              productId: product.id,
+              productName: product.name,
+              expiryDate: product.expiryDate,
+              channel: 'feishu',
+              status: feishuResult ? 'success' : 'failed',
+              errorMsg: feishuResult ? null : '飞书消息发送失败'
+            }
+          });
+        }
+
+        results.push({
+          channel: 'feishu',
+          success: feishuResult,
+          productCount: products.length
+        });
+
+        logger.info(`Feishu reminder sent to user ${userId}: ${feishuResult ? 'success' : 'failed'}`);
+      } catch (error) {
+        logger.error(`Failed to send Feishu reminder for user ${userId}:`, error);
+        results.push({ channel: 'feishu', success: false, error: error.message });
       }
     }
 

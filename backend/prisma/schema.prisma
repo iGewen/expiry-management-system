@@ -100,6 +100,9 @@ model ReminderSetting {
   phones          String   @default("[]") // 提醒手机号列表，JSON数组格式，如 ["13800138000", "13900139000"]
   remindBySms     Boolean  @default(true) // 短信提醒
   remindByEmail   Boolean  @default(false) // 邮件提醒
+  // 飞书机器人配置
+  feishuEnabled   Boolean  @default(false) // 是否启用飞书提醒
+  feishuWebhook   String?  @db.VarChar(500) // 飞书群机器人 webhook 地址
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
