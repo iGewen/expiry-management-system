@@ -110,7 +110,7 @@
               <div class="webhook-tip">
                 <el-icon><InfoFilled /></el-icon>
                 在飞书群中添加「自定义机器人」，获取 Webhook 地址
-                <el-link type="primary" href="https://www.feishu.cn/hc/zh-CN/articles/360048487792" target="_blank">
+                <el-link type="primary" href="https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN" target="_blank">
                   查看教程
                 </el-link>
               </div>
