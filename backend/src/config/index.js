@@ -6,8 +6,8 @@ import logger from '../utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 加载 .env 文件（从项目根目录）
-dotenv.config({ path: join(__dirname, '../../.env') });
+// 加载 .env 文件
+dotenv.config({ path: join(__dirname, '.env') });
 
 // JWT Secret 安全验证
 function validateJwtSecret() {
