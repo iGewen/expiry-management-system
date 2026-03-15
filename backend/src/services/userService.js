@@ -49,7 +49,9 @@ export class UserService {
           lastLoginAt: true,
           _count: {
             select: {
-              products: true,
+              products: {
+                where: { isDeleted: false }
+              },
               logs: true
             }
           }
