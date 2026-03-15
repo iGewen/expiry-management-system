@@ -196,7 +196,6 @@ export class ProductController {
         const data = XLSX.utils.sheet_to_json(worksheet);
 
         logger.info(`Parsed ${data.length} rows from Excel`);
-        logger.info('Sample row:', data[0]); // 调试日志
 
         productsData = data.map((row, index) => {
           const shelfLife = row['保质期天数'] || row['保质期(天)'] || row['shelfLife'] || row['保质期'] || 0;
@@ -206,9 +205,6 @@ export class ProductController {
             shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
             reminderDays: row['提醒天数'] || row['reminderDays'] || 3
           };
-          if (index === 0) {
-            logger.info('Parsed first product:', result); // 调试日志
-          }
           return result;
         });
       } else {

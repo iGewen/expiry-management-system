@@ -327,9 +327,7 @@ const handleImport = async () => {
     clearInterval(progressInterval)
     importProgress.value = 100
     
-    console.log('Import response:', response.data) // 调试日志
     const result = response.data.data // 后端返回 { success: true, data: { success: 0, failed: 0 } }
-    console.log('Import result:', result) // 调试日志
     
     // 后端已经保存了导入历史，直接重新加载
     const successCount = result?.success || 0
