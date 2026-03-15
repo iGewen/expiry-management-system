@@ -83,6 +83,10 @@
               <p>支持按状态和日期范围筛选导出</p>
             </el-alert>
 
+            <div style="height: 32px; margin-bottom: 20px;">
+              <!-- 占位，与左侧下载模板按钮对齐 -->
+            </div>
+
             <el-divider />
 
             <div class="export-form-wrapper">
@@ -409,11 +413,11 @@ const handleExport = async () => {
   min-height: 500px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-.import-section > :last-child,
-.export-section > :last-child {
-  margin-top: auto;
+.export-form-wrapper {
+  flex: 1;
 }
 
 :deep(.el-upload-dragger) {
