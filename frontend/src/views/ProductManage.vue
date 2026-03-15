@@ -511,7 +511,7 @@ const handleExport = async (command: string) => {
 
     if (command === 'all') {
       // 导出全部商品
-      const params: any = { pageSize: 10000 }
+      const params: any = { exportAll: true }
       if (searchForm.name) params.name = searchForm.name
       if (searchForm.status) params.status = searchForm.status
       if (searchForm.categoryId) params.categoryId = searchForm.categoryId
@@ -519,7 +519,7 @@ const handleExport = async (command: string) => {
       const res = await getProducts(params)
       const products = res.data?.products || []
       
-      // 生成Excel
+      // 生成Excel数据
       const data = products.map((p: any) => ({
         '商品名称': p.name,
         '分类': p.category?.name || '-',
@@ -531,7 +531,7 @@ const handleExport = async (command: string) => {
         '提醒天数': p.reminderDays
       }))
       
-      // 使用第三方库或简单CSV
+      // 使用 CSV 格式导出（支持中文）
       const csv = [
         Object.keys(data[0] || {}).join(','),
         ...data.map((row: any) => Object.values(row).join(','))

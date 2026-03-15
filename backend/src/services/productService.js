@@ -63,7 +63,7 @@ export class ProductService {
    * 获取商品列表 - 优化版本，使用数据库查询而非内存过滤
    */
   async getProducts(userId, userRole, filters = {}) {
-    const { page = 1, pageSize = 20, name, status, categoryId, startDate, endDate, searchUserId } = filters;
+    const { page = 1, pageSize = 20, name, status, categoryId, startDate, endDate, searchUserId, exportAll } = filters;
     
     // 参数验证和规范化
     let pageNum = parseInt(page, 10);
@@ -71,7 +71,9 @@ export class ProductService {
     
     if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
     if (isNaN(pageSizeNum) || pageSizeNum < 1) pageSizeNum = 20;
-    if (pageSizeNum > 100) pageSizeNum = 100; // 限制最大分页
+    
+    // 导出模式或 exportAll=true 时不限制数量，否则限制最大为 100
+    if (!exportAll && pageSizeNum > 100) pageSizeNum = 100;
     
     const skip = (pageNum - 1) * pageSizeNum;
   
@@ -113,21 +115,24 @@ export class ProductService {
     }
   
     // 状态筛选 - 由于状态需要实时计算，改为内存筛选
-    const includeUser = userRole === 'SUPER_ADMIN' ? {
-      user: {
-        select: {
-          id: true,
-          username: true,
-          role: true
+    const includeOptions = {
+      category: true,
+      ...(userRole === 'SUPER_ADMIN' ? {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            role: true
+          }
         }
-      }
-    } : {};
+      } : {})
+    };
 
     // 先获取所有符合条件的商品
     const allProducts = await prisma.product.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: includeUser
+      include: includeOptions
     });
 
     // 格式化并计算状态
