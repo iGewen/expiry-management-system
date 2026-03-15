@@ -66,7 +66,7 @@
             {{ row.lastLoginAt ? dayjs(row.lastLoginAt).format('YYYY-MM-DD HH:mm:ss') : '未登录' }}
           </template>
         </el-table-column>
-        <el-table-column prop="_count.products" label="商品数" width="100" />
+        <el-table-column prop="productCount" label="商品数" width="100" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <div class="action-buttons">
