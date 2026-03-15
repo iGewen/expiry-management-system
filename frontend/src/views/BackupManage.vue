@@ -26,16 +26,17 @@
             上传恢复
           </el-button>
         </el-upload>
-        <el-alert
-          type="info"
-          :closable="false"
-          style="margin-top: 15px;"
-        >
-          <p>备份内容包括：商品数据、分类数据、提醒设置</p>
-          <p>建议定期备份，防止数据丢失</p>
-          <p>点击「下载」可导出备份文件，点击「上传恢复」可导入备份文件</p>
-        </el-alert>
       </div>
+
+      <el-alert
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px;"
+      >
+        <p>备份内容包括：商品数据、分类数据、提醒设置</p>
+        <p>建议定期备份，防止数据丢失</p>
+        <p>点击「下载」可导出备份文件，点击「上传恢复」可导入备份文件</p>
+      </el-alert>
 
       <el-divider />
 
