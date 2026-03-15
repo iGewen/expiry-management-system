@@ -293,10 +293,9 @@ onMounted(() => {
 
 .action-buttons {
   margin-bottom: 20px;
-}
-
-.action-buttons :deep(.el-button) {
-  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .upload-backup {
