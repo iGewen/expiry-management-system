@@ -1,7 +1,13 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import logger from '../utils/logger.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// 加载 .env 文件（从项目根目录）
+dotenv.config({ path: join(__dirname, '../../.env') });
 
 // JWT Secret 安全验证
 function validateJwtSecret() {
