@@ -133,7 +133,7 @@ router.post('/restore', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), async (
 });
 
 // 删除备份
-router.delete('/:filename', authenticate, authorize('SUPER_ADMIN'), async (req, res) => {
+router.delete('/:filename', authenticate, authorize('ADMIN', 'SUPER_ADMIN'), async (req, res) => {
   try {
     const { filename } = req.params;
     
