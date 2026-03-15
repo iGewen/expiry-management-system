@@ -98,7 +98,7 @@
                     <el-option label="已过期" value="EXPIRED" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="开始日期">
+                <el-form-item label="开始日期 (创建时间)">
                   <el-date-picker
                     v-model="exportForm.startDate"
                     type="date"
@@ -108,7 +108,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="结束日期">
+                <el-form-item label="结束日期 (创建时间)">
                   <el-date-picker
                     v-model="exportForm.endDate"
                     type="date"

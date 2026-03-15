@@ -115,9 +115,9 @@ export class ProductService {
 
     // 日期范围筛选
     if (startDate || endDate) {
-      where.productionDate = {};
-      if (startDate) where.productionDate.gte = new Date(startDate);
-      if (endDate) where.productionDate.lte = new Date(endDate);
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate + 'T23:59:59');
     }
   
     // 状态筛选 - 由于状态需要实时计算，改为内存筛选
