@@ -85,9 +85,7 @@
             <!-- 飞书 -->
             <div class="bind-item" :class="{ bound: isFeishuBound }">
               <div class="bind-icon feishu">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#3370FF">
-                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 15l-4-4 1.41-1.41L10.5 14.17l6.59-6.59L18.5 9l-8 8z"/>
-                </svg>
+                <img src="/icon/feishu.svg" width="24" height="24" alt="飞书" />
               </div>
               <div class="bind-info">
                 <div class="bind-name">飞书</div>
@@ -102,9 +100,7 @@
             <!-- QQ (占位) -->
             <div class="bind-item disabled">
               <div class="bind-icon qq">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#12B7F5">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
+                <img src="/icon/QQ.svg" width="24" height="24" alt="QQ" />
               </div>
               <div class="bind-info">
                 <div class="bind-name">QQ</div>
@@ -116,9 +112,7 @@
             <!-- 微信 (占位) -->
             <div class="bind-item disabled">
               <div class="bind-icon wechat">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#07C160">
-                  <path d="M8.5 12.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm4 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                </svg>
+                <img src="/icon/weixin.svg" width="24" height="24" alt="微信" />
               </div>
               <div class="bind-info">
                 <div class="bind-name">微信</div>
@@ -130,9 +124,7 @@
             <!-- 钉钉 (占位) -->
             <div class="bind-item disabled">
               <div class="bind-icon dingtalk">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#0089FF">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z"/>
-                </svg>
+                <img src="/icon/dingding.svg" width="24" height="24" alt="钉钉" />
               </div>
               <div class="bind-info">
                 <div class="bind-name">钉钉</div>
