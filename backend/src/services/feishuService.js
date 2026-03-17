@@ -197,7 +197,7 @@ export class FeishuService {
       }
     }
 
-    // 5. 未绑定，返回飞书用户信息
+    // 5. 未绑定，返回飞书用户信息（跳转注册页）
     return {
       isBound: false,
       user: null,
@@ -209,6 +209,19 @@ export class FeishuService {
         avatar: avatar_url
       }
     };
+  }
+
+  /**
+   * 生成随机用户名
+   * 格式：feishu_ + 5位随机字母
+   */
+  generateRandomUsername() {
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    let suffix = '';
+    for (let i = 0; i < 5; i++) {
+      suffix += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    return `feishu_${suffix}`;
   }
 
   /**
@@ -275,15 +288,8 @@ export class FeishuService {
       }
     }
 
-    // 生成用户名：优先使用手机号，其次使用飞书名字+后缀
-    let username;
-    if (mobile) {
-      // 使用手机号后8位作为用户名
-      username = mobile.slice(-8);
-    } else {
-      username = this.generateUsername(name, openId);
-    }
-    
+    // 生成用户名：feishu_ + 5位随机字母
+    const username = this.generateRandomUsername();
     const randomPassword = bcrypt.hashSync(Math.random().toString(36), 12);
 
     const user = await prisma.user.create({
@@ -332,7 +338,7 @@ export class FeishuService {
   }
 
   /**
-   * 生成用户名（避免重复）
+   * 生成用户名（避免重复）- 已废弃
    */
   generateUsername(name, openId) {
     // 使用飞书名字 + openId后4位

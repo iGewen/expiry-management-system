@@ -20,6 +20,14 @@
           <p>欢迎加入商品保质期管理系统</p>
         </div>
 
+        <!-- 飞书注册提示 -->
+        <div v-if="isFeishuRegister" class="feishu-notice">
+          <div class="feishu-icon">📱</div>
+          <div class="feishu-text">
+            您正在通过飞书注册，注册后将自动绑定飞书账号
+          </div>
+        </div>
+
         <el-form ref="formRef" :model="form" :rules="rules" class="register-form">
           <el-form-item prop="username">
             <el-input
@@ -116,7 +124,7 @@
               :loading="loading"
               @click="handleRegister"
             >
-              {{ loading ? '注册中...' : '注 册' }}
+              {{ loading ? '注册中...' : (isFeishuRegister ? '注册并绑定飞书' : '注 册') }}
             </el-button>
           </el-form-item>
 
@@ -140,8 +148,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
@@ -149,11 +157,16 @@ import { useUserStore } from '@/stores/user'
 import httpClient from '@/utils/request'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 const sendingCode = ref(false)
 const countdown = ref(0)
+
+// 飞书注册相关信息
+const isFeishuRegister = ref(false)
+const feishuTempToken = ref('')
 
 const form = reactive({
   username: '',
@@ -165,6 +178,28 @@ const form = reactive({
 
 // 验证手机号是否有效
 const isPhoneValid = computed(() => /^1[3-9]\d{9}$/.test(form.phone))
+
+// 从 URL 参数初始化飞书信息
+onMounted(() => {
+  const tempToken = route.query.tempToken as string
+  const phone = route.query.phone as string
+  const username = route.query.username as string
+  
+  if (tempToken) {
+    isFeishuRegister.value = true
+    feishuTempToken.value = tempToken
+    
+    // 自动填充手机号
+    if (phone) {
+      form.phone = decodeURIComponent(phone)
+    }
+    
+    // 自动填充建议的用户名
+    if (username) {
+      form.username = decodeURIComponent(username)
+    }
+  }
+})
 
 const validatePass2 = (_rule: any, value: any, callback: any) => {
   if (value === '') {
@@ -236,15 +271,37 @@ const handleRegister = async () => {
 
     loading.value = true
     try {
-      const res = await authApi.register(form)
-      
-      if (res.success && res.data) {
-        const { user, token, refreshToken } = res.data as any
-        userStore.setUser(user)
-        userStore.setToken(token, refreshToken)
+      // 如果是飞书注册，先创建账号再绑定
+      if (isFeishuRegister.value && feishuTempToken.value) {
+        // 调用飞书创建账号接口
+        const res = await httpClient.post('/auth/feishu/create-with-register', {
+          tempToken: feishuTempToken.value,
+          username: form.username,
+          password: form.password,
+          phone: form.phone,
+          verifyCode: form.verifyCode
+        })
         
-        ElMessage.success('注册成功')
-        router.push('/')
+        if (res.success && res.data) {
+          const { user, token, refreshToken } = res.data
+          userStore.setUser(user)
+          userStore.setToken(token, refreshToken)
+          
+          ElMessage.success('注册成功，已绑定飞书账号，下次可直接扫码登录')
+          router.push('/')
+        }
+      } else {
+        // 普通注册
+        const res = await authApi.register(form)
+        
+        if (res.success && res.data) {
+          const { user, token, refreshToken } = res.data as any
+          userStore.setUser(user)
+          userStore.setToken(token, refreshToken)
+          
+          ElMessage.success('注册成功')
+          router.push('/')
+        }
       }
     } catch (error) {
       console.error('Register error:', error)
@@ -372,6 +429,29 @@ const handleRegister = async () => {
     .el-input__inner {
       height: 40px;
     }
+  }
+}
+
+.feishu-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #E6F7FF;
+  border: 1px solid #91D5FF;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  animation: fadeIn 0.8s ease-out 0.1s both;
+  
+  .feishu-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  
+  .feishu-text {
+    font-size: 14px;
+    color: #1890FF;
+    line-height: 1.5;
   }
 }
 

@@ -29,12 +29,6 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: false, title: '飞书登录' }
   },
   {
-    path: '/auth/feishu/bind',
-    name: 'FeishuBind',
-    component: () => import('@/views/FeishuBind.vue'),
-    meta: { requiresAuth: false, title: '绑定飞书账号' }
-  },
-  {
     path: '/privacy-policy',
     name: 'PrivacyPolicy',
     component: () => import('@/views/PrivacyPolicy.vue'),

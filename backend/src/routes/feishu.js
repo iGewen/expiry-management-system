@@ -24,6 +24,9 @@ router.post('/bind', feishuController.bindExistingAccount.bind(feishuController)
 // 创建新账号
 router.post('/create', feishuController.createNewAccount.bind(feishuController));
 
+// 创建新账号（带用户名密码注册）
+router.post('/create-with-register', feishuController.createWithRegister.bind(feishuController));
+
 // 解绑飞书账号（需登录）
 router.post('/unbind', authenticate, feishuController.unbindFeishuAccount.bind(feishuController));
 

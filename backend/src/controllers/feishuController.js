@@ -101,12 +101,15 @@ export class FeishuController {
         return res.redirect(redirectUrl);
       }
 
-      // 未绑定，生成临时 token，跳转到绑定选择页面
+      // 未绑定，生成临时 token，跳转到注册页面
       const tempToken = generateTempToken(result.feishuInfo);
       
-      logger.info(`Redirecting to bind page, feishu user: ${result.feishuInfo.name}`);
+      logger.info(`Redirecting to register page, feishu user: ${result.feishuInfo.name}`);
       
-      const redirectUrl = `${frontendUrl}/auth/feishu/bind?tempToken=${tempToken}&feishuName=${encodeURIComponent(result.feishuInfo.name || '')}&feishuAvatar=${encodeURIComponent(result.feishuInfo.avatar || '')}${state ? `&state=${state}` : ''}`;
+      // 生成随机用户名建议
+      const suggestedUsername = feishuService.generateRandomUsername();
+      
+      const redirectUrl = `${frontendUrl}/register?tempToken=${tempToken}&phone=${encodeURIComponent(result.feishuInfo.mobile || '')}&username=${encodeURIComponent(suggestedUsername)}&feishuName=${encodeURIComponent(result.feishuInfo.name || '')}${state ? `&state=${state}` : ''}`;
       res.redirect(redirectUrl);
     } catch (error) {
       logger.error('Feishu callback error:', error);
@@ -223,6 +226,108 @@ export class FeishuController {
       res.status(500).json({
         success: false,
         message: error.message || '创建账号失败'
+      });
+    }
+  }
+
+  /**
+   * 创建新账号（带用户名密码）
+   * POST /api/auth/feishu/create-with-register
+   */
+  async createWithRegister(req, res) {
+    try {
+      const { tempToken, username, password, phone, verifyCode } = req.body;
+
+      if (!tempToken || !username || !password || !phone || !verifyCode) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少必要参数'
+        });
+      }
+
+      // 获取临时 token 中的飞书信息
+      const feishuInfo = getTempFeishuInfo(tempToken);
+      if (!feishuInfo) {
+        return res.status(400).json({
+          success: false,
+          message: '授权已过期，请重新授权'
+        });
+      }
+
+      // 验证手机号验证码
+      const { default: AuthService } = await import('../services/authService.js');
+      const authService = new AuthService();
+      
+      try {
+        await authService.verifyPhoneCode(phone, verifyCode, 'register');
+      } catch (error) {
+        return res.status(400).json({
+          success: false,
+          message: error.message || '验证码错误'
+        });
+      }
+
+      // 检查用户名是否已存在
+      const { default: prisma } = await import('../config/database.js');
+      const existingUsername = await prisma.user.findUnique({
+        where: { username }
+      });
+      if (existingUsername) {
+        return res.status(400).json({
+          success: false,
+          message: '用户名已存在'
+        });
+      }
+
+      // 检查手机号是否已存在
+      const existingPhone = await prisma.user.findFirst({
+        where: { phone }
+      });
+      if (existingPhone) {
+        return res.status(400).json({
+          success: false,
+          message: '该手机号已注册'
+        });
+      }
+
+      // 创建用户
+      const bcrypt = (await import('bcrypt')).default;
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const user = await prisma.user.create({
+        data: {
+          username,
+          password: hashedPassword,
+          phone,
+          feishuOpenId: feishuInfo.openId,
+          avatar: feishuInfo.avatar || null,
+          isActive: true
+        }
+      });
+
+      // 生成 token
+      const accessToken = authService.generateToken(user.id);
+      const refreshToken = authService.generateRefreshToken(user.id);
+
+      // 清理临时 token
+      tempTokenStore.delete(tempToken);
+
+      logger.info(`Created new user via Feishu register: ${user.username}`);
+
+      res.json({
+        success: true,
+        message: '注册成功',
+        data: {
+          user: feishuService.sanitizeUser(user),
+          token: accessToken,
+          refreshToken
+        }
+      });
+    } catch (error) {
+      logger.error('Create with register error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || '注册失败'
       });
     }
   }
