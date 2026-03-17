@@ -13,10 +13,7 @@
       <div class="settings-card profile-card">
         <div class="card-header">
           <div class="card-icon blue">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+            <img src="/icon/yonghu.svg" width="20" height="20" alt="用户" />
           </div>
           <div class="card-title">
             <h3>个人信息</h3>
@@ -69,10 +66,7 @@
       <div class="settings-card bind-card">
         <div class="card-header">
           <div class="card-icon purple">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
+            <img src="/icon/sanfangfuwu.svg" width="20" height="20" alt="第三方服务" />
           </div>
           <div class="card-title">
             <h3>第三方账号绑定</h3>
@@ -173,7 +167,7 @@
       <div class="settings-card info-card">
         <div class="card-header">
           <div class="card-icon purple">
-            <img src="/icon/zhanghu.svg" width="20" height="20" alt="账号" />
+            <img src="/icon/yonghuxinxi.svg" width="20" height="20" alt="账号" />
           </div>
           <div class="card-title">
             <h3>账号信息</h3>
