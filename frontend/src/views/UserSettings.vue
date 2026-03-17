@@ -13,7 +13,7 @@
       <div class="settings-card profile-card">
         <div class="card-header">
           <div class="card-icon blue">
-            <img src="/icon/yonghu.svg" width="20" height="20" alt="用户" />
+            <img src="/icon/yonghu.svg" width="28" height="28" alt="用户" />
           </div>
           <div class="card-title">
             <h3>个人信息</h3>
@@ -66,7 +66,7 @@
       <div class="settings-card bind-card">
         <div class="card-header">
           <div class="card-icon purple">
-            <img src="/icon/sanfangfuwu.svg" width="20" height="20" alt="第三方服务" />
+            <img src="/icon/sanfangfuwu.svg" width="28" height="28" alt="第三方服务" />
           </div>
           <div class="card-title">
             <h3>第三方账号绑定</h3>
@@ -134,7 +134,7 @@
       <div class="settings-card password-card">
         <div class="card-header">
           <div class="card-icon orange">
-            <img src="/icon/mima.svg" width="20" height="20" alt="密码" />
+            <img src="/icon/mima.svg" width="28" height="28" alt="密码" />
           </div>
           <div class="card-title">
             <h3>修改密码</h3>
@@ -167,7 +167,7 @@
       <div class="settings-card info-card">
         <div class="card-header">
           <div class="card-icon purple">
-            <img src="/icon/yonghuxinxi.svg" width="20" height="20" alt="账号" />
+            <img src="/icon/yonghuxinxi.svg" width="28" height="28" alt="账号" />
           </div>
           <div class="card-title">
             <h3>账号信息</h3>
