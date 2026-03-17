@@ -639,6 +639,7 @@ const handleFeishuLogin = async () => {
   }
   
   .feishu-icon {
+    filter: brightness(0) invert(1);
     width: 20px;
     height: 20px;
   }
