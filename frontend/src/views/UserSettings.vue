@@ -1,179 +1,262 @@
 <template>
   <div class="user-settings">
-    <el-row :gutter="20">
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never">
-          <template #header>
-            <span>个人信息</span>
-          </template>
-          <el-form
-            ref="infoFormRef"
-            :model="infoForm"
-            :rules="infoRules"
-            label-width="100px"
-          >
-            <el-form-item label="用户名">
-              <el-input v-model="infoForm.username" disabled />
-            </el-form-item>
-            <el-form-item label="手机号">
-              <div class="phone-display">
-                <span>{{ maskPhone(infoForm.phone) }}</span>
-                <el-button type="primary" link @click="showPhoneDialog">
-                  修改手机号
-                </el-button>
-              </div>
-            </el-form-item>
-            <el-form-item label="角色">
-              <el-tag v-if="infoForm.role" :type="getRoleType(infoForm.role)">{{ getRoleText(infoForm.role) }}</el-tag>
-              <span v-else>-</span>
-            </el-form-item>
-            <el-form-item label="注册时间">
-              <span>{{ dayjs(infoForm.createdAt).format('YYYY-MM-DD HH:mm:ss') }}</span>
-            </el-form-item>
-            <el-form-item label="最后登录">
-              <span>{{ infoForm.lastLoginAt ? dayjs(infoForm.lastLoginAt).format('YYYY-MM-DD HH:mm:ss') : '未知' }}</span>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-col>
+    <!-- 顶部标题栏 -->
+    <div class="page-header">
+      <h1 class="page-title">个人设置</h1>
+      <p class="page-subtitle">管理您的账号信息和安全设置</p>
+    </div>
 
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never">
-          <template #header>
-            <span>修改密码</span>
-          </template>
-          <el-form
-            ref="passwordFormRef"
-            :model="passwordForm"
-            :rules="passwordRules"
-            label-width="100px"
-          >
-            <el-form-item label="原密码" prop="oldPassword">
-              <el-input
-                v-model="passwordForm.oldPassword"
-                type="password"
-                placeholder="请输入原密码"
-                show-password
-              />
-            </el-form-item>
-            <el-form-item label="新密码" prop="newPassword">
-              <el-input
-                v-model="passwordForm.newPassword"
-                type="password"
-                placeholder="请输入新密码"
-                show-password
-              />
-            </el-form-item>
-            <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input
-                v-model="passwordForm.confirmPassword"
-                type="password"
-                placeholder="请再次输入新密码"
-                show-password
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="handleChangePassword" :loading="submitting">
-                修改密码
+    <!-- 主内容区：双列网格 -->
+    <div class="main-grid">
+      <!-- 左列：个人信息 -->
+      <div class="info-card">
+        <div class="card-header">
+          <div class="header-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="header-title">个人信息</span>
+        </div>
+
+        <div class="info-content">
+          <div class="info-item">
+            <span class="info-label">用户名</span>
+            <span class="info-value">{{ infoForm.username }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">手机号</span>
+            <div class="info-value-with-action">
+              <span class="info-value">{{ maskPhone(infoForm.phone) }}</span>
+              <el-button type="primary" link size="small" @click="showPhoneDialog">
+                修改
               </el-button>
-              <el-button @click="resetPasswordForm">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-col>
+            </div>
+          </div>
 
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never">
-          <template #header>
-            <div class="card-header">
-              <span>飞书账号绑定</span>
-              <el-tag v-if="userStore.user?.feishuOpenId" type="success">已绑定</el-tag>
-              <el-tag v-else type="info">未绑定</el-tag>
+          <div class="info-item">
+            <span class="info-label">角色</span>
+            <el-tag v-if="infoForm.role" :type="getRoleType(infoForm.role)" class="role-tag">
+              {{ getRoleText(infoForm.role) }}
+            </el-tag>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">注册时间</span>
+            <span class="info-value">{{ formatDate(infoForm.createdAt) }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">最后登录</span>
+            <div class="info-value-with-status">
+              <span class="status-dot online"></span>
+              <span class="info-value">{{ formatDate(infoForm.lastLoginAt) }}</span>
             </div>
-          </template>
-          <div v-if="userStore.user?.feishuOpenId" class="feishu-bound">
-            <div class="feishu-info">
-              <div class="feishu-icon">📱</div>
-              <div class="feishu-text">
-                <p class="feishu-title">飞书账号已绑定</p>
-                <p class="feishu-desc">您可以使用飞书扫码登录</p>
-              </div>
+          </div>
+        </div>
+
+        <!-- 飞书绑定区域（突出显示） -->
+        <div class="feishu-section" :class="{ 'bound': userStore.user?.feishuOpenId }">
+          <div class="feishu-header">
+            <div class="feishu-icon-box">
+              <span class="feishu-emoji">📱</span>
             </div>
-            <el-button type="danger" plain @click="handleUnbindFeishu" :loading="feishuLoading">
-              解绑飞书账号
+            <div class="feishu-title-group">
+              <span class="feishu-title">飞书账号绑定</span>
+              <el-tag v-if="userStore.user?.feishuOpenId" type="success" size="small" effect="plain">已绑定</el-tag>
+              <el-tag v-else type="info" size="small" effect="plain">未绑定</el-tag>
+            </div>
+          </div>
+          <p class="feishu-desc">
+            {{ userStore.user?.feishuOpenId ? '您可以使用飞书扫码快速登录' : '绑定飞书账号后，可以使用扫码登录' }}
+          </p>
+          <el-button 
+            v-if="userStore.user?.feishuOpenId" 
+            type="danger" 
+            plain 
+            @click="handleUnbindFeishu"
+            :loading="feishuLoading"
+          >
+            解绑飞书账号
+          </el-button>
+          <el-button 
+            v-else 
+            type="primary" 
+            @click="handleBindFeishu"
+            :loading="feishuLoading"
+          >
+            绑定飞书账号
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 右列：修改密码 -->
+      <div class="password-card">
+        <div class="card-header">
+          <div class="header-icon pink">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <span class="header-title">修改密码</span>
+        </div>
+
+        <el-form
+          ref="passwordFormRef"
+          :model="passwordForm"
+          :rules="passwordRules"
+          class="password-form"
+        >
+          <el-form-item prop="oldPassword">
+            <template #label>
+              <span class="form-label">原密码 <span class="required">*</span></span>
+            </template>
+            <el-input
+              v-model="passwordForm.oldPassword"
+              type="password"
+              placeholder="请输入原密码"
+              show-password
+              size="large"
+            />
+          </el-form-item>
+
+          <el-form-item prop="newPassword">
+            <template #label>
+              <span class="form-label">新密码 <span class="required">*</span></span>
+            </template>
+            <el-input
+              v-model="passwordForm.newPassword"
+              type="password"
+              placeholder="6-20位，包含字母和数字"
+              show-password
+              size="large"
+            />
+          </el-form-item>
+
+          <el-form-item prop="confirmPassword">
+            <template #label>
+              <span class="form-label">确认密码 <span class="required">*</span></span>
+            </template>
+            <el-input
+              v-model="passwordForm.confirmPassword"
+              type="password"
+              placeholder="请再次输入新密码"
+              show-password
+              size="large"
+            />
+          </el-form-item>
+
+          <div class="form-actions">
+            <el-button type="primary" size="large" @click="handleChangePassword" :loading="submitting">
+              <el-icon class="btn-icon"><Check /></el-icon>
+              修改密码
+            </el-button>
+            <el-button size="large" @click="resetPasswordForm">
+              <el-icon class="btn-icon"><RefreshRight /></el-icon>
+              重置
             </el-button>
           </div>
-          <div v-else class="feishu-unbound">
-            <div class="feishu-info">
-              <div class="feishu-icon gray">📱</div>
-              <div class="feishu-text">
-                <p class="feishu-title">未绑定飞书账号</p>
-                <p class="feishu-desc">绑定后可使用飞书扫码登录</p>
-              </div>
-            </div>
-            <el-button type="primary" @click="handleBindFeishu" :loading="feishuLoading">
-              绑定飞书账号
-            </el-button>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </el-form>
+      </div>
+    </div>
 
-    <el-row :gutter="20" style="margin-top: 20px;">
-      <el-col :span="24">
-        <el-card shadow="never">
-          <template #header>
-            <span>我的操作记录</span>
-          </template>
-          <el-table :data="myLogs" v-loading="loading" max-height="400">
-            <el-table-column type="index" label="序号" width="60" />
+    <!-- 底部：操作记录 -->
+    <div class="logs-section">
+      <div class="logs-card">
+        <div class="card-header">
+          <div class="header-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <span class="header-title">我的操作记录</span>
+        </div>
+
+        <div class="logs-table-wrapper">
+          <el-table :data="myLogs" v-loading="loading" class="logs-table" stripe>
+            <el-table-column type="index" label="#" width="50" align="center" />
             <el-table-column prop="action" label="操作类型" width="100">
               <template #default="{ row }">
-                <el-tag :type="getActionType(row.action)">{{ getActionText(row.action) }}</el-tag>
+                <span class="action-tag" :class="getActionClass(row.action)">
+                  {{ getActionText(row.action) }}
+                </span>
               </template>
             </el-table-column>
-            <el-table-column prop="details" label="操作详情" min-width="200" show-overflow-tooltip />
-            <el-table-column prop="ipAddress" label="IP地址" width="140" />
+            <el-table-column prop="details" label="操作详情" min-width="250">
+              <template #default="{ row }">
+                <code class="details-code">{{ row.details || '-' }}</code>
+              </template>
+            </el-table-column>
+            <el-table-column prop="ipAddress" label="IP地址" width="130">
+              <template #default="{ row }">
+                <span class="ip-address">{{ row.ipAddress || '-' }}</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="createdAt" label="操作时间" width="160">
               <template #default="{ row }">
-                {{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
+                <span class="time-text">{{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}</span>
               </template>
             </el-table-column>
           </el-table>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- 修改手机号对话框 -->
-  <el-dialog v-model="phoneDialogVisible" title="修改手机号" width="400px">
-    <el-form
-      ref="phoneFormRef"
-      :model="phoneForm"
-      :rules="phoneRules"
-      label-width="80px"
+    <!-- 修改手机号对话框 -->
+    <el-dialog 
+      v-model="phoneDialogVisible" 
+      title="修改手机号" 
+      width="420px"
+      class="custom-dialog"
+      :close-on-click-modal="false"
     >
-      <el-form-item label="当前手机号">
-        <el-input :value="maskPhone(infoForm.phone)" disabled />
-      </el-form-item>
-      <el-form-item label="新手机号" prop="newPhone">
-        <el-input
-          v-model="phoneForm.newPhone"
-          placeholder="请输入11位手机号"
-          maxlength="11"
-        />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="phoneDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="handleChangePhone" :loading="submitting">确定</el-button>
-    </template>
-  </el-dialog>
+      <div class="dialog-content">
+        <div class="current-phone-info">
+          <span class="label">当前手机号</span>
+          <span class="value">{{ maskPhone(infoForm.phone) }}</span>
+        </div>
+        
+        <el-form
+          ref="phoneFormRef"
+          :model="phoneForm"
+          :rules="phoneRules"
+        >
+          <el-form-item prop="newPhone">
+            <template #label>
+              <span class="form-label">新手机号 <span class="required">*</span></span>
+            </template>
+            <el-input
+              v-model="phoneForm.newPhone"
+              placeholder="请输入11位手机号"
+              maxlength="11"
+              size="large"
+            >
+              <template #prefix>
+                <el-icon><Iphone /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="phoneDialogVisible = false" size="large">取消</el-button>
+          <el-button type="primary" @click="handleChangePhone" :loading="submitting" size="large">确认修改</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { Check, RefreshRight, Iphone } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { useUserStore } from '@/stores/user'
 import { changePassword, updateProfile } from '@/api/user'
@@ -219,15 +302,14 @@ const validateConfirmPassword = (_rule: any, value: any, callback: any) => {
   }
 }
 
-const infoRules: FormRules = {}
-
 const passwordRules: FormRules = {
   oldPassword: [
     { required: true, message: '请输入原密码', trigger: 'blur' }
   ],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
+    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/, message: '密码必须包含字母和数字', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
@@ -258,6 +340,11 @@ const maskPhone = (phone: string | undefined) => {
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 }
 
+const formatDate = (date: string | undefined) => {
+  if (!date) return '未知'
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
 const showPhoneDialog = () => {
   phoneForm.newPhone = ''
   phoneDialogVisible.value = true
@@ -284,7 +371,6 @@ const handleChangePhone = async () => {
       await updateProfile({ phone: phoneForm.newPhone })
       
       infoForm.phone = phoneForm.newPhone
-      // 更新 store 中的用户信息
       if (userStore.user) {
         userStore.user.phone = phoneForm.newPhone
       }
@@ -304,7 +390,6 @@ const handleChangePhone = async () => {
 const loadMyLogs = async () => {
   loading.value = true
   try {
-    // 只查询当前用户的日志
     const data = await getLogs({ 
       pageSize: 20,
       page: 1,
@@ -334,7 +419,6 @@ const handleChangePassword = async () => {
       ElMessage.success('密码修改成功，请重新登录')
       resetPasswordForm()
       
-      // 3秒后跳转到登录页
       setTimeout(() => {
         userStore.logout()
       }, 3000)
@@ -371,15 +455,17 @@ const getRoleText = (role: string) => {
   return textMap[role] || role
 }
 
-const getActionType = (action: string) => {
-  const typeMap: Record<string, any> = {
-    CREATE: 'success',
-    UPDATE: 'warning',
-    DELETE: 'danger',
-    LOGIN: 'info',
-    REGISTER: 'success'
+const getActionClass = (action: string) => {
+  const classMap: Record<string, string> = {
+    CREATE: 'create',
+    UPDATE: 'update',
+    DELETE: 'delete',
+    LOGIN: 'login',
+    LOGOUT: 'logout',
+    REGISTER: 'register',
+    'DELETE_USER': 'delete'
   }
-  return typeMap[action] || ''
+  return classMap[action] || 'default'
 }
 
 const getActionText = (action: string) => {
@@ -388,7 +474,9 @@ const getActionText = (action: string) => {
     UPDATE: '更新',
     DELETE: '删除',
     LOGIN: '登录',
-    REGISTER: '注册'
+    LOGOUT: '登出',
+    REGISTER: '注册',
+    'DELETE_USER': '删除用户'
   }
   return textMap[action] || action
 }
@@ -398,7 +486,6 @@ const handleBindFeishu = async () => {
   try {
     const res = await authApi.getFeishuAuthorizeUrl()
     if (res.success && res.data?.url) {
-      // 打开新窗口进行飞书授权
       const width = 600
       const height = 700
       const left = (window.screen.width - width) / 2
@@ -410,12 +497,11 @@ const handleBindFeishu = async () => {
         `width=${width},height=${height},left=${left},top=${top},resizable=no,scrollbars=yes`
       )
       
-      // 监听授权窗口关闭
       const checkClosed = setInterval(() => {
         if (authWindow?.closed) {
           clearInterval(checkClosed)
-          // 刷新用户信息
           userStore.fetchUserInfo()
+          loadUserInfo()
         }
       }, 500)
     }
@@ -440,12 +526,12 @@ const handleUnbindFeishu = async () => {
     feishuLoading.value = true
     await authApi.unbindFeishuAccount()
     
-    // 更新 store 中的用户信息
     if (userStore.user) {
       userStore.user.feishuOpenId = null
     }
     
     ElMessage.success('飞书账号解绑成功')
+    loadUserInfo()
   } catch (error: any) {
     if (error !== 'cancel') {
       ElMessage.error(error.message || '解绑失败')
@@ -462,102 +548,475 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/variables.scss';
-
 .user-settings {
-  padding: 20px;
+  min-height: 100%;
+  background: #f5f7fa;
+  padding: 24px;
 }
 
+// 顶部标题栏
+.page-header {
+  margin-bottom: 24px;
+  
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+  }
+  
+  .page-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+// 主内容网格
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// 卡片基础样式
+.info-card,
+.password-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+// 卡片头部
 .card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.feishu-bound,
-.feishu-unbound {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.feishu-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  gap: 12px;
+  margin-bottom: 24px;
   
-  .feishu-icon {
-    width: 48px;
-    height: 48px;
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #3370FF;
-    border-radius: 12px;
-    font-size: 24px;
+    color: white;
     
-    &.gray {
-      background: #E8E8E8;
+    &.blue {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+    
+    &.pink {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
+    
+    &.purple {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+    
+    svg {
+      stroke-width: 2.5;
     }
   }
   
-  .feishu-text {
-    .feishu-title {
-      margin: 0 0 4px 0;
-      font-size: 16px;
+  .header-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+}
+
+// 信息内容
+.info-content {
+  .info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid #f3f4f6;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .info-value {
+      font-size: 14px;
+      color: #1f2937;
       font-weight: 500;
-      color: $text-primary;
     }
     
-    .feishu-desc {
-      margin: 0;
-      font-size: 13px;
-      color: $text-secondary;
+    .info-value-with-action {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .info-value {
+        font-family: monospace;
+      }
+    }
+    
+    .info-value-with-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        
+        &.online {
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+      }
+    }
+    
+    .role-tag {
+      font-weight: 500;
     }
   }
 }
 
-.phone-display {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  height: 32px;
-  line-height: 32px;
-  background-color: $bg-light;
-  border-radius: $border-radius-base;
+// 飞书绑定区域
+.feishu-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 12px;
   
-  span {
-    color: $text-regular;
-  }
-}
-
-/* 响应式布局 */
-@media (max-width: 992px) {
-  .user-settings .el-col {
-    margin-bottom: 20px;
+  &.bound {
+    background: #f0fdf4;
+    border-color: #86efac;
   }
   
-  .user-settings .el-col:last-child {
-    margin-bottom: 0;
-  }
-  
-  .user-settings {
-    padding: 12px;
-  }
-}
-
-@media (max-width: 576px) {
-  .user-settings :deep(.el-form-item) {
+  .feishu-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 12px;
+    
+    .feishu-icon-box {
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      
+      .feishu-emoji {
+        font-size: 24px;
+      }
+    }
+    
+    .feishu-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .feishu-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+    }
   }
   
-  .phone-display {
+  .feishu-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 16px 0;
+    padding-left: 56px;
+  }
+  
+  .el-button {
+    margin-left: 56px;
+  }
+}
+
+// 密码表单
+.password-form {
+  .form-label {
+    font-size: 14px;
+    color: #374151;
+    
+    .required {
+      color: #ef4444;
+      margin-left: 2px;
+    }
+  }
+  
+  :deep(.el-form-item) {
+    margin-bottom: 20px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  :deep(.el-form-item__label) {
+    padding-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  :deep(.el-input__wrapper) {
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px #e5e7eb inset;
+    padding: 0 12px;
+    
+    &:hover {
+      box-shadow: 0 0 0 1px #3b82f6 inset;
+    }
+    
+    &.is-focus {
+      box-shadow: 0 0 0 2px #3b82f6 inset;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  
+  .el-button {
+    min-width: 120px;
+    border-radius: 10px;
+    
+    .btn-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// 操作记录区域
+.logs-section {
+  .logs-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+}
+
+.logs-table-wrapper {
+  margin-top: 16px;
+  
+  .logs-table {
+    :deep(.el-table__header) {
+      th {
+        background: #f9fafb;
+        color: #374151;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 12px 0;
+      }
+    }
+    
+    :deep(.el-table__row) {
+      td {
+        padding: 12px 0;
+      }
+    }
+    
+    .action-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      
+      &.create {
+        background: #dcfce7;
+        color: #166534;
+      }
+      
+      &.update {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      
+      &.delete,
+      &.delete-user {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      
+      &.login {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      
+      &.logout {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+      
+      &.register {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+      
+      &.default {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+    }
+    
+    .details-code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      color: #4b5563;
+      background: #f9fafb;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .ip-address {
+      font-family: monospace;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    
+    .time-text {
+      font-size: 13px;
+      color: #6b7280;
+    }
+  }
+}
+
+// 对话框样式
+.custom-dialog {
+  :deep(.el-dialog) {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
+  :deep(.el-dialog__header) {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    
+    .el-dialog__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+  }
+  
+  :deep(.el-dialog__body) {
+    padding: 24px;
+  }
+  
+  :deep(.el-dialog__footer) {
+    padding: 16px 24px;
+    border-top: 1px solid #f3f4f6;
+  }
+  
+  .dialog-content {
+    .current-phone-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 10px;
+      
+      .label {
+        font-size: 14px;
+        color: #6b7280;
+      }
+      
+      .value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        font-family: monospace;
+      }
+    }
+    
+    :deep(.el-input__wrapper) {
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px #e5e7eb inset;
+      
+      &:hover {
+        box-shadow: 0 0 0 1px #3b82f6 inset;
+      }
+      
+      &.is-focus {
+        box-shadow: 0 0 0 2px #3b82f6 inset;
+      }
+    }
+  }
+  
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    
+    .el-button {
+      min-width: 100px;
+      border-radius: 10px;
+    }
+  }
+}
+
+// 响应式适配
+@media (max-width: 768px) {
+  .user-settings {
+    padding: 16px;
+  }
+  
+  .page-header {
+    .page-title {
+      font-size: 20px;
+    }
+  }
+  
+  .main-grid {
+    gap: 16px;
+  }
+  
+  .info-card,
+  .password-card,
+  .logs-card {
+    padding: 16px;
+  }
+  
+  .feishu-section {
+    .feishu-desc,
+    .el-button {
+      padding-left: 0;
+      margin-left: 0;
+    }
+  }
+  
+  .form-actions {
     flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    padding: 8px 12px;
-    gap: 8px;
+    
+    .el-button {
+      width: 100%;
+    }
   }
 }
 </style>
