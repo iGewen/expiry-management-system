@@ -291,7 +291,7 @@ onMounted(() => { loadCategories() })
 
 .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; @media (max-width: 1024px) { grid-template-columns: 1fr; } }
 
-.feature-card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden; }
+.feature-card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden; display: flex; flex-direction: column; }
 
 .card-header { display: flex; align-items: center; gap: 16px; padding: 24px; border-bottom: 1px solid #f1f5f9; }
 .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
@@ -303,7 +303,7 @@ onMounted(() => { loadCategories() })
   p { font-size: 13px; color: #64748b; margin: 0; }
 }
 
-.card-body { padding: 24px; }
+.card-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
 
 .upload-area {
   :deep(.el-upload-dragger) { border: 2px dashed #e2e8f0; border-radius: 12px; background: #fafafa; transition: all 0.3s ease;
@@ -328,7 +328,7 @@ onMounted(() => { loadCategories() })
   }
 }
 
-.action-btn { width: 100%; height: 48px; border-radius: 12px; font-size: 15px; font-weight: 600; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-btn { width: 100%; height: 48px; border-radius: 12px; font-size: 15px; font-weight: 600; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
 .import-result { margin-top: 16px; }
 
@@ -337,7 +337,7 @@ onMounted(() => { loadCategories() })
 }
 
 .export-range { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-  :deep(.el-radio) { height: auto; align-items: flex-start; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-right: 0;
+  :deep(.el-radio) { height: auto; align-items: center; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-right: 0;
     &:hover { border-color: #6366f1; background: #f5f3ff; }
     &.is-checked { border-color: #6366f1; background: #eef2ff; }
   }

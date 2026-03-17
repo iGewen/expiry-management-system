@@ -35,18 +35,19 @@ export const logAction = async (req, res, next) => {
 };
 
 function buildLogDetails(req, responseData) {
+  const fullPath = req.originalUrl || req.url;
   const details = {
     method: req.method,
-    path: req.path
+    path: fullPath
   };
   
   // 根据不同的操作类型记录不同的详情
   if (req.method === 'POST') {
     // 创建操作
-    if (req.path.includes('/products')) {
+    if (fullPath.includes('/products')) {
       details.message = `创建商品: ${req.body?.name || '未知'}`;
       details.created = req.body;
-    } else if (req.path.includes('/categories')) {
+    } else if (fullPath.includes('/categories')) {
       details.message = `创建分类: ${req.body?.name || '未知'}`;
       details.created = req.body;
     }
@@ -55,7 +56,7 @@ function buildLogDetails(req, responseData) {
     const updateDetails = {};
     const body = req.body;
     
-    if (req.path.includes('/products')) {
+    if (fullPath.includes('/products')) {
       if (body.name) updateDetails.name = body.name;
       if (body.categoryId !== undefined) updateDetails.categoryId = body.categoryId;
       if (body.reminderDays !== undefined) updateDetails.reminderDays = body.reminderDays;
@@ -64,23 +65,23 @@ function buildLogDetails(req, responseData) {
       
       details.message = `更新商品 ID: ${req.params?.id}`;
       details.updates = updateDetails;
-    } else if (req.path.includes('/categories')) {
+    } else if (fullPath.includes('/categories')) {
       if (body.name) updateDetails.name = body.name;
       if (body.color) updateDetails.color = body.color;
       
       details.message = `更新分类 ID: ${req.params?.id}`;
       details.updates = updateDetails;
-    } else if (req.path.includes('/users')) {
+    } else if (fullPath.includes('/users')) {
       details.message = `更新用户 ID: ${req.params?.id}`;
       details.updates = body;
     }
   } else if (req.method === 'DELETE') {
     // 删除操作
-    if (req.path.includes('/products')) {
+    if (fullPath.includes('/products')) {
       details.message = `删除商品 ID: ${req.params?.id}`;
-    } else if (req.path.includes('/categories')) {
+    } else if (fullPath.includes('/categories')) {
       details.message = `删除分类 ID: ${req.params?.id}`;
-    } else if (req.path.includes('/users')) {
+    } else if (fullPath.includes('/users')) {
       details.message = `删除用户 ID: ${req.params?.id}`;
     }
   }
@@ -94,26 +95,50 @@ function buildLogDetails(req, responseData) {
 }
 
 function getActionType(req) {
-  const { method, path } = req;
+  // 使用 originalUrl 获取完整路径（包含挂载路径）
+  const fullPath = req.originalUrl || req.url;
+  const { method } = req;
   
-  if (path.includes('/auth/login')) return 'LOGIN';
-  if (path.includes('/auth/logout')) return 'LOGOUT';
-  if (path.includes('/auth/register')) return 'REGISTER';
+  if (fullPath.includes('/auth/login')) return 'LOGIN';
+  if (fullPath.includes('/auth/logout')) return 'LOGOUT';
+  if (fullPath.includes('/auth/register')) return 'REGISTER';
   
-  if (path.includes('/products')) {
-    if (method === 'POST' && path.includes('/batch')) return 'IMPORT_PRODUCTS';
+  if (fullPath.includes('/products')) {
+    if (method === 'POST' && fullPath.includes('/batch/delete')) return 'DELETE_PRODUCTS';
+    if (method === 'POST' && fullPath.includes('/batch/update')) return 'UPDATE_PRODUCTS';
+    if (method === 'POST' && fullPath.includes('/batch/import')) return 'IMPORT_PRODUCTS';
     if (method === 'POST') return 'CREATE_PRODUCT';
     if (method === 'PUT') return 'UPDATE_PRODUCT';
     if (method === 'DELETE') return 'DELETE_PRODUCT';
     if (method === 'GET') return 'VIEW_PRODUCTS';
   }
   
-  if (path.includes('/users')) {
+  if (fullPath.includes('/categories')) {
+    if (method === 'POST') return 'CREATE_CATEGORY';
+    if (method === 'PUT') return 'UPDATE_CATEGORY';
+    if (method === 'DELETE') return 'DELETE_CATEGORY';
+    if (method === 'GET') return 'VIEW_CATEGORIES';
+  }
+  
+  if (fullPath.includes('/users')) {
     if (method === 'PUT') return 'UPDATE_USER';
     if (method === 'DELETE') return 'DELETE_USER';
   }
   
-  return `${method}_${path.split('/')[2]?.toUpperCase() || 'UNKNOWN'}`;
+  if (fullPath.includes('/reminders')) {
+    if (method === 'POST' && fullPath.includes('/trigger')) return 'TRIGGER_REMINDER';
+    if (method === 'PUT') return 'UPDATE_REMINDER_SETTING';
+    if (method === 'GET') return 'VIEW_REMINDERS';
+  }
+  
+  if (fullPath.includes('/backup')) {
+    if (method === 'POST' && fullPath.includes('/restore')) return 'RESTORE_BACKUP';
+    if (method === 'POST') return 'CREATE_BACKUP';
+    if (method === 'DELETE') return 'DELETE_BACKUP';
+    if (method === 'GET') return 'VIEW_BACKUPS';
+  }
+  
+  return `${method}_ACTION`;
 }
 
 function sanitizeBody(body) {
