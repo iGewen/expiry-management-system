@@ -57,7 +57,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="角色" width="130" align="center">
+        <el-table-column label="角色" min-width="110" align="center">
           <template #default="{ row }">
             <span class="role-badge" :class="row.role.toLowerCase()">
               {{ getRoleText(row.role) }}
@@ -86,7 +86,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="操作" width="160" align="center" fixed="right">
+        <el-table-column label="操作" min-width="200" align="center" fixed="right">
           <template #default="{ row }">
             <div class="action-cell">
               <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
@@ -509,9 +509,10 @@ onMounted(() => {
 .table-section {
   background: white;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   border: 1px solid #f1f5f9;
+  min-width: 900px;
 }
 
 .data-table {
@@ -521,12 +522,14 @@ onMounted(() => {
     background: #f8fafc !important;
     color: #64748b;
     font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
+    font-size: 13px;
     padding: 14px 12px;
+    white-space: nowrap;
   }
   
+  :deep(th .cell) { overflow: visible; white-space: nowrap; }
   :deep(td) { padding: 12px; }
+  :deep(td .cell) { overflow: visible; }
   :deep(.el-table__row:hover > td) { background: #fafafa !important; }
 }
 
@@ -566,8 +569,8 @@ onMounted(() => {
 
 .role-badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
@@ -589,8 +592,9 @@ onMounted(() => {
 .action-cell {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .delete-info {
