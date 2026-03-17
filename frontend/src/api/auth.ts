@@ -73,10 +73,13 @@ export const authApi = {
     return request.get<ApiResponse<{ url: string }>>('/auth/feishu/authorize')
   },
 
-  // 飞书登录回调
-  feishuCallback(code: string) {
-    return request.get<ApiResponse<FeishuLoginResponse>>('/auth/feishu/callback', {
-      params: { code }
-    })
+  // 绑定已有账号
+  bindFeishuAccount(data: { tempToken: string; username: string; password: string }) {
+    return request.post<ApiResponse<LoginResponse>>('/auth/feishu/bind', data)
+  },
+
+  // 创建飞书新账号
+  createFeishuAccount(tempToken: string) {
+    return request.post<ApiResponse<LoginResponse>>('/auth/feishu/create', { tempToken })
   }
 }

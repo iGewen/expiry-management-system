@@ -32,7 +32,7 @@ model User {
   id            Int             @id @default(autoincrement())
   username      String          @unique @db.VarChar(50)
   password      String          @db.VarChar(255)
-  phone         String          @unique @db.VarChar(20)
+  phone         String?         @unique @db.VarChar(20)
   email         String?         @unique @db.VarChar(100)
   avatar        String?         @db.VarChar(500)
   feishuOpenId String?         @unique @db.VarChar(100) // 飞书 open_id

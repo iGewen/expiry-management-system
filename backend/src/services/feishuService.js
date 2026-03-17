@@ -39,7 +39,7 @@ export class FeishuService {
       scope: 'contact:user.base:readonly' // 获取用户基本信息
     });
 
-    return `https://open.feishu.cn/open-apis/authen/v1/authorize?${params.toString()}`;
+    return `https://accounts.feishu.cn/open-apis/authen/v1/authorize?${params.toString()}`;
   }
 
   /**
@@ -131,14 +131,10 @@ export class FeishuService {
   }
 
   /**
-   * 飞书登录/注册
-   * 1. 检查是否已绑定飞书账号
-   * 2. 已绑定 -> 直接登录
-   * 3. 未绑定 -> 检查手机号/邮箱是否已注册
-   *    - 已注册 -> 绑定并登录
-   *    - 未注册 -> 创建新账号并登录
+   * 飞书登录 - 第一步：获取用户信息
+   * 返回飞书用户信息，不自动创建账号
    */
-  async loginWithFeishu(code, ipAddress) {
+  async getFeishuUserInfo(code) {
     if (!this.isConfigured()) {
       throw new Error('飞书登录未配置');
     }
@@ -153,73 +149,134 @@ export class FeishuService {
 
     logger.info(`Feishu login attempt: open_id=${open_id}, name=${name}`);
 
-    // 3. 查找是否已有飞书绑定
-    let user = await prisma.user.findFirst({
-      where: {
-        feishuOpenId: open_id
-      }
-    });
-
-    if (user) {
-      // 已绑定，直接登录
-      logger.info(`Feishu login: user ${user.username} logged in via Feishu`);
-      return {
-        user: this.sanitizeUser(user),
-        isNewUser: false,
-        isBound: true
-      };
-    }
-
-    // 4. 未绑定，尝试通过手机号或邮箱查找已有账号
+    // 3. 检查是否已绑定
     const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { phone: mobile },
-          { email: email }
-        ]
-      }
+      where: { feishuOpenId: open_id }
     });
 
     if (existingUser) {
-      // 绑定已有账号
-      user = await prisma.user.update({
-        where: { id: existingUser.id },
-        data: {
-          feishuOpenId: open_id,
-          avatar: avatar_url || existingUser.avatar
-        }
-      });
-
-      logger.info(`Feishu login: bound to existing user ${user.username}`);
+      // 已绑定，直接返回用户
       return {
-        user: this.sanitizeUser(user),
-        isNewUser: false,
-        isBound: true
+        isBound: true,
+        user: this.sanitizeUser(existingUser),
+        feishuInfo: null
       };
     }
 
-    // 5. 创建新用户
-    const username = this.generateUsername(name, open_id);
+    // 4. 未绑定，返回飞书用户信息
+    return {
+      isBound: false,
+      user: null,
+      feishuInfo: {
+        openId: open_id,
+        name: name,
+        mobile: mobile,
+        email: email,
+        avatar: avatar_url
+      }
+    };
+  }
+
+  /**
+   * 绑定已有账号
+   */
+  async bindExistingAccount(openId, username, password) {
+    // 验证用户名密码
+    const user = await prisma.user.findUnique({
+      where: { username }
+    });
+
+    if (!user) {
+      throw new Error('用户名或密码错误');
+    }
+
+    // 验证密码
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      throw new Error('用户名或密码错误');
+    }
+
+    // 检查该飞书账号是否已被绑定
+    const existingBind = await prisma.user.findFirst({
+      where: { feishuOpenId: openId }
+    });
+
+    if (existingBind) {
+      throw new Error('该飞书账号已被其他用户绑定');
+    }
+
+    // 绑定
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { feishuOpenId: openId }
+    });
+
+    logger.info(`User ${user.username} bound Feishu account`);
+
+    return this.sanitizeUser(updatedUser);
+  }
+
+  /**
+   * 创建飞书新账号
+   */
+  async createNewAccount(feishuInfo) {
+    const { openId, name, mobile, email, avatar } = feishuInfo;
+
+    // 检查是否已绑定
+    const existingUser = await prisma.user.findFirst({
+      where: { feishuOpenId: openId }
+    });
+
+    if (existingUser) {
+      throw new Error('该飞书账号已绑定其他用户');
+    }
+
+    const username = this.generateUsername(name, openId);
     const randomPassword = bcrypt.hashSync(Math.random().toString(36), 12);
 
-    user = await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         username,
         password: randomPassword,
         phone: mobile || null,
         email: email || null,
-        feishuOpenId: open_id,
-        avatar: avatar_url,
-        status: 'active'
+        feishuOpenId: openId,
+        avatar: avatar || null,
+        isActive: true
       }
     });
 
-    logger.info(`Feishu login: created new user ${user.username}`);
-    return {
-      user: this.sanitizeUser(user),
-      isNewUser: true,
-      isBound: true
-    };
+    logger.info(`Created new user via Feishu: ${user.username}`);
+
+    return this.sanitizeUser(user);
+  }
+
+  /**
+   * 解绑飞书账号
+   */
+  async unbindFeishuAccount(userId) {
+    // 检查用户
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      throw new Error('用户不存在');
+    }
+
+    if (!user.feishuOpenId) {
+      throw new Error('该用户未绑定飞书账号');
+    }
+
+    // 解绑
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { feishuOpenId: null }
+    });
+
+    logger.info(`User ${user.username} unbound Feishu account`);
+
+    return this.sanitizeUser(updatedUser);
   }
 
   /**
@@ -245,3 +302,6 @@ export class FeishuService {
     return safeUser;
   }
 }
+
+// 默认导出
+export default new FeishuService();
