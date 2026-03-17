@@ -405,9 +405,15 @@ export class ProductController {
     try {
       const userId = req.user.id;
       const userRole = req.user.role;
+      const { status, categoryId } = req.query;
 
-      // 获取所有商品
-      const result = await productService.getProducts(userId, userRole, { exportAll: 'true' });
+      // 构建过滤条件
+      const filters = { exportAll: 'true' };
+      if (status) filters.status = status;
+      if (categoryId) filters.categoryId = categoryId;
+
+      // 获取商品
+      const result = await productService.getProducts(userId, userRole, filters);
       const products = result.products || [];
 
       // 生成Excel数据

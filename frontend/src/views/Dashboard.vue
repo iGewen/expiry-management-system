@@ -256,7 +256,7 @@ const loadStats = async () => {
 const loadExpiringProducts = async () => {
   loading.value = true
   try {
-    const data = await getProducts({ status: 'WARNING,EXPIRED', pageSize: 5 })
+    const data = await getProducts({ status: 'WARNING', pageSize: 5 })
     expiringProducts.value = data?.products || []
   } catch (error: any) {
     ElMessage.error(error.response?.data?.message || '加载商品列表失败')

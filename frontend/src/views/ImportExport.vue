@@ -254,13 +254,19 @@ const handleExport = async () => {
   try {
     let blob: Blob
     let filename: string
-    const params: any = { fields: exportFields.value.join(','), format: exportFormat.value }
+    let apiUrl = '/products/export/all'
+    const params: any = { format: exportFormat.value }
     
-    if (exportRange.value === 'category' && selectedCategory.value) params.categoryId = selectedCategory.value
-    else if (exportRange.value === 'expiring') params.expiringDays = 30
-    else if (exportRange.value === 'expired') params.status = 'EXPIRED'
+    if (exportRange.value === 'category' && selectedCategory.value) {
+      params.categoryId = selectedCategory.value
+    } else if (exportRange.value === 'expiring') {
+      apiUrl = '/products/export/expiring'
+      params.days = 30
+    } else if (exportRange.value === 'expired') {
+      params.status = 'EXPIRED'
+    }
 
-    const res = await httpClient.get('/products/export', { params, responseType: 'blob' })
+    const res = await httpClient.get(apiUrl, { params, responseType: 'blob' })
     blob = res as any
     filename = `商品数据_${dayjs().format('YYYYMMDD_HHmmss')}.${exportFormat.value}`
     
