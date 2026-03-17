@@ -83,7 +83,7 @@
               </div>
               <div class="bind-info">
                 <div class="bind-name">飞书</div>
-                <div class="bind-status" v-if="isFeishuBound">已绑定 · {{ userStore.user?.feishuOpenId?.slice(0, 12) }}...</div>
+                <div class="bind-status" v-if="isFeishuBound">已绑定 · {{ userStore.user?.feishuOpenId }}</div>
                 <div class="bind-status" v-else>未绑定</div>
               </div>
               <el-button :type="isFeishuBound ? 'danger' : 'primary'" size="small" plain :loading="feishuLoading" @click="isFeishuBound ? handleUnbindFeishu() : handleBindFeishu()">
