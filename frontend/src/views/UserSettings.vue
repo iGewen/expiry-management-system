@@ -81,6 +81,42 @@
           </el-form>
         </el-card>
       </el-col>
+
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span>飞书账号绑定</span>
+              <el-tag v-if="userStore.user?.feishuOpenId" type="success">已绑定</el-tag>
+              <el-tag v-else type="info">未绑定</el-tag>
+            </div>
+          </template>
+          <div v-if="userStore.user?.feishuOpenId" class="feishu-bound">
+            <div class="feishu-info">
+              <div class="feishu-icon">📱</div>
+              <div class="feishu-text">
+                <p class="feishu-title">飞书账号已绑定</p>
+                <p class="feishu-desc">您可以使用飞书扫码登录</p>
+              </div>
+            </div>
+            <el-button type="danger" plain @click="handleUnbindFeishu" :loading="feishuLoading">
+              解绑飞书账号
+            </el-button>
+          </div>
+          <div v-else class="feishu-unbound">
+            <div class="feishu-info">
+              <div class="feishu-icon gray">📱</div>
+              <div class="feishu-text">
+                <p class="feishu-title">未绑定飞书账号</p>
+                <p class="feishu-desc">绑定后可使用飞书扫码登录</p>
+              </div>
+            </div>
+            <el-button type="primary" @click="handleBindFeishu" :loading="feishuLoading">
+              绑定飞书账号
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
     </el-row>
 
     <el-row :gutter="20" style="margin-top: 20px;">
@@ -142,10 +178,12 @@ import dayjs from 'dayjs'
 import { useUserStore } from '@/stores/user'
 import { changePassword, updateProfile } from '@/api/user'
 import { getLogs } from '@/api/log'
+import { authApi } from '@/api/auth'
 
 const userStore = useUserStore()
 const loading = ref(false)
 const submitting = ref(false)
+const feishuLoading = ref(false)
 const phoneDialogVisible = ref(false)
 const infoFormRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
@@ -355,6 +393,68 @@ const getActionText = (action: string) => {
   return textMap[action] || action
 }
 
+// 飞书绑定
+const handleBindFeishu = async () => {
+  try {
+    const res = await authApi.getFeishuAuthorizeUrl()
+    if (res.success && res.data?.url) {
+      // 打开新窗口进行飞书授权
+      const width = 600
+      const height = 700
+      const left = (window.screen.width - width) / 2
+      const top = (window.screen.height - height) / 2
+      
+      const authWindow = window.open(
+        res.data.url,
+        'feishu-auth',
+        `width=${width},height=${height},left=${left},top=${top},resizable=no,scrollbars=yes`
+      )
+      
+      // 监听授权窗口关闭
+      const checkClosed = setInterval(() => {
+        if (authWindow?.closed) {
+          clearInterval(checkClosed)
+          // 刷新用户信息
+          userStore.fetchUserInfo()
+        }
+      }, 500)
+    }
+  } catch (error: any) {
+    ElMessage.error(error.message || '获取授权链接失败')
+  }
+}
+
+// 飞书解绑
+const handleUnbindFeishu = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '解绑后无法使用飞书扫码登录，确定要解绑吗？',
+      '解绑飞书账号',
+      {
+        confirmButtonText: '确定解绑',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    feishuLoading.value = true
+    await authApi.unbindFeishuAccount()
+    
+    // 更新 store 中的用户信息
+    if (userStore.user) {
+      userStore.user.feishuOpenId = null
+    }
+    
+    ElMessage.success('飞书账号解绑成功')
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '解绑失败')
+    }
+  } finally {
+    feishuLoading.value = false
+  }
+}
+
 onMounted(() => {
   loadUserInfo()
   loadMyLogs()
@@ -366,6 +466,55 @@ onMounted(() => {
 
 .user-settings {
   padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feishu-bound,
+.feishu-unbound {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feishu-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  .feishu-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3370FF;
+    border-radius: 12px;
+    font-size: 24px;
+    
+    &.gray {
+      background: #E8E8E8;
+    }
+  }
+  
+  .feishu-text {
+    .feishu-title {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: $text-primary;
+    }
+    
+    .feishu-desc {
+      margin: 0;
+      font-size: 13px;
+      color: $text-secondary;
+    }
+  }
 }
 
 .phone-display {

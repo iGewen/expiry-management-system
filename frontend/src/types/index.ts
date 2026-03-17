@@ -3,6 +3,9 @@ export interface User {
   id: number
   username: string
   phone?: string
+  email?: string
+  avatar?: string
+  feishuOpenId?: string
   role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'
   isActive?: boolean
   createdAt?: string

@@ -81,5 +81,10 @@ export const authApi = {
   // 创建飞书新账号
   createFeishuAccount(tempToken: string) {
     return request.post<ApiResponse<LoginResponse>>('/auth/feishu/create', { tempToken })
+  },
+
+  // 解绑飞书账号
+  unbindFeishuAccount() {
+    return request.post<ApiResponse>('/auth/feishu/unbind')
   }
 }

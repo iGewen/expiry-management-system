@@ -26,6 +26,7 @@ export class FeishuService {
 
   /**
    * 获取飞书登录授权 URL
+   * 需要获取用户手机号权限
    */
   getAuthorizationUrl(state) {
     if (!this.isConfigured()) {
@@ -36,7 +37,7 @@ export class FeishuService {
       app_id: this.appId,
       redirect_uri: this.redirectUri,
       state: state || '',
-      scope: 'contact:user.base:readonly' // 获取用户基本信息
+      scope: 'contact:user.phone:readonly contact:user.base:readonly' // 获取用户手机号和基本信息
     });
 
     return `https://accounts.feishu.cn/open-apis/authen/v1/authorize?${params.toString()}`;
@@ -217,7 +218,7 @@ export class FeishuService {
   }
 
   /**
-   * 创建飞书新账号
+   * 创建飞书新账号（使用飞书手机号）
    */
   async createNewAccount(feishuInfo) {
     const { openId, name, mobile, email, avatar } = feishuInfo;
@@ -231,7 +232,25 @@ export class FeishuService {
       throw new Error('该飞书账号已绑定其他用户');
     }
 
-    const username = this.generateUsername(name, openId);
+    // 如果有手机号，检查是否已存在
+    if (mobile) {
+      const existingPhone = await prisma.user.findFirst({
+        where: { phone: mobile }
+      });
+      if (existingPhone) {
+        throw new Error('该手机号已注册，请绑定已有账号');
+      }
+    }
+
+    // 生成用户名：优先使用手机号，其次使用飞书名字+后缀
+    let username;
+    if (mobile) {
+      // 使用手机号后8位作为用户名
+      username = mobile.slice(-8);
+    } else {
+      username = this.generateUsername(name, openId);
+    }
+    
     const randomPassword = bcrypt.hashSync(Math.random().toString(36), 12);
 
     const user = await prisma.user.create({
@@ -246,7 +265,7 @@ export class FeishuService {
       }
     });
 
-    logger.info(`Created new user via Feishu: ${user.username}`);
+    logger.info(`Created new user via Feishu: ${user.username}, phone: ${mobile || 'none'}`);
 
     return this.sanitizeUser(user);
   }
