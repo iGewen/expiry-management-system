@@ -62,15 +62,14 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon red">
+        <div class="stat-icon purple">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </div>
         <div class="stat-body">
-          <span class="stat-value">{{ stats.errors }}</span>
-          <span class="stat-label">异常操作</span>
+          <span class="stat-value">{{ stats.actions }}</span>
+          <span class="stat-label">操作类型</span>
         </div>
       </div>
     </section>
@@ -91,10 +90,12 @@
           <el-select v-model="searchForm.action" placeholder="操作类型" clearable @change="handleSearch">
             <el-option label="登录" value="LOGIN" />
             <el-option label="登出" value="LOGOUT" />
-            <el-option label="新增" value="CREATE" />
-            <el-option label="更新" value="UPDATE" />
-            <el-option label="删除" value="DELETE" />
-            <el-option label="导出" value="EXPORT" />
+            <el-option label="创建商品" value="CREATE_PRODUCT" />
+            <el-option label="更新商品" value="UPDATE_PRODUCT" />
+            <el-option label="删除商品" value="DELETE_PRODUCT" />
+            <el-option label="批量更新" value="UPDATE_PRODUCTS" />
+            <el-option label="批量删除" value="DELETE_PRODUCTS" />
+            <el-option label="导入商品" value="IMPORT_PRODUCTS" />
           </el-select>
         </div>
         <div class="filter-item">
@@ -112,51 +113,52 @@
 
     <!-- 日志列表 -->
     <section class="table-section">
-      <el-table :data="logs" v-loading="loading" class="data-table">
-        <el-table-column type="index" label="#" width="60" />
+      <el-table :data="logs" v-loading="loading" class="data-table" style="width: 100%">
+        <el-table-column type="index" label="#" width="50" />
         
-        <el-table-column label="时间" width="170">
+        <el-table-column label="时间" width="160">
           <template #default="{ row }">
-            <div class="time-cell">
-              <span class="time-date">{{ formatDate(row.createdAt, 'YYYY-MM-DD') }}</span>
-              <span class="time-clock">{{ formatDate(row.createdAt, 'HH:mm:ss') }}</span>
-            </div>
+            <span class="time-text">{{ formatDateTime(row.createdAt) }}</span>
           </template>
         </el-table-column>
         
         <el-table-column label="用户" width="120">
           <template #default="{ row }">
             <div class="user-cell">
-              <div class="user-avatar">{{ row.user?.username?.charAt(0)?.toUpperCase() || '?' }}</div>
-              <span>{{ row.user?.username || '系统' }}</span>
+              <div class="user-avatar">{{ (row.username || '?').charAt(0).toUpperCase() }}</div>
+              <div class="user-info">
+                <span class="user-name">{{ row.username || '系统' }}</span>
+                <span class="user-role">{{ getRoleText(row.userRole) }}</span>
+              </div>
             </div>
           </template>
         </el-table-column>
         
-        <el-table-column prop="action" label="操作" width="100">
+        <el-table-column label="操作" width="120">
           <template #default="{ row }">
             <span class="action-badge" :class="getActionClass(row.action)">{{ getActionText(row.action) }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column prop="module" label="模块" width="100" />
-        
-        <el-table-column prop="description" label="描述" min-width="200">
+        <el-table-column label="模块" width="80">
           <template #default="{ row }">
-            <span class="desc-text">{{ row.description }}</span>
+            <span class="module-text">{{ getModule(row.action) }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column prop="ip" label="IP地址" width="130" />
-        
-        <el-table-column label="状态" width="80">
+        <el-table-column label="描述" min-width="200">
           <template #default="{ row }">
-            <span class="status-dot" :class="row.status === 'SUCCESS' ? 'success' : 'error'"></span>
-            {{ row.status === 'SUCCESS' ? '成功' : '失败' }}
+            <span class="desc-text">{{ getDescription(row) }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column label="详情" width="80">
+        <el-table-column label="IP地址" width="140">
+          <template #default="{ row }">
+            <span class="ip-text">{{ formatIp(row.ipAddress) }}</span>
+          </template>
+        </el-table-column>
+        
+        <el-table-column label="操作" width="80" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="showDetail(row)">查看</el-button>
           </template>
@@ -169,19 +171,55 @@
     </section>
 
     <!-- 详情弹窗 -->
-    <el-dialog v-model="detailVisible" title="日志详情" width="500px">
-      <el-descriptions :column="1" border v-if="currentLog">
-        <el-descriptions-item label="时间">{{ formatDate(currentLog.createdAt, 'YYYY-MM-DD HH:mm:ss') }}</el-descriptions-item>
-        <el-descriptions-item label="用户">{{ currentLog.user?.username || '系统' }}</el-descriptions-item>
-        <el-descriptions-item label="操作">{{ getActionText(currentLog.action) }}</el-descriptions-item>
-        <el-descriptions-item label="模块">{{ currentLog.module }}</el-descriptions-item>
-        <el-descriptions-item label="描述">{{ currentLog.description }}</el-descriptions-item>
-        <el-descriptions-item label="IP地址">{{ currentLog.ip }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ currentLog.status === 'SUCCESS' ? '成功' : '失败' }}</el-descriptions-item>
-        <el-descriptions-item label="详情">
-          <pre class="detail-json">{{ JSON.stringify(currentLog.details || {}, null, 2) }}</pre>
-        </el-descriptions-item>
-      </el-descriptions>
+    <el-dialog v-model="detailVisible" title="日志详情" width="700px" :close-on-click-modal="false">
+      <div class="detail-content" v-if="currentLog">
+        <div class="detail-row">
+          <div class="detail-label">日志ID</div>
+          <div class="detail-value">{{ currentLog.id }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">操作时间</div>
+          <div class="detail-value">{{ formatDateTime(currentLog.createdAt) }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">操作用户</div>
+          <div class="detail-value">
+            <span class="user-badge">{{ currentLog.username || '系统' }}</span>
+            <span class="role-badge">{{ getRoleText(currentLog.userRole) }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">操作类型</div>
+          <div class="detail-value">
+            <span class="action-badge" :class="getActionClass(currentLog.action)">{{ getActionText(currentLog.action) }}</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">所属模块</div>
+          <div class="detail-value">{{ getModule(currentLog.action) }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">操作描述</div>
+          <div class="detail-value">{{ getDescription(currentLog) }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">IP地址</div>
+          <div class="detail-value">{{ formatIp(currentLog.ipAddress) }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">客户端</div>
+          <div class="detail-value user-agent">{{ currentLog.userAgent || '-' }}</div>
+        </div>
+        <div class="detail-row full-width">
+          <div class="detail-label">详细信息</div>
+          <div class="detail-value">
+            <pre class="detail-json">{{ formatDetails(currentLog.details) }}</pre>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="detailVisible = false">关闭</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -201,22 +239,100 @@ const searchForm = reactive({ username: '', action: '', dateRange: null as [stri
 const pagination = reactive({ page: 1, pageSize: 20, total: 0 })
 
 const stats = computed(() => {
-  let total = pagination.total, today = 0, users = 0, errors = 0
-  logs.value.forEach((log: any) => { if (dayjs(log.createdAt).isSame(dayjs(), 'day')) today++; if (log.status !== 'SUCCESS') errors++ })
-  users = [...new Set(logs.value.map((l: any) => l.user?.id))].filter(Boolean).length
-  return { total, today, users, errors }
+  let total = pagination.total, today = 0, users = 0, actions = 0
+  const userSet = new Set()
+  const actionSet = new Set()
+  logs.value.forEach((log: any) => {
+    if (dayjs(log.createdAt).isSame(dayjs(), 'day')) today++
+    if (log.username) userSet.add(log.username)
+    if (log.action) actionSet.add(log.action)
+  })
+  users = userSet.size
+  actions = actionSet.size
+  return { total, today, users, actions }
 })
 
-const formatDate = (date: string, format: string) => dayjs(date).format(format)
+const formatDateTime = (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+
+const formatIp = (ip: string) => {
+  if (!ip) return '-'
+  return ip.replace('::ffff:', '')
+}
+
+const getRoleText = (role: string) => {
+  const roles: Record<string, string> = {
+    'SUPER_ADMIN': '超级管理员',
+    'ADMIN': '管理员',
+    'USER': '普通用户'
+  }
+  return roles[role] || role || '-'
+}
 
 const getActionClass = (action: string) => {
-  const classes: Record<string, string> = { LOGIN: 'blue', LOGOUT: 'gray', CREATE: 'green', UPDATE: 'orange', DELETE: 'red', EXPORT: 'purple' }
-  return classes[action] || 'gray'
+  if (action?.includes('CREATE')) return 'green'
+  if (action?.includes('UPDATE')) return 'orange'
+  if (action?.includes('DELETE')) return 'red'
+  if (action?.includes('IMPORT')) return 'purple'
+  if (action === 'LOGIN') return 'blue'
+  if (action === 'LOGOUT') return 'gray'
+  return 'gray'
 }
 
 const getActionText = (action: string) => {
-  const texts: Record<string, string> = { LOGIN: '登录', LOGOUT: '登出', CREATE: '新增', UPDATE: '更新', DELETE: '删除', EXPORT: '导出' }
-  return texts[action] || action
+  const texts: Record<string, string> = {
+    'LOGIN': '登录',
+    'LOGOUT': '登出',
+    'CREATE_PRODUCT': '创建商品',
+    'UPDATE_PRODUCT': '更新商品',
+    'DELETE_PRODUCT': '删除商品',
+    'UPDATE_PRODUCTS': '批量更新',
+    'DELETE_PRODUCTS': '批量删除',
+    'IMPORT_PRODUCTS': '导入商品',
+    'CREATE_CATEGORY': '创建分类',
+    'UPDATE_CATEGORY': '更新分类',
+    'DELETE_CATEGORY': '删除分类',
+    'UPDATE_USER': '更新用户',
+    'DELETE_USER': '删除用户',
+    'TRIGGER_REMINDER': '发送提醒',
+    'UPDATE_REMINDER_SETTING': '更新提醒设置',
+    'CREATE_BACKUP': '创建备份',
+    'RESTORE_BACKUP': '恢复备份',
+    'DELETE_BACKUP': '删除备份'
+  }
+  return texts[action] || action || '-'
+}
+
+const getModule = (action: string) => {
+  if (!action) return '-'
+  if (action.includes('PRODUCT')) return '商品'
+  if (action.includes('CATEGORY')) return '分类'
+  if (action.includes('USER')) return '用户'
+  if (action.includes('REMINDER')) return '提醒'
+  if (action.includes('BACKUP')) return '备份'
+  if (action === 'LOGIN' || action === 'LOGOUT') return '认证'
+  return '系统'
+}
+
+const getDescription = (row: any) => {
+  if (!row.details) return '-'
+  try {
+    const details = typeof row.details === 'string' ? JSON.parse(row.details) : row.details
+    if (details.message) return details.message
+    if (details.responseMessage) return details.responseMessage
+    return `${row.action || '操作'}`
+  } catch {
+    return row.action || '-'
+  }
+}
+
+const formatDetails = (details: any) => {
+  if (!details) return '{}'
+  try {
+    const parsed = typeof details === 'string' ? JSON.parse(details) : details
+    return JSON.stringify(parsed, null, 2)
+  } catch {
+    return details
+  }
 }
 
 const loadLogs = async () => {
@@ -227,15 +343,27 @@ const loadLogs = async () => {
     if (searchForm.action) params.action = searchForm.action
     if (searchForm.dateRange) { params.startDate = searchForm.dateRange[0]; params.endDate = searchForm.dateRange[1] }
     const res = await httpClient.get('/logs', { params })
-    logs.value = res?.data?.logs || []; pagination.total = res?.data?.total || 0
-  } catch (error: any) { ElMessage.error(error.response?.data?.message || '获取日志失败') }
-  finally { loading.value = false }
+    logs.value = res?.data?.logs || []
+    pagination.total = res?.data?.total || 0
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '获取日志失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleSearch = () => { pagination.page = 1; loadLogs() }
-const handleReset = () => { searchForm.username = ''; searchForm.action = ''; searchForm.dateRange = null; handleSearch() }
+const handleReset = () => {
+  searchForm.username = ''
+  searchForm.action = ''
+  searchForm.dateRange = null
+  handleSearch()
+}
 const handleExport = () => { ElMessage.success('日志导出功能开发中...') }
-const showDetail = (row: any) => { currentLog.value = row; detailVisible.value = true }
+const showDetail = (row: any) => {
+  currentLog.value = row
+  detailVisible.value = true
+}
 
 const handleClearLogs = async () => {
   try {
@@ -261,13 +389,13 @@ onMounted(() => { loadLogs() })
   .page-title { font-size: 28px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
   .page-desc { font-size: 14px; color: #64748b; margin: 0; }
 }
-.header-right { .el-button { height: 40px; padding: 0 20px; border-radius: 10px; } }
+.header-right { display: flex; gap: 12px; .el-button { height: 40px; padding: 0 20px; border-radius: 10px; } }
 
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); } }
 .stat-card { background: white; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
 .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
   &.blue { background: #eef2ff; color: #6366f1; } &.green { background: #d1fae5; color: #10b981; }
-  &.orange { background: #fef3c7; color: #f59e0b; } &.red { background: #fee2e2; color: #ef4444; }
+  &.orange { background: #fef3c7; color: #f59e0b; } &.purple { background: #f3e8ff; color: #8b5cf6; }
 }
 .stat-body { display: flex; flex-direction: column; }
 .stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
@@ -279,20 +407,38 @@ onMounted(() => { loadLogs() })
 
 .table-section { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
 .data-table { --el-table-border-color: #f1f5f9;
-  :deep(th) { background: #f8fafc !important; color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; padding: 14px 12px; }
-  :deep(td) { padding: 12px; }
+  :deep(th) { background: #f8fafc !important; color: #64748b; font-weight: 600; font-size: 13px; padding: 14px 12px; white-space: nowrap; }
+  :deep(td) { padding: 12px; vertical-align: middle; }
   :deep(.el-table__row:hover > td) { background: #fafafa !important; }
 }
 
-.time-cell { display: flex; flex-direction: column; .time-date { font-size: 13px; color: #1e293b; } .time-clock { font-size: 12px; color: #94a3b8; } }
-.user-cell { display: flex; align-items: center; gap: 8px; .user-avatar { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; } }
-.action-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+.time-text { font-size: 13px; color: #1e293b; white-space: nowrap; }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-size: 13px; font-weight: 500; color: #1e293b; }
+.user-role { font-size: 11px; color: #94a3b8; }
+
+.action-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap;
   &.blue { background: #eef2ff; color: #6366f1; } &.gray { background: #f1f5f9; color: #64748b; }
   &.green { background: #d1fae5; color: #10b981; } &.orange { background: #fef3c7; color: #f59e0b; }
   &.red { background: #fee2e2; color: #ef4444; } &.purple { background: #f3e8ff; color: #8b5cf6; }
 }
-.desc-text { font-size: 13px; color: #64748b; }
-.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; &.success { background: #10b981; } &.error { background: #ef4444; } }
+.module-text { font-size: 13px; color: #64748b; }
+.desc-text { font-size: 13px; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ip-text { font-size: 12px; color: #64748b; font-family: monospace; }
+
 .pagination-wrapper { padding: 16px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; }
-.detail-json { margin: 0; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 12px; overflow-x: auto; }
+
+// 详情弹窗样式
+.detail-content { display: flex; flex-wrap: wrap; gap: 16px; }
+.detail-row { display: flex; width: calc(50% - 8px); align-items: flex-start; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px;
+  &.full-width { width: 100%; flex-direction: column; }
+}
+.detail-label { font-size: 13px; color: #64748b; min-width: 70px; flex-shrink: 0; }
+.detail-value { font-size: 14px; color: #1e293b; flex: 1; word-break: break-all; }
+.user-badge { display: inline-block; padding: 2px 8px; background: #eef2ff; color: #6366f1; border-radius: 4px; font-size: 12px; margin-right: 8px; }
+.role-badge { display: inline-block; padding: 2px 8px; background: #f1f5f9; color: #64748b; border-radius: 4px; font-size: 11px; }
+.user-agent { font-size: 12px; color: #94a3b8; word-break: break-all; }
+.detail-json { margin: 0; padding: 12px; background: #1e293b; color: #10b981; border-radius: 8px; font-size: 12px; overflow-x: auto; max-height: 300px; white-space: pre-wrap; word-break: break-all; }
 </style>
