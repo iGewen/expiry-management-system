@@ -227,7 +227,7 @@ const loadLogs = async () => {
     if (searchForm.action) params.action = searchForm.action
     if (searchForm.dateRange) { params.startDate = searchForm.dateRange[0]; params.endDate = searchForm.dateRange[1] }
     const res = await httpClient.get('/logs', { params })
-    logs.value = res?.logs || []; pagination.total = res?.total || 0
+    logs.value = res?.data?.logs || []; pagination.total = res?.data?.total || 0
   } catch (error: any) { ElMessage.error(error.response?.data?.message || '获取日志失败') }
   finally { loading.value = false }
 }
