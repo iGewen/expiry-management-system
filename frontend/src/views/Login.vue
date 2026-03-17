@@ -104,6 +104,24 @@
               </el-button>
             </el-form-item>
 
+            <!-- 飞书登录 -->
+            <el-form-item v-if="feishuEnabled">
+              <div class="divider-text">
+                <span>或</span>
+              </div>
+              <el-button
+                size="large"
+                class="feishu-button"
+                :loading="feishuLoading"
+                @click="handleFeishuLogin"
+              >
+                <svg class="feishu-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 15l-4-4 1.41-1.41L10.5 14.17l6.59-6.59L18.5 9l-8 8z"/>
+                </svg>
+                飞书扫码登录
+              </el-button>
+            </el-form-item>
+
             <div class="register-hint">
               还没有账号？
               <router-link to="/register" class="register-link">立即注册</router-link>
@@ -125,8 +143,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
@@ -134,10 +152,13 @@ import { useUserStore } from '@/stores/user'
 import type { LoginForm } from '@/types'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const feishuEnabled = ref(false)
+const feishuLoading = ref(false)
 
 const loginForm = reactive<LoginForm>({
   username: '',
@@ -153,6 +174,18 @@ const rules: FormRules = {
     { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 }
+
+// 检查飞书登录是否可用
+onMounted(async () => {
+  try {
+    const res = await authApi.getFeishuStatus()
+    if (res.success && res.data?.enabled) {
+      feishuEnabled.value = true
+    }
+  } catch (error) {
+    console.log('Feishu login not available')
+  }
+})
 
 const handleLogin = async () => {
   if (!formRef.value) return
@@ -181,6 +214,23 @@ const handleLogin = async () => {
       loading.value = false
     }
   })
+}
+
+// 飞书登录
+const handleFeishuLogin = async () => {
+  feishuLoading.value = true
+  try {
+    const res = await authApi.getFeishuAuthorizeUrl()
+    if (res.success && res.data?.url) {
+      // 跳转到飞书授权页面
+      window.location.href = res.data.url
+    }
+  } catch (error) {
+    console.error('Feishu login error:', error)
+    ElMessage.error('飞书登录失败，请稍后重试')
+  } finally {
+    feishuLoading.value = false
+  }
 }
 </script>
 
@@ -437,6 +487,67 @@ const handleLogin = async () => {
   
   &:active {
     transform: translateY(0);
+  }
+}
+
+// 飞书登录
+.divider-text {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  margin-bottom: 16px;
+  
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: $border-light;
+  }
+  
+  &::before {
+    left: 0;
+  }
+  
+  &::after {
+    right: 0;
+  }
+  
+  span {
+    background: white;
+    padding: 0 12px;
+    color: $text-secondary;
+    font-size: 14px;
+  }
+}
+
+.feishu-button {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: $border-radius-base;
+  background: #3370FF;
+  border-color: #3370FF;
+  color: white;
+  transition: $transition-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &:hover {
+    background: #2860E1;
+    border-color: #2860E1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(51, 112, 255, 0.3);
+  }
+  
+  .feishu-icon {
+    width: 20px;
+    height: 20px;
   }
 }
 

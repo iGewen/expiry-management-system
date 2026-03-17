@@ -19,6 +19,7 @@ import importHistoryRoutes from './routes/importHistory.js';
 import categoryRoutes from './routes/category.js';
 import reminderRoutes from './routes/reminder.js';
 import backupRoutes from './routes/backup.js';
+import feishuRoutes from './routes/feishu.js';
 import schedulerService from './services/schedulerService.js';
 
 const app = express();
@@ -202,6 +203,7 @@ app.get('/api', (req, res) => {
 
 // API 路由
 app.use('/api/auth', authRoutes);
+app.use('/api/auth/feishu', feishuRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/logs', logRoutes);

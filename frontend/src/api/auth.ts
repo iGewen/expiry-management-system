@@ -7,6 +7,10 @@ export interface LoginResponse {
   refreshToken?: string
 }
 
+export interface FeishuLoginResponse extends LoginResponse {
+  isNewUser: boolean
+}
+
 export interface ResetPasswordForm {
   phone: string
   newPassword: string
@@ -55,5 +59,24 @@ export const authApi = {
   // 获取当前用户信息
   getCurrentUser() {
     return request.get<ApiResponse<User>>('/auth/me')
+  },
+
+  // ============ 飞书登录相关 ============
+  
+  // 获取飞书登录状态
+  getFeishuStatus() {
+    return request.get<ApiResponse<{ enabled: boolean }>>('/auth/feishu/status')
+  },
+
+  // 获取飞书授权 URL
+  getFeishuAuthorizeUrl() {
+    return request.get<ApiResponse<{ url: string }>>('/auth/feishu/authorize')
+  },
+
+  // 飞书登录回调
+  feishuCallback(code: string) {
+    return request.get<ApiResponse<FeishuLoginResponse>>('/auth/feishu/callback', {
+      params: { code }
+    })
   }
 }
