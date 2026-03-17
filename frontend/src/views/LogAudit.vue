@@ -113,16 +113,16 @@
 
     <!-- 日志列表 -->
     <section class="table-section">
-      <el-table :data="logs" v-loading="loading" class="data-table" style="width: 100%">
-        <el-table-column type="index" label="#" width="50" />
+      <el-table :data="logs" v-loading="loading" class="data-table" style="width: 100%" table-layout="auto">
+        <el-table-column type="index" label="#" width="60" align="center" />
         
-        <el-table-column label="时间" width="160">
+        <el-table-column label="时间" min-width="170">
           <template #default="{ row }">
             <span class="time-text">{{ formatDateTime(row.createdAt) }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column label="用户" width="120">
+        <el-table-column label="用户" min-width="160">
           <template #default="{ row }">
             <div class="user-cell">
               <div class="user-avatar">{{ (row.username || '?').charAt(0).toUpperCase() }}</div>
@@ -134,13 +134,13 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" min-width="130">
           <template #default="{ row }">
             <span class="action-badge" :class="getActionClass(row.action)">{{ getActionText(row.action) }}</span>
           </template>
         </el-table-column>
         
-        <el-table-column label="模块" width="80">
+        <el-table-column label="模块" width="80" align="center">
           <template #default="{ row }">
             <span class="module-text">{{ getModule(row.action) }}</span>
           </template>
@@ -152,7 +152,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="IP地址" width="140">
+        <el-table-column label="IP地址" min-width="130">
           <template #default="{ row }">
             <span class="ip-text">{{ formatIp(row.ipAddress) }}</span>
           </template>
@@ -405,19 +405,21 @@ onMounted(() => { loadLogs() })
 .filter-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .filter-item { :deep(.el-input), :deep(.el-select), :deep(.el-date-editor) { width: 180px; } }
 
-.table-section { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
+.table-section { background: white; border-radius: 16px; overflow: visible; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; min-width: 1200px; }
 .data-table { --el-table-border-color: #f1f5f9;
-  :deep(th) { background: #f8fafc !important; color: #64748b; font-weight: 600; font-size: 13px; padding: 14px 12px; white-space: nowrap; }
+  :deep(th) { background: #f8fafc !important; color: #64748b; font-weight: 600; font-size: 13px; padding: 14px 12px; white-space: nowrap; overflow: visible; }
+  :deep(th .cell) { overflow: visible; white-space: nowrap; }
   :deep(td) { padding: 12px; vertical-align: middle; }
+  :deep(td .cell) { overflow: visible; }
   :deep(.el-table__row:hover > td) { background: #fafafa !important; }
 }
 
 .time-text { font-size: 13px; color: #1e293b; white-space: nowrap; }
 .user-cell { display: flex; align-items: center; gap: 10px; }
 .user-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-.user-info { display: flex; flex-direction: column; }
-.user-name { font-size: 13px; font-weight: 500; color: #1e293b; }
-.user-role { font-size: 11px; color: #94a3b8; }
+.user-info { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+.user-name { font-size: 13px; font-weight: 500; color: #1e293b; white-space: nowrap; }
+.user-role { font-size: 11px; color: #94a3b8; white-space: nowrap; }
 
 .action-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap;
   &.blue { background: #eef2ff; color: #6366f1; } &.gray { background: #f1f5f9; color: #64748b; }
