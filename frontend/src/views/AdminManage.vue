@@ -86,7 +86,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="操作" min-width="200" align="center" fixed="right">
+        <el-table-column label="操作" min-width="200" fixed="right">
           <template #default="{ row }">
             <div class="action-cell">
               <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
@@ -591,7 +591,7 @@ onMounted(() => {
 
 .action-cell {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   flex-wrap: nowrap;
   white-space: nowrap;
