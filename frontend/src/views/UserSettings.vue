@@ -140,9 +140,7 @@
       <div class="settings-card password-card">
         <div class="card-header">
           <div class="card-icon orange">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+            <img src="/icon/mima.svg" width="20" height="20" alt="密码" />
           </div>
           <div class="card-title">
             <h3>修改密码</h3>
@@ -175,9 +173,7 @@
       <div class="settings-card info-card">
         <div class="card-header">
           <div class="card-icon purple">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
+            <img src="/icon/zhanghu.svg" width="20" height="20" alt="账号" />
           </div>
           <div class="card-title">
             <h3>账号信息</h3>
