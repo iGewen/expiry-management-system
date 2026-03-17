@@ -1,62 +1,330 @@
-// 126邮箱风格主题变量 - 天蓝色主题
+// ========================================
+// 现代简约设计系统 - Design System Variables
+// ========================================
+// 设计理念：现代简约 + 毛玻璃拟态 + 新拟态元素
+// 核心原则：少即是多 (Less is More)
 
-// 主色调 - 天蓝色系
-$primary-color: #1890FF;
-$primary-hover: #40A9FF;
-$primary-active: #096DD9;
-$primary-light: #E6F7FF;
+// ========================================
+// 一、色彩系统 (Color Palette)
+// ========================================
 
-// 辅助色
-$success-color: #52C41A;
-$warning-color: #FAAD14;
-$danger-color: #F5222D;
-$info-color: #1890FF;
+// 主色调 - Indigo/Purple 系列（专业、科技感）
+$primary-color: #6366f1;           // Indigo - 主按钮、链接
+$primary-hover: #4f46e5;           // Hover 状态
+$primary-active: #4338ca;          // Active 状态
+$primary-light: #e0e7ff;           // 浅色背景
 
-// 文字颜色
-$text-primary: #333333;
-$text-regular: #666666;
-$text-secondary: #999999;
-$text-placeholder: #CCCCCC;
+// 辅助色 - Cyan 渐变（清新、现代）
+$secondary-color: #06b6d4;         // Cyan - 渐变辅助
+$secondary-light: #cffafe;
 
-// 边框颜色
-$border-base: #DDDDDD;
-$border-light: #EEEEEE;
-$border-dark: #CCCCCC;
+// 功能色
+$success-color: #10b981;           // Emerald - 成功状态
+$success-light: #d1fae5;
+$warning-color: #f59e0b;           // Amber - 警告状态
+$warning-light: #fef3c7;
+$danger-color: #ef4444;            // Red - 危险、重要
+$danger-light: #fee2e2;
+$info-color: #3b82f6;              // Blue - 信息
+$info-light: #dbeafe;
+
+// 文字颜色（低饱和度）
+$text-primary: #1f2937;            // 主要文字 - 深灰
+$text-regular: #374151;            // 常规文字
+$text-secondary: #6b7280;          // 次要文字
+$text-placeholder: #9ca3af;        // 占位符
+$text-disabled: #d1d5db;           // 禁用状态
 
 // 背景颜色
-$bg-white: #FFFFFF;
-$bg-gray: #F5F5F5;
-$bg-light: #FAFAFA;
-$bg-dark: #F0F0F0;
+$bg-body: #f5f7fa;                 // 页面背景 - 淡蓝灰
+$bg-body-gradient: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);  // 淡蓝→淡紫
+$bg-card: #ffffff;                 // 卡片背景
+$bg-hover: #f9fafb;                // Hover 背景
+$bg-active: #f3f4f6;               // Active 背景
+$bg-dark: #111827;                 // 深色背景
 
-// 阴影
-$box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.1);
-$box-shadow-light: 0 1px 4px rgba(0, 0, 0, 0.08);
-$box-shadow-card: 0 2px 12px rgba(0, 0, 0, 0.12);
+// 边框颜色
+$border-base: #e5e7eb;
+$border-light: #f3f4f6;
+$border-dark: #d1d5db;
 
-// 圆角
-$border-radius-base: 4px;
-$border-radius-small: 2px;
-$border-radius-large: 8px;
+// ========================================
+// 二、毛玻璃效果 (Glassmorphism)
+// ========================================
+
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-blur: 20px;
+$glass-border: rgba(255, 255, 255, 0.5);
+
+// ========================================
+// 三、阴影系统 (Shadow System)
+// ========================================
+
+// 新拟态阴影 - 柔和、微妙
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+
+// 卡片阴影（带悬停效果）
+$shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+$shadow-card-hover: 0 10px 20px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.04);
+
+// 按钮阴影
+$shadow-button: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-button-hover: 0 4px 12px rgba(99, 102, 241, 0.3);
+
+// ========================================
+// 四、圆角系统 (Border Radius)
+// ========================================
+
+$radius-xs: 4px;
+$radius-sm: 6px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-2xl: 20px;
+$radius-full: 9999px;              // 胶囊形状
+
+// ========================================
+// 五、间距系统 (Spacing)
+// ========================================
+
+$spacing-0: 0;
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 12px;
+$spacing-4: 16px;
+$spacing-5: 20px;
+$spacing-6: 24px;
+$spacing-8: 32px;
+$spacing-10: 40px;
+$spacing-12: 48px;
+
+// ========================================
+// 六、字体系统 (Typography)
+// ========================================
+
+// 字体族
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-family-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
 
 // 字体大小
+$font-size-xs: 11px;
+$font-size-sm: 12px;
 $font-size-base: 14px;
-$font-size-small: 12px;
-$font-size-large: 16px;
-$font-size-title: 20px;
-$font-size-h1: 24px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-2xl: 20px;
+$font-size-3xl: 24px;
+$font-size-4xl: 30px;
 
-// 间距
-$spacing-small: 8px;
-$spacing-base: 16px;
-$spacing-large: 24px;
-$spacing-xlarge: 32px;
+// 行高
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
 
-// 布局
-$header-height: 60px;
-$sidebar-width: 200px;
-$container-width: 1200px;
+// 字重
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
 
-// 过渡动画
-$transition-base: all 0.3s ease;
-$transition-fast: all 0.2s ease;
+// ========================================
+// 七、动效设计 (Animation)
+// ========================================
+
+// 过渡时长（控制在 200-300ms）
+$transition-fast: all 0.15s ease;
+$transition-base: all 0.2s ease;
+$transition-slow: all 0.3s ease;
+
+// 缓动函数
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+// ========================================
+// 八、布局变量 (Layout)
+// ========================================
+
+$header-height: 64px;
+$sidebar-width: 240px;
+$sidebar-collapsed-width: 80px;
+$container-max-width: 1400px;
+
+// Grid 间距
+$grid-gap: 24px;
+$grid-gap-sm: 16px;
+
+// ========================================
+// 九、断点 (Breakpoints)
+// ========================================
+
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1400px;
+
+// ========================================
+// 十、组件变量
+// ========================================
+
+// 输入框
+$input-height: 40px;
+$input-height-lg: 48px;
+$input-height-sm: 32px;
+$input-padding: 0 12px;
+$input-radius: $radius-lg;
+$input-border: $border-base;
+$input-focus-border: $primary-color;
+$input-focus-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+
+// 按钮
+$button-height: 40px;
+$button-height-lg: 48px;
+$button-height-sm: 32px;
+$button-radius: $radius-lg;
+$button-padding: 0 20px;
+
+// 卡片
+$card-radius: $radius-xl;
+$card-padding: 24px;
+$card-shadow: $shadow-card;
+
+// 表格
+$table-header-bg: #f9fafb;
+$table-row-hover: #f9fafb;
+$table-border: $border-light;
+
+// ========================================
+// 十一、混入 (Mixins)
+// ========================================
+
+// 毛玻璃效果
+@mixin glass-effect {
+  background: $glass-bg;
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $glass-border;
+}
+
+// 卡片悬浮效果
+@mixin card-hover {
+  transition: $transition-base;
+  
+  &:hover {
+    box-shadow: $shadow-card-hover;
+    transform: translateY(-2px);
+  }
+}
+
+// 文字截断
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 多行截断
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// 滚动条样式
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border-dark;
+    border-radius: $radius-full;
+    
+    &:hover {
+      background: $text-placeholder;
+    }
+  }
+}
+
+// ========================================
+// 十二、工具类 (Utilities)
+// ========================================
+
+// 响应式断点
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $breakpoint-xs) { @content; }
+  } @else if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (max-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+}
+
+// 胶囊按钮
+@mixin pill-button {
+  border-radius: $radius-full;
+  padding: 4px 16px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+// 彩色标签背景
+@mixin colored-badge($bg-color, $text-color) {
+  background: linear-gradient(135deg, $bg-color, darken($bg-color, 5%));
+  color: $text-color;
+  border-radius: $radius-full;
+  padding: 4px 12px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+// ========================================
+// 十三、向后兼容别名 (Backward Compatibility)
+// ========================================
+
+// 背景颜色别名
+$bg-light: $bg-hover;
+$bg-gray: $bg-hover;
+$bg-dark: $bg-active;
+
+// 边框圆角别名
+$border-radius-base: $radius-md;
+$border-radius-small: $radius-sm;
+$border-radius-large: $radius-lg;
+
+// 阴影别名
+$box-shadow-base: $shadow-md;
+$box-shadow-light: $shadow-sm;
+$box-shadow-card: $shadow-card;
+
+// 间距别名
+$spacing-small: $spacing-2;
+$spacing-base: $spacing-4;
+$spacing-large: $spacing-6;
+$spacing-xlarge: $spacing-8;
+
+// 字体大小别名
+$font-size-large: $font-size-lg;
+$font-size-title: $font-size-xl;
+$font-size-h1: $font-size-3xl;
+$font-size-small: $font-size-sm;
+
+// 文字颜色别名（保持兼容）
+$text-placeholder-old: $text-placeholder;

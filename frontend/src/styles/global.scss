@@ -10,10 +10,10 @@
 
 html, body, #app {
   height: 100%;
-  font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-family: $font-family;
   font-size: $font-size-base;
   color: $text-primary;
-  background-color: $bg-light;
+  background: $bg-body-gradient;
 }
 
 #app {
@@ -28,7 +28,7 @@ html, body, #app {
 }
 
 ::-webkit-scrollbar-track {
-  background: $bg-gray;
+  background: $bg-hover;
   border-radius: 4px;
 }
 
@@ -60,11 +60,11 @@ html, body, #app {
   --el-border-color-lighter: #{$border-light};
   --el-border-color-extra-light: #{$border-light};
   
-  --el-border-radius-base: #{$border-radius-base};
-  --el-border-radius-small: #{$border-radius-small};
+  --el-border-radius-base: #{$radius-md};
+  --el-border-radius-small: #{$radius-sm};
   
-  --el-box-shadow-base: #{$box-shadow-base};
-  --el-box-shadow-light: #{$box-shadow-light};
+  --el-box-shadow-base: #{$shadow-md};
+  --el-box-shadow-light: #{$shadow-sm};
 }
 
 // 按钮样式增强
@@ -86,11 +86,11 @@ html, body, #app {
 
 // 卡片样式
 .el-card {
-  border-radius: $border-radius-large;
-  box-shadow: $box-shadow-light;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
   
   &.is-always-shadow {
-    box-shadow: $box-shadow-card;
+    box-shadow: $shadow-card;
   }
 }
 
@@ -99,19 +99,19 @@ html, body, #app {
   font-size: $font-size-base;
   
   th {
-    background-color: $bg-gray;
+    background-color: $bg-hover;
     color: $text-primary;
     font-weight: 500;
   }
   
   .el-table__row:hover > td {
-    background-color: $bg-light !important;
+    background-color: $bg-hover !important;
   }
 }
 
 // 输入框样式
 .el-input__wrapper {
-  border-radius: $border-radius-base;
+  border-radius: $radius-md;
   
   &:hover {
     box-shadow: 0 0 0 1px $border-dark inset;
@@ -136,7 +136,7 @@ a {
 
 // 通用容器
 .page-container {
-  padding: $spacing-large;
+  padding: $spacing-6;
   min-height: calc(100vh - #{$header-height});
 }
 
@@ -145,7 +145,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: $font-size-large;
+  font-size: $font-size-lg;
   font-weight: 500;
   color: $text-primary;
 }
@@ -158,18 +158,18 @@ a {
 .text-warning { color: $warning-color; }
 .text-danger { color: $danger-color; }
 
-.mb-1 { margin-bottom: $spacing-small; }
-.mb-2 { margin-bottom: $spacing-base; }
-.mb-3 { margin-bottom: $spacing-large; }
-.mt-1 { margin-top: $spacing-small; }
-.mt-2 { margin-top: $spacing-base; }
-.mt-3 { margin-top: $spacing-large; }
+.mb-1 { margin-bottom: $spacing-2; }
+.mb-2 { margin-bottom: $spacing-4; }
+.mb-3 { margin-bottom: $spacing-6; }
+.mt-1 { margin-top: $spacing-2; }
+.mt-2 { margin-top: $spacing-4; }
+.mt-3 { margin-top: $spacing-6; }
 
 // 全局提示框美化
 .el-message {
   min-width: 380px;
   padding: 15px 20px;
-  border-radius: $border-radius-large;
+  border-radius: $radius-lg;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   border-left: 4px solid;
   backdrop-filter: blur(8px);
@@ -268,7 +268,7 @@ a {
 
 // ElMessageBox 对话框美化
 .el-message-box {
-  border-radius: $border-radius-large;
+  border-radius: $radius-lg;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   border: none;
   padding: 24px;
@@ -350,7 +350,7 @@ a {
       padding-top: 12px;
       
       .el-input__inner {
-        border-radius: $border-radius-base;
+        border-radius: $radius-md;
       }
     }
   }
@@ -364,7 +364,7 @@ a {
     .el-button {
       min-width: 80px;
       padding: 10px 20px;
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       font-weight: 500;
       transition: $transition-fast;
       
@@ -425,7 +425,7 @@ a {
 // ElDialog 对话框美化
 // ============================================
 .el-dialog {
-  border-radius: $border-radius-large;
+  border-radius: $radius-lg;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
   padding: 0;
   overflow: hidden;
@@ -472,14 +472,14 @@ a {
   // 底部按钮区域
   .el-dialog__footer {
     padding: 16px 24px;
-    background-color: $bg-light;
+    background-color: $bg-hover;
     border-top: 1px solid $border-light;
     text-align: right;
     
     .el-button {
       min-width: 80px;
       padding: 10px 20px;
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       font-weight: 500;
       transition: $transition-fast;
       
@@ -576,7 +576,7 @@ a {
   // 输入框样式
   .el-input {
     .el-input__wrapper {
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       box-shadow: 0 0 0 1px $border-base inset;
       transition: $transition-fast;
       padding: 1px 12px;
@@ -608,7 +608,7 @@ a {
     
     .el-input-number__decrease,
     .el-input-number__increase {
-      background-color: $bg-light;
+      background-color: $bg-hover;
       color: $text-secondary;
       border-radius: 0;
       transition: $transition-fast;
@@ -620,7 +620,7 @@ a {
     }
     
     .el-input__wrapper {
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       box-shadow: 0 0 0 1px $border-base inset;
       transition: $transition-fast;
       
@@ -639,7 +639,7 @@ a {
     width: 100%;
     
     .el-input__wrapper {
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       box-shadow: 0 0 0 1px $border-base inset;
       transition: $transition-fast;
       
@@ -670,7 +670,7 @@ a {
   // 选择器样式
   .el-select {
     .el-input__wrapper {
-      border-radius: $border-radius-base;
+      border-radius: $radius-md;
       box-shadow: 0 0 0 1px $border-base inset;
       transition: $transition-fast;
       
@@ -689,7 +689,7 @@ a {
 // ElDatePicker 日期选择面板美化
 // ============================================
 .el-picker-panel {
-  border-radius: $border-radius-base;
+  border-radius: $radius-md;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   border: 1px solid $border-light;
   
