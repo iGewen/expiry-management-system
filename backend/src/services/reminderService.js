@@ -211,14 +211,17 @@ class ReminderService {
     if (setting.feishuEnabled && setting.feishuWebhook) {
       try {
         // 构建商品详情列表
-        const productDetails = products.map(p => ({
-          name: p.name,
-          remainingDays: p.remainingDays,
-          expiryDate: p.expiryDate,
-          status: p.remainingDays <= 0 ? 'EXPIRED' : 'WARNING'
-        }));
+        const productDetails = products.map(p => {
+          const expiryDate = startOfDay(new Date(p.expiryDate));
+          const daysLeft = differenceInDays(expiryDate, today);
+          return {
+            name: p.name,
+            remainingDays: daysLeft,
+            expiryDate: p.expiryDate
+          };
+        });
 
-        const feishuResult = await feishuService.sendProductReminder(
+        const feishuResult = await feishuService.sendReminder(
           setting.feishuWebhook,
           productDetails
         );

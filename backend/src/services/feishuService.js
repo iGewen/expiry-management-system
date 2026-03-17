@@ -53,9 +53,16 @@ export class FeishuService {
    */
   async sendReminder(webhookUrl, products) {
     try {
+      if (!products || products.length === 0) {
+        logger.warn('No products to send in Feishu reminder');
+        return false;
+      }
+
       const productText = products.map((p, i) => 
         `${i + 1}. ${p.name} - 剩余 ${p.remainingDays} 天`
       ).join('\n');
+
+      logger.info(`Sending Feishu reminder to ${webhookUrl.substring(0, 50)}... with ${products.length} products`);
 
       const response = await axios.post(webhookUrl, {
         msg_type: 'interactive',
@@ -93,7 +100,9 @@ export class FeishuService {
         timeout: 10000
       });
 
-      return response.data?.StatusCode === 0 || response.data?.code === 0;
+      const success = response.data?.StatusCode === 0 || response.data?.code === 0;
+      logger.info(`Feishu reminder result: ${JSON.stringify(response.data)}`);
+      return success;
     } catch (error) {
       logger.error('Failed to send Feishu reminder:', error.message);
       return false;
