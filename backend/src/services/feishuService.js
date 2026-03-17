@@ -134,6 +134,7 @@ export class FeishuService {
   /**
    * 飞书登录 - 第一步：获取用户信息
    * 返回飞书用户信息，不自动创建账号
+   * 如果手机号匹配已有账号，自动绑定并登录
    */
   async getFeishuUserInfo(code) {
     if (!this.isConfigured()) {
@@ -148,7 +149,13 @@ export class FeishuService {
     const feishuUser = await this.getUserInfo(userAccessToken);
     const { open_id, name, mobile, email, avatar_url } = feishuUser;
 
-    logger.info(`Feishu login attempt: open_id=${open_id}, name=${name}`);
+    // 处理手机号格式：去掉国际区号
+    let cleanMobile = mobile;
+    if (cleanMobile && cleanMobile.startsWith('+86')) {
+      cleanMobile = cleanMobile.substring(3);
+    }
+
+    logger.info(`Feishu login attempt: open_id=${open_id}, name=${name}, mobile=${cleanMobile || 'none'}`);
 
     // 3. 检查是否已绑定
     const existingUser = await prisma.user.findFirst({
@@ -164,14 +171,40 @@ export class FeishuService {
       };
     }
 
-    // 4. 未绑定，返回飞书用户信息
+    // 4. 如果有手机号，检查是否匹配已有账号
+    if (cleanMobile) {
+      const existingPhoneUser = await prisma.user.findFirst({
+        where: { phone: cleanMobile }
+      });
+
+      if (existingPhoneUser) {
+        // 自动绑定并登录
+        const updatedUser = await prisma.user.update({
+          where: { id: existingPhoneUser.id },
+          data: {
+            feishuOpenId: open_id,
+            avatar: avatar_url || existingPhoneUser.avatar
+          }
+        });
+
+        logger.info(`Auto-bound Feishu to existing user ${updatedUser.username} by phone ${cleanMobile}`);
+
+        return {
+          isBound: true,
+          user: this.sanitizeUser(updatedUser),
+          feishuInfo: null
+        };
+      }
+    }
+
+    // 5. 未绑定，返回飞书用户信息
     return {
       isBound: false,
       user: null,
       feishuInfo: {
         openId: open_id,
         name: name,
-        mobile: mobile,
+        mobile: cleanMobile,
         email: email,
         avatar: avatar_url
       }
@@ -317,7 +350,9 @@ export class FeishuService {
    * 清理用户敏感信息
    */
   sanitizeUser(user) {
-    const { password, ...safeUser } = user;
+    // 将 Prisma 对象转换为普通对象
+    const plainUser = JSON.parse(JSON.stringify(user));
+    const { password, ...safeUser } = plainUser;
     return safeUser;
   }
 }

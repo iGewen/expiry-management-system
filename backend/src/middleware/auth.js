@@ -39,8 +39,14 @@ export const authenticate = async (req, res, next) => {
       select: {
         id: true,
         username: true,
+        phone: true,
+        email: true,
+        avatar: true,
+        feishuOpenId: true,
         role: true,
-        isActive: true
+        isActive: true,
+        createdAt: true,
+        lastLoginAt: true
       }
     });
 
@@ -140,8 +146,14 @@ export const optionalAuth = async (req, res, next) => {
       select: {
         id: true,
         username: true,
+        phone: true,
+        email: true,
+        avatar: true,
+        feishuOpenId: true,
         role: true,
-        isActive: true
+        isActive: true,
+        createdAt: true,
+        lastLoginAt: true
       }
     });
 
