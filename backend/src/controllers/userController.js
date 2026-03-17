@@ -148,13 +148,48 @@ export class UserController {
         });
       }
 
-      await userService.deleteUser(id);
+      const { reason } = req.body;
+      if (!reason || reason.trim().length < 5) {
+        return res.status(400).json({
+          success: false,
+          message: '请提供删除理由（至少5个字符）'
+        });
+      }
 
-      logger.info(`User deleted: ID ${id} by ${req.user.username}`);
+      // 获取被删除用户的信息（用于日志记录）
+      const deletedUserInfo = await userService.deleteUser(id);
+
+      // 记录详细操作日志
+      const logDetails = {
+        action: 'DELETE_USER',
+        operator: req.user.username,
+        operatorId: req.user.id,
+        targetUser: deletedUserInfo.username,
+        targetUserId: id,
+        targetUserRole: deletedUserInfo.role,
+        targetUserPhone: deletedUserInfo.phone,
+        reason: reason.trim(),
+        deletedData: {
+          products: deletedUserInfo.productCount,
+          categories: deletedUserInfo.categoryCount,
+          importHistory: deletedUserInfo.importHistoryCount,
+          logs: deletedUserInfo.logCount
+        },
+        ipAddress: req.ip || req.connection?.remoteAddress,
+        userAgent: req.headers['user-agent'],
+        deletedAt: new Date().toISOString()
+      };
+
+      logger.info(`User deleted: ${deletedUserInfo.username} by ${req.user.username}`, logDetails);
 
       res.json({
         success: true,
-        message: '用户删除成功'
+        message: '用户删除成功',
+        data: {
+          deletedUser: deletedUserInfo.username,
+          reason: reason.trim(),
+          deletedData: logDetails.deletedData
+        }
       });
     } catch (error) {
       logger.error('Delete user error:', error);

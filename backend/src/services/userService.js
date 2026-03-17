@@ -226,7 +226,21 @@ export class UserService {
     }
     
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        phone: true,
+        role: true,
+        _count: {
+          select: {
+            products: true,
+            categories: true,
+            logs: true,
+            importHistory: true
+          }
+        }
+      }
     });
 
     if (!user) {
@@ -237,11 +251,22 @@ export class UserService {
       throw new Error('不能删除超级管理员');
     }
 
+    // 删除用户（级联删除会自动删除关联数据）
     await prisma.user.delete({
       where: { id: userId }
     });
 
-    return true;
+    // 返回被删除用户的信息
+    return {
+      id: user.id,
+      username: user.username,
+      phone: user.phone,
+      role: user.role,
+      productCount: user._count.products,
+      categoryCount: user._count.categories,
+      logCount: user._count.logs,
+      importHistoryCount: user._count.importHistory
+    };
   }
 
   async getStatistics() {

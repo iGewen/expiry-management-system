@@ -23,8 +23,8 @@ export const userApi = {
   },
 
   // 删除用户（超级管理员）
-  delete(id: number) {
-    return request.delete<ApiResponse>(`/users/${id}`)
+  delete(id: number, reason?: string) {
+    return request.delete<ApiResponse>(`/users/${id}`, { data: { reason } })
   },
 
   // 获取用户统计（管理员）
