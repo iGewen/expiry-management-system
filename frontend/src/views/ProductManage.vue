@@ -107,7 +107,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Search, Refresh, Download, ArrowDown, Edit, Delete } from '@element-plus/icons-vue'
-import { getProducts, deleteProduct, batchDeleteProducts, updateProduct, batchUpdateProducts } from '@/api/product'
+import { getProducts, deleteProduct, batchDeleteProducts, updateProduct, batchUpdateProducts, createProduct } from '@/api/product'
 import { getCategories } from '@/api/category'
 import { useUserStore } from '@/stores/user'
 import type { Product, Category } from '@/types'
@@ -186,9 +186,15 @@ const handleSubmit = async () => {
     if (!valid) return
     submitting.value = true
     try {
-      if (form.id) { await updateProduct(form.id, { name: form.name, productionDate: form.productionDate, shelfLife: form.shelfLife, reminderDays: form.reminderDays, categoryId: form.categoryId }); ElMessage.success('更新成功') }
-      else { ElMessage.warning('请使用导入功能添加') }
-      dialogVisible.value = false; loadProducts()
+      if (form.id) {
+        await updateProduct(form.id, { name: form.name, productionDate: form.productionDate, shelfLife: form.shelfLife, reminderDays: form.reminderDays, categoryId: form.categoryId })
+        ElMessage.success('更新成功')
+      } else {
+        await createProduct({ name: form.name, productionDate: form.productionDate, shelfLife: form.shelfLife, reminderDays: form.reminderDays, categoryId: form.categoryId })
+        ElMessage.success('添加成功')
+      }
+      dialogVisible.value = false
+      loadProducts()
     } catch (e: any) { ElMessage.error(e.response?.data?.message || '失败') }
     finally { submitting.value = false }
   })
