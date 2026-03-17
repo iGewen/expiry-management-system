@@ -403,7 +403,7 @@ onMounted(() => { loadLogs() })
 
 .filter-section { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
 .filter-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.filter-item { :deep(.el-input), :deep(.el-select), :deep(.el-date-editor) { width: 180px; } }
+.filter-item { :deep(.el-input), :deep(.el-select) { width: 180px; } :deep(.el-date-editor) { width: 260px; } }
 
 .table-section { background: white; border-radius: 16px; overflow: visible; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; min-width: 1200px; }
 .data-table { --el-table-border-color: #f1f5f9;
