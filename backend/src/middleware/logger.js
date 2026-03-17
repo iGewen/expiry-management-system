@@ -41,20 +41,22 @@ function buildLogDetails(req, responseData) {
     path: fullPath
   };
   
-  // 根据不同的操作类型记录不同的详情
+  // 根据不同的操作类型记录不同的详情（使用脱敏后的请求体）
+  const sanitizedBody = sanitizeBody(req.body);
+  
   if (req.method === 'POST') {
     // 创建操作
     if (fullPath.includes('/products')) {
-      details.message = `创建商品: ${req.body?.name || '未知'}`;
-      details.created = req.body;
+      details.message = `创建商品: ${sanitizedBody?.name || '未知'}`;
+      details.created = sanitizedBody;
     } else if (fullPath.includes('/categories')) {
-      details.message = `创建分类: ${req.body?.name || '未知'}`;
-      details.created = req.body;
+      details.message = `创建分类: ${sanitizedBody?.name || '未知'}`;
+      details.created = sanitizedBody;
     }
   } else if (req.method === 'PUT') {
     // 更新操作 - 记录修改的字段
     const updateDetails = {};
-    const body = req.body;
+    const body = sanitizedBody;
     
     if (fullPath.includes('/products')) {
       if (body.name) updateDetails.name = body.name;
@@ -141,8 +143,13 @@ function getActionType(req) {
   return `${method}_ACTION`;
 }
 
+/**
+ * 对请求体进行脱敏处理，移除敏感字段
+ * @param {Object} body - 原始请求体
+ * @returns {Object} 脱敏后的请求体
+ */
 function sanitizeBody(body) {
-  if (!body) return {};
+  if (!body || typeof body !== 'object') return {};
   
   const sanitized = { ...body };
   
@@ -159,7 +166,11 @@ function sanitizeBody(body) {
     'apiKey',
     'api_key',
     'accessToken',
-    'access_token'
+    'access_token',
+    'accessKeyId',
+    'accessKeySecret',
+    'appSecret',
+    'app_secret'
   ];
   
   for (const field of sensitiveFields) {

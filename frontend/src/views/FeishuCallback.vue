@@ -15,6 +15,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import httpClient from '@/utils/request'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,6 +24,7 @@ const userStore = useUserStore()
 const statusText = ref('正在处理飞书登录...')
 
 onMounted(async () => {
+  const session = route.query.session as string
   const token = route.query.token as string
   const refreshToken = route.query.refreshToken as string
   const isNewUser = route.query.isNewUser === 'true'
@@ -42,42 +44,84 @@ onMounted(async () => {
     return
   }
 
-  // 检查是否有 token
-  if (!token) {
-    statusText.value = '授权失败：缺少登录凭证'
-    setTimeout(() => {
-      router.push('/login')
-    }, 2000)
+  // 优先使用 session 方式获取 token（安全）
+  if (session) {
+    try {
+      statusText.value = '正在完成登录...'
+      
+      // 通过 POST 请求获取真实 token
+      const res = await httpClient.post('/auth/feishu/session', { session })
+      
+      if (res.success && res.data) {
+        const { accessToken, refreshToken, userId, username: uname, isNewUser: newUser } = res.data
+        
+        // 保存 token
+        userStore.setToken(accessToken, refreshToken)
+        
+        // 获取用户信息
+        await userStore.fetchUserInfo()
+        
+        if (newUser) {
+          ElMessage.success(`飞书登录成功，已为您创建账号「${decodeURIComponent(uname || '')}」`)
+        } else {
+          ElMessage.success('飞书登录成功')
+        }
+        
+        // 跳转到首页或指定页面
+        const redirect = state || route.query.redirect as string
+        router.push(redirect || '/')
+        return
+      }
+    } catch (error: any) {
+      console.error('Session token error:', error)
+      statusText.value = error.message || '登录失败'
+      ElMessage.error('登录失败，请重试')
+      
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+      return
+    }
     return
   }
 
-  try {
-    statusText.value = '正在完成登录...'
-    
-    // 保存 token
-    userStore.setToken(token, refreshToken)
-    
-    // 获取用户信息
-    await userStore.fetchUserInfo()
-    
-    if (isNewUser) {
-      ElMessage.success(`飞书登录成功，已为您创建账号「${decodeURIComponent(username || '')}」`)
-    } else {
-      ElMessage.success('飞书登录成功')
+  // 兼容旧方式：直接从 URL 获取 token（不推荐，但保留兼容性）
+  if (token) {
+    try {
+      statusText.value = '正在完成登录...'
+      
+      // 保存 token
+      userStore.setToken(token, refreshToken)
+      
+      // 获取用户信息
+      await userStore.fetchUserInfo()
+      
+      if (isNewUser) {
+        ElMessage.success(`飞书登录成功，已为您创建账号「${decodeURIComponent(username || '')}」`)
+      } else {
+        ElMessage.success('飞书登录成功')
+      }
+      
+      // 跳转到首页或指定页面
+      const redirect = state || route.query.redirect as string
+      router.push(redirect || '/')
+    } catch (error: any) {
+      console.error('Feishu callback error:', error)
+      statusText.value = error.message || '登录失败'
+      ElMessage.error('登录失败，请重试')
+      
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
     }
-    
-    // 跳转到首页或指定页面
-    const redirect = state || route.query.redirect as string
-    router.push(redirect || '/')
-  } catch (error: any) {
-    console.error('Feishu callback error:', error)
-    statusText.value = error.message || '登录失败'
-    ElMessage.error('登录失败，请重试')
-    
-    setTimeout(() => {
-      router.push('/login')
-    }, 2000)
+    return
   }
+
+  // 没有 token 或 session
+  statusText.value = '授权失败：缺少登录凭证'
+  setTimeout(() => {
+    router.push('/login')
+  }, 2000)
 })
 </script>
 

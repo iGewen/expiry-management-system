@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Search, Refresh, Download, ArrowDown, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Search, Refresh, Download, ArrowDown } from '@element-plus/icons-vue'
 import { getProducts, deleteProduct, batchDeleteProducts, updateProduct, batchUpdateProducts, createProduct } from '@/api/product'
 import { getCategories } from '@/api/category'
 import { useUserStore } from '@/stores/user'
@@ -145,7 +145,6 @@ const getDaysClass = (days: number, status: string) => {
 }
 const getStatusClass = (status: string) => status === 'EXPIRED' ? 'red' : status === 'WARNING' ? 'orange' : 'green'
 const getStatusText = (status: string) => status === 'EXPIRED' ? '过期' : status === 'WARNING' ? '预警' : '正常'
-const getStatusShort = (status: string) => status === 'EXPIRED' ? '过' : status === 'WARNING' ? '警' : '常'
 
 const loadProducts = async () => {
   loading.value = true

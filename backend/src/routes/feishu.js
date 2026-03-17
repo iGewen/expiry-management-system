@@ -18,6 +18,9 @@ router.get('/authorize', feishuController.getAuthorizeUrl.bind(feishuController)
 // 飞书登录回调
 router.get('/callback', feishuController.callback.bind(feishuController));
 
+// 通过会话 token 获取真实 token（安全方式）
+router.post('/session', feishuController.getSessionToken.bind(feishuController));
+
 // 绑定已有账号
 router.post('/bind', feishuController.bindExistingAccount.bind(feishuController));
 

@@ -2,17 +2,19 @@ import feishuService from '../services/feishuService.js';
 import { AuthService } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
+import { store } from '../config/redis.js';
 import logger from '../utils/logger.js';
 
 const authService = new AuthService();
 
-// 临时 token 存储飞书用户信息（过期时间5分钟）
-const tempTokenStore = new Map();
+// Redis 键前缀
+const TEMP_TOKEN_PREFIX = 'feishu:temp:';
+const TEMP_TOKEN_TTL = 300; // 5分钟
 
 /**
- * 生成临时 token
+ * 生成临时 token（存储到 Redis）
  */
-function generateTempToken(feishuInfo) {
+async function generateTempToken(feishuInfo) {
   const token = jwt.sign(
     { 
       type: 'feishu_temp',
@@ -23,21 +25,51 @@ function generateTempToken(feishuInfo) {
     { expiresIn: '5m' }
   );
   
-  tempTokenStore.set(token, feishuInfo);
-  
-  // 5分钟后自动清理
-  setTimeout(() => {
-    tempTokenStore.delete(token);
-  }, 5 * 60 * 1000);
+  // 存储到 Redis，5分钟过期
+  await store.set(`${TEMP_TOKEN_PREFIX}${token}`, JSON.stringify(feishuInfo), TEMP_TOKEN_TTL);
   
   return token;
 }
 
 /**
- * 获取临时 token 对应的飞书信息
+ * 获取临时 token 对应的飞书信息（从 Redis）
  */
-function getTempFeishuInfo(token) {
-  return tempTokenStore.get(token);
+async function getTempFeishuInfo(token) {
+  const data = await store.get(`${TEMP_TOKEN_PREFIX}${token}`);
+  if (!data) return null;
+  
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 删除临时 token
+ */
+async function deleteTempToken(token) {
+  await store.del(`${TEMP_TOKEN_PREFIX}${token}`);
+}
+
+/**
+ * 生成安全的会话 token（用于前端获取真实 token）
+ */
+async function generateSessionToken(userInfo) {
+  const sessionToken = jwt.sign(
+    { 
+      type: 'session',
+      userId: userInfo.userId,
+      iat: Date.now()
+    },
+    config.jwt.secret,
+    { expiresIn: '2m' }
+  );
+  
+  // 存储到 Redis，2分钟过期
+  await store.set(`session:${sessionToken}`, JSON.stringify(userInfo), 120);
+  
+  return sessionToken;
 }
 
 /**
@@ -97,12 +129,21 @@ export class FeishuController {
         
         logger.info(`User ${result.user.username} logged in via Feishu (bound)`);
         
-        const redirectUrl = `${frontendUrl}/auth/feishu/callback?token=${accessToken}&refreshToken=${refreshToken}&isNewUser=false&userId=${result.user.id}&username=${encodeURIComponent(result.user.username)}${state ? `&state=${state}` : ''}`;
+        // 使用会话 token 方式，避免 token 暴露在 URL 中
+        const sessionToken = await generateSessionToken({
+          accessToken,
+          refreshToken,
+          userId: result.user.id,
+          username: result.user.username,
+          isNewUser: false
+        });
+        
+        const redirectUrl = `${frontendUrl}/auth/feishu/callback?session=${sessionToken}${state ? `&state=${state}` : ''}`;
         return res.redirect(redirectUrl);
       }
 
       // 未绑定，生成临时 token，跳转到注册页面
-      const tempToken = generateTempToken(result.feishuInfo);
+      const tempToken = await generateTempToken(result.feishuInfo);
       
       logger.info(`Redirecting to register page, feishu user: ${result.feishuInfo.name}`);
       
@@ -115,6 +156,47 @@ export class FeishuController {
       logger.error('Feishu callback error:', error);
       const frontendUrl = process.env.CORS_ORIGIN?.split(',')[0] || 'http://localhost:5173';
       res.redirect(`${frontendUrl}/login?error=feishu_auth_failed&message=${encodeURIComponent(error.message || '飞书登录失败')}`);
+    }
+  }
+
+  /**
+   * 通过会话 token 获取真实 token
+   * POST /api/auth/feishu/session
+   */
+  async getSessionToken(req, res) {
+    try {
+      const { session } = req.body;
+      
+      if (!session) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少会话凭证'
+        });
+      }
+      
+      const data = await store.get(`session:${session}`);
+      if (!data) {
+        return res.status(400).json({
+          success: false,
+          message: '会话已过期'
+        });
+      }
+      
+      // 删除会话 token（一次性使用）
+      await store.del(`session:${session}`);
+      
+      const userInfo = JSON.parse(data);
+      
+      res.json({
+        success: true,
+        data: userInfo
+      });
+    } catch (error) {
+      logger.error('Get session token error:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取登录信息失败'
+      });
     }
   }
 
@@ -134,7 +216,7 @@ export class FeishuController {
       }
 
       // 获取临时 token 中的飞书信息
-      const feishuInfo = getTempFeishuInfo(tempToken);
+      const feishuInfo = await getTempFeishuInfo(tempToken);
       if (!feishuInfo) {
         return res.status(400).json({
           success: false,
@@ -154,7 +236,7 @@ export class FeishuController {
       const refreshToken = authService.generateRefreshToken(user.id);
 
       // 清理临时 token
-      tempTokenStore.delete(tempToken);
+      await deleteTempToken(tempToken);
 
       logger.info(`User ${user.username} bound Feishu account`);
 
@@ -192,7 +274,7 @@ export class FeishuController {
       }
 
       // 获取临时 token 中的飞书信息
-      const feishuInfo = getTempFeishuInfo(tempToken);
+      const feishuInfo = await getTempFeishuInfo(tempToken);
       if (!feishuInfo) {
         return res.status(400).json({
           success: false,
@@ -208,7 +290,7 @@ export class FeishuController {
       const refreshToken = authService.generateRefreshToken(user.id);
 
       // 清理临时 token
-      tempTokenStore.delete(tempToken);
+      await deleteTempToken(tempToken);
 
       logger.info(`Created new user via Feishu: ${user.username}`);
 
@@ -246,7 +328,7 @@ export class FeishuController {
       }
 
       // 获取临时 token 中的飞书信息
-      const feishuInfo = getTempFeishuInfo(tempToken);
+      const feishuInfo = await getTempFeishuInfo(tempToken);
       if (!feishuInfo) {
         return res.status(400).json({
           success: false,
@@ -310,7 +392,7 @@ export class FeishuController {
       const refreshToken = authService.generateRefreshToken(user.id);
 
       // 清理临时 token
-      tempTokenStore.delete(tempToken);
+      await deleteTempToken(tempToken);
 
       logger.info(`Created new user via Feishu register: ${user.username}`);
 

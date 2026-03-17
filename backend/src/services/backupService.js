@@ -94,7 +94,7 @@ class BackupService {
    */
   async getBackupList() {
     const files = fs.readdirSync(BACKUP_DIR)
-      .filter(f => f.startsWith('backup-') && f.endsWith('.json'))
+      .filter(f => f.startsWith('backup-') && f.endsWith('.json') && this.isValidBackupFilename(f))
       .map(f => {
         const filepath = path.join(BACKUP_DIR, f);
         const stats = fs.statSync(filepath);
@@ -215,9 +215,23 @@ class BackupService {
   }
 
   /**
+   * 验证备份文件名是否合法
+   */
+  isValidBackupFilename(filename) {
+    // 只允许 backup-YYYY-MM-DDTHH-MM-SS.mmmZ.json 格式
+    const validPattern = /^backup-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.json$/;
+    return validPattern.test(filename);
+  }
+
+  /**
    * 删除备份
    */
   async deleteBackup(filename) {
+    // 验证文件名格式
+    if (!this.isValidBackupFilename(filename)) {
+      throw new Error('非法的备份文件名格式');
+    }
+
     const filepath = path.join(BACKUP_DIR, filename);
     
     if (!fs.existsSync(filepath)) {
@@ -240,6 +254,11 @@ class BackupService {
    * 下载备份文件
    */
   getBackupFilePath(filename) {
+    // 验证文件名格式
+    if (!this.isValidBackupFilename(filename)) {
+      return null;
+    }
+
     const filepath = path.join(BACKUP_DIR, filename);
     
     if (!fs.existsSync(filepath)) {
