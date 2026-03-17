@@ -144,9 +144,7 @@
                 :loading="feishuLoading"
                 @click="handleFeishuLogin"
               >
-                <svg class="feishu-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 15l-4-4 1.41-1.41L10.5 14.17l6.59-6.59L18.5 9l-8 8z"/>
-                </svg>
+                <img src="/icon/feishu.svg" class="feishu-icon" alt="飞书" />
                 飞书扫码登录
               </el-button>
             </el-form-item>
@@ -510,7 +508,7 @@ const handleFeishuLogin = async () => {
     .el-input__wrapper {
       padding: 0 16px;
       height: 48px;
-      border-radius: 12px;
+      border-radius: 4px;
       box-shadow: 0 0 0 1px $border-base inset;
       background: rgba(255, 255, 255, 0.8);
       transition: all 200ms ease;
@@ -566,7 +564,7 @@ const handleFeishuLogin = async () => {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 2px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: $gradient-primary;
   border: none;
   transition: all 0.2s ease;
@@ -623,7 +621,7 @@ const handleFeishuLogin = async () => {
   height: 48px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 4px;
   background: #3370FF;
   border-color: #3370FF;
   color: white;
