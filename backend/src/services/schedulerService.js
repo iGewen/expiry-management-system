@@ -79,42 +79,59 @@ class SchedulerService {
           data: { status: 'EXPIRED' }
         });
 
-        // 获取所有正常状态的商品，根据各自的 reminderDays 判断是否设置为 WARNING
+        // 获取所有未过期的商品（NORMAL 和 WARNING 都需要检查）
         const products = await prisma.product.findMany({
           where: {
             expiryDate: { gte: today },
-            status: 'NORMAL',
+            status: { in: ['NORMAL', 'WARNING'] },
             isDeleted: false,
             reminderDays: { gt: 0 }
           },
           select: {
             id: true,
             expiryDate: true,
-            reminderDays: true
+            reminderDays: true,
+            status: true
           }
         });
 
-        // 筛选出需要标记为 WARNING 的商品（根据各自 reminderDays）
-        const warningIds = products.filter(p => {
+        // 筛选出需要标记为 WARNING 的商品
+        const warningIds = [];
+        const normalIds = [];
+
+        for (const p of products) {
           const expiryDate = new Date(p.expiryDate);
           expiryDate.setHours(0, 0, 0, 0);
           const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-          return diffDays <= p.reminderDays;
-        }).map(p => p.id);
+          
+          if (diffDays <= p.reminderDays && p.status !== 'WARNING') {
+            warningIds.push(p.id);
+          } else if (diffDays > p.reminderDays && p.status !== 'NORMAL') {
+            normalIds.push(p.id);
+          }
+        }
 
         // 批量更新 WARNING 状态
         let warningCount = 0;
         if (warningIds.length > 0) {
           const warningResult = await prisma.product.updateMany({
-            where: {
-              id: { in: warningIds }
-            },
+            where: { id: { in: warningIds } },
             data: { status: 'WARNING' }
           });
           warningCount = warningResult.count;
         }
 
-        logger.info(`Status update completed: ${expired.count} expired, ${warningCount} warning`);
+        // 批量更新 NORMAL 状态（回滚）
+        let normalCount = 0;
+        if (normalIds.length > 0) {
+          const normalResult = await prisma.product.updateMany({
+            where: { id: { in: normalIds } },
+            data: { status: 'NORMAL' }
+          });
+          normalCount = normalResult.count;
+        }
+
+        logger.info(`Status update completed: ${expired.count} expired, ${warningCount} warning, ${normalCount} normal (rollback)`);
         await prisma.$disconnect();
       } catch (error) {
         logger.error('Scheduled status update job failed:', error);

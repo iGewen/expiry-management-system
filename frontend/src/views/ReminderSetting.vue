@@ -483,7 +483,15 @@ onMounted(() => {
 @import '@/styles/variables.scss';
 
 .reminder-setting {
-  padding: 20px;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+  
+  :deep(.el-card) {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
 }
 
 .card-header {
@@ -497,16 +505,18 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-weight: 600;
+  font-size: 18px;
+  color: #1e293b;
   
   .el-icon {
-    font-size: 18px;
-    color: $primary-color;
+    font-size: 20px;
+    color: #6366f1;
   }
 }
 
 .setting-desc {
   margin-left: 12px;
-  color: $text-secondary;
+  color: #64748b;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -525,7 +535,7 @@ onMounted(() => {
 
 .phone-tip {
   font-size: 12px;
-  color: $text-placeholder;
+  color: #94a3b8;
   margin-top: 4px;
 }
 

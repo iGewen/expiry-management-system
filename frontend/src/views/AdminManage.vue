@@ -1,178 +1,158 @@
 <template>
-  <div class="admin-manage">
-    <el-card shadow="never">
-      <template #header>
-        <div class="card-header">
-          <span>用户管理</span>
+  <div class="admin-page">
+    <!-- 页面头部 -->
+    <header class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">系统管理</h1>
+        <p class="page-desc">管理用户账号和系统权限</p>
+      </div>
+      <div class="header-right">
+        <el-button type="primary" @click="showAddDialog">
+          <el-icon><Plus /></el-icon>
+          添加用户
+        </el-button>
+      </div>
+    </header>
+
+    <!-- 筛选栏 -->
+    <section class="filter-section">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <el-input v-model="searchForm.username" placeholder="搜索用户名..." clearable @keyup.enter="handleSearch">
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
         </div>
-      </template>
-
-      <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="用户名">
-          <el-input v-model="searchForm.username" placeholder="请输入用户名" clearable @clear="handleSearch" style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="searchForm.role" placeholder="请选择角色" clearable @clear="handleSearch" style="width: 150px">
-            <el-option label="普通用户" value="USER" />
-            <el-option label="管理员" value="ADMIN" />
+        <div class="filter-item">
+          <el-select v-model="searchForm.role" placeholder="全部角色" clearable @change="handleSearch">
             <el-option label="超级管理员" value="SUPER_ADMIN" />
+            <el-option label="管理员" value="ADMIN" />
+            <el-option label="普通用户" value="USER" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchForm.isActive" placeholder="请选择状态" clearable @clear="handleSearch" style="width: 120px">
-            <el-option label="启用" :value="true" />
-            <el-option label="禁用" :value="false" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
-            查询
-          </el-button>
-          <el-button @click="handleReset">
-            <el-icon><Refresh /></el-icon>
-            重置
-          </el-button>
-        </el-form-item>
-      </el-form>
+        </div>
+        <el-button @click="handleReset">
+          <el-icon><Refresh /></el-icon>
+          重置
+        </el-button>
+      </div>
+    </section>
 
-      <el-table :data="users" v-loading="loading" border>
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="username" label="用户名" width="150" />
-        <el-table-column prop="phone" label="手机号" width="130">
+    <!-- 用户列表 -->
+    <section class="table-section">
+      <el-table :data="users" v-loading="loading" class="data-table">
+        <el-table-column type="index" label="#" width="60" />
+        
+        <el-table-column label="用户" min-width="180">
           <template #default="{ row }">
-            <span>{{ row.phone || '未设置' }}</span>
+            <div class="user-cell">
+              <div class="user-avatar">
+                {{ row.username?.charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ row.username }}</span>
+                <span class="user-phone">{{ row.phone || '未绑定手机' }}</span>
+              </div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="role" label="角色" width="120">
+        
+        <el-table-column label="角色" width="130" align="center">
           <template #default="{ row }">
-            <el-tag :type="getRoleType(row.role)">{{ getRoleText(row.role) }}</el-tag>
+            <span class="role-badge" :class="row.role.toLowerCase()">
+              {{ getRoleText(row.role) }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="isActive" label="状态" width="100">
+        
+        <el-table-column label="飞书绑定" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.isActive ? 'success' : 'danger'">
-              {{ row.isActive ? '启用' : '禁用' }}
+            <el-tag v-if="row.feishuOpenId" type="success" effect="light" size="small">
+              已绑定
             </el-tag>
+            <span v-else class="text-muted">-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="createdAt" label="注册时间" width="160">
+        
+        <el-table-column label="注册时间" width="120" align="center">
           <template #default="{ row }">
-            {{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
+            <span class="date-text">{{ formatDate(row.createdAt) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="lastLoginAt" label="最后登录" width="160">
+        
+        <el-table-column label="最后登录" width="120" align="center">
           <template #default="{ row }">
-            {{ row.lastLoginAt ? dayjs(row.lastLoginAt).format('YYYY-MM-DD HH:mm:ss') : '未登录' }}
+            <span class="date-text">{{ formatDate(row.lastLoginAt) || '-' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="productCount" label="商品数" width="100" />
-        <el-table-column label="操作" width="240" fixed="right">
+        
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <div class="action-buttons">
-              <el-button
-                v-if="row.role !== 'SUPER_ADMIN'"
-                type="info"
-                size="small"
-                @click="handleChangePhone(row)"
-                title="修改手机号"
+            <div class="action-cell">
+              <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+              <el-button type="warning" link size="small" @click="handleChangePassword(row)">重置密码</el-button>
+              <el-button 
+                v-if="isSuperAdmin && row.id !== currentUserId && row.role !== 'SUPER_ADMIN'"
+                type="danger" 
+                link 
+                size="small" 
+                @click="showDeleteConfirm(row)"
               >
-                <el-icon><Phone /></el-icon>
+                删除
               </el-button>
-              <el-button
-                v-if="row.role !== 'SUPER_ADMIN'"
-                type="warning"
-                size="small"
-                @click="handleChangeRole(row)"
-                title="修改角色"
-              >
-                <el-icon><Edit /></el-icon>
-              </el-button>
-              <el-button
-                v-if="row.role !== 'SUPER_ADMIN'"
-                type="primary"
-                size="small"
-                @click="handleResetPassword(row)"
-                title="重置密码"
-              >
-                <el-icon><Key /></el-icon>
-              </el-button>
-              <el-button
-                v-if="row.role !== 'SUPER_ADMIN'"
-                :type="row.isActive ? 'danger' : 'success'"
-                size="small"
-                @click="handleToggleStatus(row)"
-                :title="row.isActive ? '禁用' : '启用'"
-              >
-                <el-icon><Lock /></el-icon>
-              </el-button>
-              <el-button
-                v-if="isSuperAdmin && row.role !== 'SUPER_ADMIN'"
-                type="danger"
-                size="small"
-                @click="handleDeleteUser(row)"
-                title="删除用户"
-              >
-                <el-icon><Delete /></el-icon>
-              </el-button>
-              <el-tag v-if="row.role === 'SUPER_ADMIN'" type="info" size="small">不可操作</el-tag>
             </div>
           </template>
         </el-table-column>
       </el-table>
+      
+      <!-- 分页 -->
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.pageSize"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="loadUsers"
+          @current-change="loadUsers"
+        />
+      </div>
+    </section>
 
-      <el-pagination
-        v-model:current-page="pagination.page"
-        v-model:page-size="pagination.pageSize"
-        :total="pagination.total"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="loadUsers"
-        @current-change="loadUsers"
-        class="pagination"
-      />
-    </el-card>
-
-    <!-- 修改角色对话框 -->
-    <el-dialog v-model="roleDialogVisible" title="修改用户角色" width="400px">
-      <el-form :model="roleForm" label-width="80px">
-        <el-form-item label="用户名">
-          <el-input v-model="roleForm.username" disabled />
+    <!-- 添加/编辑用户对话框 -->
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="450px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="请输入用户名" :disabled="!!form.id" />
         </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="roleForm.role" placeholder="请选择角色" style="width: 100%">
-            <el-option label="普通用户" value="USER" />
+        <el-form-item v-if="!form.id" label="密码" prop="password">
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        </el-form-item>
+        <el-form-item label="角色" prop="role">
+          <el-select v-model="form.role" placeholder="请选择角色" style="width: 100%">
+            <el-option label="超级管理员" value="SUPER_ADMIN" v-if="isSuperAdmin" />
             <el-option label="管理员" value="ADMIN" />
+            <el-option label="普通用户" value="USER" />
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="roleDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmitRole" :loading="submitting">确定</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitting">确定</el-button>
       </template>
     </el-dialog>
 
     <!-- 重置密码对话框 -->
-    <el-dialog v-model="passwordDialogVisible" title="重置用户密码" width="400px">
-      <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="80px">
-        <el-form-item label="用户名">
-          <el-input v-model="passwordForm.username" disabled />
-        </el-form-item>
+    <el-dialog v-model="passwordDialogVisible" title="重置密码" width="400px">
+      <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-position="top">
         <el-form-item label="新密码" prop="newPassword">
-          <el-input
-            v-model="passwordForm.newPassword"
-            type="password"
-            placeholder="请输入6-20位密码，包含字母和数字"
-            show-password
-          />
+          <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
         </el-form-item>
         <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            type="password"
-            placeholder="请再次输入密码"
-            show-password
-          />
+          <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -181,71 +161,47 @@
       </template>
     </el-dialog>
 
-    <!-- 修改手机号对话框 -->
-    <el-dialog v-model="phoneDialogVisible" title="修改用户手机号" width="400px">
-      <el-form ref="phoneFormRef" :model="phoneForm" :rules="phoneRules" label-width="80px">
-        <el-form-item label="用户名">
-          <el-input v-model="phoneForm.username" disabled />
-        </el-form-item>
-        <el-form-item label="当前手机号">
-          <el-input :value="phoneForm.currentPhone || '未设置'" disabled />
-        </el-form-item>
-        <el-form-item label="新手机号" prop="newPhone">
-          <el-input
-            v-model="phoneForm.newPhone"
-            placeholder="请输入11位手机号"
-            maxlength="11"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="phoneDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmitPhone" :loading="submitting">确定</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 删除用户对话框 -->
-    <el-dialog v-model="deleteDialogVisible" title="删除用户" width="500px">
-      <el-alert type="error" :closable="false" style="margin-bottom: 20px">
+    <!-- 删除确认对话框 -->
+    <el-dialog v-model="deleteDialogVisible" title="删除用户确认" width="500px">
+      <el-alert type="error" :closable="false" show-icon style="margin-bottom: 20px;">
         <template #title>
-          <strong>⚠️ 警告：此操作不可恢复！</strong>
+          <strong>警告：此操作将永久删除用户「{{ deleteForm.username }}」</strong>
         </template>
-        <div style="margin-top: 8px">
-          删除用户将同时删除该用户的所有数据：
-          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-            <li>商品数据：<strong>{{ deleteForm.productCount }}</strong> 条</li>
-            <li>自定义分类：<strong>{{ deleteForm.categoryCount || 0 }}</strong> 个</li>
-            <li>导入历史：<strong>{{ deleteForm.importHistoryCount || 0 }}</strong> 条</li>
-            <li>操作日志：<strong>{{ deleteForm.logCount || 0 }}</strong> 条</li>
-          </ul>
-        </div>
+        <template #default>
+          删除后将无法恢复，该用户的所有数据将被清除。
+        </template>
       </el-alert>
       
-      <el-form ref="deleteFormRef" :model="deleteForm" :rules="deleteRules" label-width="80px">
-        <el-form-item label="用户名">
-          <el-input v-model="deleteForm.username" disabled />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input :value="deleteForm.phone || '未设置'" disabled />
-        </el-form-item>
-        <el-form-item label="角色">
-          <el-tag :type="getRoleType(deleteForm.role)">{{ getRoleText(deleteForm.role) }}</el-tag>
-        </el-form-item>
-        <el-form-item label="删除理由" prop="reason">
-          <el-input
-            v-model="deleteForm.reason"
-            type="textarea"
+      <div class="delete-info">
+        <p><strong>用户信息：</strong></p>
+        <ul>
+          <li>用户名：{{ deleteForm.username }}</li>
+          <li>手机号：{{ deleteForm.phone || '未设置' }}</li>
+          <li>角色：{{ getRoleText(deleteForm.role) }}</li>
+        </ul>
+      </div>
+
+      <el-form :model="deleteForm" label-position="top">
+        <el-form-item label="删除理由（必填，至少5个字符）">
+          <el-input 
+            v-model="deleteForm.reason" 
+            type="textarea" 
             :rows="3"
-            placeholder="请输入删除理由（至少5个字符）"
+            placeholder="请输入删除该用户的理由..."
             maxlength="200"
             show-word-limit
           />
         </el-form-item>
       </el-form>
-      
+
       <template #footer>
         <el-button @click="deleteDialogVisible = false">取消</el-button>
-        <el-button type="danger" @click="handleSubmitDelete" :loading="submitting">
+        <el-button 
+          type="danger" 
+          @click="handleConfirmDelete" 
+          :loading="deleting"
+          :disabled="deleteForm.reason.length < 5"
+        >
           确认删除
         </el-button>
       </template>
@@ -256,32 +212,29 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Edit, Lock, Key, Phone, Delete } from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
-import { getUsers, updateUserRole, updateUserStatus, updateUser } from '@/api/user'
-import { userApi } from '@/api/user'
+import { Plus, Search, Refresh } from '@element-plus/icons-vue'
+import { getUsers, updateUser, userApi } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import type { User } from '@/types'
+import dayjs from 'dayjs'
 
 const userStore = useUserStore()
 const users = ref<User[]>([])
 const loading = ref(false)
-const roleDialogVisible = ref(false)
-const passwordDialogVisible = ref(false)
-const phoneDialogVisible = ref(false)
-const deleteDialogVisible = ref(false)
+const dialogVisible = ref(false)
+const dialogTitle = ref('添加用户')
 const submitting = ref(false)
+const formRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
-const phoneFormRef = ref<FormInstance>()
-const deleteFormRef = ref<FormInstance>()
+const deleteDialogVisible = ref(false)
+const deleting = ref(false)
 
-// 判断当前用户是否为超级管理员
 const isSuperAdmin = computed(() => userStore.user?.role === 'SUPER_ADMIN')
+const currentUserId = computed(() => userStore.user?.id)
 
 const searchForm = reactive({
   username: '',
-  role: '',
-  isActive: undefined as boolean | undefined
+  role: ''
 })
 
 const pagination = reactive({
@@ -290,28 +243,18 @@ const pagination = reactive({
   total: 0
 })
 
-const roleForm = reactive<{
-  id: number
-  username: string
-  role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'
-}>({
+const form = reactive({
   id: 0,
   username: '',
+  password: '',
+  phone: '',
   role: 'USER'
 })
 
 const passwordForm = reactive({
   id: 0,
-  username: '',
   newPassword: '',
   confirmPassword: ''
-})
-
-const phoneForm = reactive({
-  id: 0,
-  username: '',
-  currentPhone: '',
-  newPhone: ''
 })
 
 const deleteForm = reactive({
@@ -319,67 +262,58 @@ const deleteForm = reactive({
   username: '',
   phone: '',
   role: '',
-  reason: '',
-  productCount: 0,
-  categoryCount: 0,
-  importHistoryCount: 0,
-  logCount: 0
+  reason: ''
 })
 
-const validateConfirmPassword = (_rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('请再次输入密码'))
-  } else if (value !== passwordForm.newPassword) {
-    callback(new Error('两次输入的密码不一致'))
-  } else {
-    callback()
-  }
+const rules: FormRules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }]
 }
 
 const passwordRules: FormRules = {
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
-    { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/, message: '密码必须包含字母和数字', trigger: 'blur' }
+    { min: 6, message: '密码至少6位', trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      validator: (_rule, value, callback) => {
+        if (value !== passwordForm.newPassword) callback(new Error('两次密码不一致'))
+        else callback()
+      },
+      trigger: 'blur'
+    }
   ]
 }
 
-const phoneRules: FormRules = {
-  newPhone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的11位手机号', trigger: 'blur' }
-  ]
+const getRoleText = (role: string) => {
+  const roles: Record<string, string> = {
+    'SUPER_ADMIN': '超级管理员',
+    'ADMIN': '管理员',
+    'USER': '普通用户'
+  }
+  return roles[role] || role
 }
 
-const deleteRules: FormRules = {
-  reason: [
-    { required: true, message: '请输入删除理由', trigger: 'blur' },
-    { min: 5, message: '删除理由至少5个字符', trigger: 'blur' },
-    { max: 200, message: '删除理由最多200个字符', trigger: 'blur' }
-  ]
+const formatDate = (date: string) => {
+  if (!date) return ''
+  return dayjs(date).format('YYYY-MM-DD')
 }
 
 const loadUsers = async () => {
   loading.value = true
   try {
-    const params: any = {
-      page: pagination.page,
-      pageSize: pagination.pageSize
-    }
-    
+    const params: any = { page: pagination.page, pageSize: pagination.pageSize }
     if (searchForm.username) params.username = searchForm.username
     if (searchForm.role) params.role = searchForm.role
-    if (searchForm.isActive !== undefined) params.isActive = searchForm.isActive
-    
-    const data = await getUsers(params)
-    users.value = data?.users || []
-    pagination.total = data?.total || 0
+    const res = await getUsers(params)
+    users.value = res?.users || []
+    pagination.total = res?.total || 0
   } catch (error: any) {
-    ElMessage.error(error.response?.data?.message || '加载用户列表失败')
+    ElMessage.error(error.response?.data?.message || '获取用户列表失败')
   } finally {
     loading.value = false
   }
@@ -393,57 +327,55 @@ const handleSearch = () => {
 const handleReset = () => {
   searchForm.username = ''
   searchForm.role = ''
-  searchForm.isActive = undefined
   handleSearch()
 }
 
-const handleChangeRole = (row: User) => {
-  roleForm.id = row.id
-  roleForm.username = row.username
-  roleForm.role = row.role
-  roleDialogVisible.value = true
+const showAddDialog = () => {
+  dialogTitle.value = '添加用户'
+  form.id = 0
+  form.username = ''
+  form.password = ''
+  form.phone = ''
+  form.role = 'USER'
+  dialogVisible.value = true
 }
 
-const handleSubmitRole = async () => {
-  submitting.value = true
-  try {
-    await updateUserRole(roleForm.id, { role: roleForm.role })
-    ElMessage.success('角色修改成功')
-    roleDialogVisible.value = false
-    loadUsers()
-  } catch (error: any) {
-    ElMessage.error(error.response?.data?.message || '角色修改失败')
-  } finally {
-    submitting.value = false
-  }
+const handleEdit = (row: User) => {
+  dialogTitle.value = '编辑用户'
+  form.id = row.id
+  form.username = row.username
+  form.password = ''
+  form.phone = row.phone || ''
+  form.role = row.role
+  dialogVisible.value = true
 }
 
-const handleToggleStatus = async (row: User) => {
-  const action = row.isActive ? '禁用' : '启用'
-  try {
-    await ElMessageBox.confirm(
-      `确认要${action}用户「${row.username}」吗？`,
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+const handleSubmit = async () => {
+  if (!formRef.value) return
+  await formRef.value.validate(async (valid) => {
+    if (!valid) return
+    submitting.value = true
+    try {
+      if (form.id) {
+        await updateUser(form.id, { phone: form.phone, role: form.role as any })
+        ElMessage.success('更新成功')
+      } else {
+        // 创建用户需要调用注册接口或管理员创建接口
+        ElMessage.warning('请使用注册页面创建新用户')
+        return
       }
-    )
-    
-    await updateUserStatus(row.id, { isActive: !row.isActive })
-    ElMessage.success(`${action}成功`)
-    loadUsers()
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.message || `${action}失败`)
+      dialogVisible.value = false
+      loadUsers()
+    } catch (error: any) {
+      ElMessage.error(error.response?.data?.message || '操作失败')
+    } finally {
+      submitting.value = false
     }
-  }
+  })
 }
 
-const handleResetPassword = (row: User) => {
+const handleChangePassword = (row: User) => {
   passwordForm.id = row.id
-  passwordForm.username = row.username
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
   passwordDialogVisible.value = true
@@ -451,10 +383,8 @@ const handleResetPassword = (row: User) => {
 
 const handleSubmitPassword = async () => {
   if (!passwordFormRef.value) return
-  
   await passwordFormRef.value.validate(async (valid) => {
     if (!valid) return
-    
     submitting.value = true
     try {
       await userApi.resetPassword(passwordForm.id, passwordForm.newPassword)
@@ -468,112 +398,42 @@ const handleSubmitPassword = async () => {
   })
 }
 
-const handleChangePhone = (row: User) => {
-  phoneForm.id = row.id
-  phoneForm.username = row.username
-  phoneForm.currentPhone = row.phone || ''
-  phoneForm.newPhone = ''
-  phoneDialogVisible.value = true
-}
-
-const handleSubmitPhone = async () => {
-  if (!phoneFormRef.value) return
-  
-  await phoneFormRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    try {
-      await ElMessageBox.confirm(
-        `确认要将用户「${phoneForm.username}」的手机号修改为 ${phoneForm.newPhone} 吗？`,
-        '修改手机号',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-      
-      submitting.value = true
-      await updateUser(phoneForm.id, { phone: phoneForm.newPhone })
-      ElMessage.success('手机号修改成功')
-      phoneDialogVisible.value = false
-      loadUsers()
-    } catch (error: any) {
-      if (error !== 'cancel') {
-        ElMessage.error(error.response?.data?.message || '手机号修改失败')
-      }
-    } finally {
-      submitting.value = false
-    }
-  })
-}
-
-const handleDeleteUser = async (row: User) => {
+const showDeleteConfirm = (row: User) => {
   deleteForm.id = row.id
   deleteForm.username = row.username
   deleteForm.phone = row.phone || ''
   deleteForm.role = row.role
   deleteForm.reason = ''
-  deleteForm.productCount = row.productCount || 0
   deleteDialogVisible.value = true
 }
 
-const handleSubmitDelete = async () => {
-  if (!deleteFormRef.value) return
-  
-  await deleteFormRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    try {
-      // 二次确认
-      await ElMessageBox.confirm(
-        `确认要删除用户「${deleteForm.username}」吗？此操作不可恢复！`,
-        '⚠️ 最终确认',
-        {
-          confirmButtonText: '确认删除',
-          cancelButtonText: '取消',
-          type: 'error',
-          confirmButtonClass: 'el-button--danger'
-        }
-      )
-      
-      submitting.value = true
-      const result = await userApi.delete(deleteForm.id)
-      
-      if (result.success) {
-        ElMessage.success({
-          message: `用户「${deleteForm.username}」已删除`,
-          duration: 5000
-        })
-        deleteDialogVisible.value = false
-        loadUsers()
-      }
-    } catch (error: any) {
-      if (error !== 'cancel') {
-        ElMessage.error(error.response?.data?.message || '删除用户失败')
-      }
-    } finally {
-      submitting.value = false
-    }
-  })
+const handleConfirmDelete = async () => {
+  if (deleteForm.reason.length < 5) {
+    ElMessage.warning('请输入至少5个字符的删除理由')
+    return
+  }
+  deleting.value = true
+  try {
+    await userApi.delete(deleteForm.id, deleteForm.reason)
+    ElMessage.success('删除成功')
+    deleteDialogVisible.value = false
+    loadUsers()
+  } catch (error: any) {
+    ElMessage.error(error.response?.data?.message || '删除失败')
+  } finally {
+    deleting.value = false
+  }
 }
 
-const getRoleType = (role: string) => {
-  const typeMap: Record<string, any> = {
-    USER: '',
-    ADMIN: 'warning',
-    SUPER_ADMIN: 'danger'
+const handleDelete = async (row: User) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除用户「${row.username}」吗？`, '删除确认', { type: 'warning' })
+    await userApi.delete(row.id)
+    ElMessage.success('删除成功')
+    loadUsers()
+  } catch (error: any) {
+    if (error !== 'cancel') ElMessage.error(error.response?.data?.message || '删除失败')
   }
-  return typeMap[role] || ''
-}
-
-const getRoleText = (role: string) => {
-  const textMap: Record<string, string> = {
-    USER: '普通用户',
-    ADMIN: '管理员',
-    SUPER_ADMIN: '超级管理员'
-  }
-  return textMap[role] || role
 }
 
 onMounted(() => {
@@ -581,113 +441,189 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.admin-manage {
-  padding: 20px;
+<style scoped lang="scss">
+@import '@/styles/variables.scss';
+
+.admin-page {
+  padding: 32px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
 }
 
-.card-header {
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.card-header span {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.search-form {
-  margin-bottom: 20px;
-  display: flex;
-  flex-wrap: wrap;
   align-items: flex-start;
+  margin-bottom: 24px;
 }
 
-.search-form :deep(.el-form-item) {
-  margin-bottom: 0;
-  margin-right: 12px;
+.header-left {
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+  }
+  
+  .page-desc {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+  }
 }
 
-.search-form :deep(.el-form-item__label) {
-  line-height: 32px;
+.header-right {
+  .el-button {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
 }
 
-.search-form :deep(.el-form-item__content) {
-  line-height: 32px;
+// 筛选区
+.filter-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
 }
 
-.pagination {
-  margin-top: 20px;
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  :deep(.el-input),
+  :deep(.el-select) {
+    width: 180px;
+  }
+}
+
+// 表格区
+.table-section {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+}
+
+.data-table {
+  --el-table-border-color: #f1f5f9;
+  
+  :deep(th) {
+    background: #f8fafc !important;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 14px 12px;
+  }
+  
+  :deep(td) { padding: 12px; }
+  :deep(.el-table__row:hover > td) { background: #fafafa !important; }
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.user-phone {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  
+  &.super_admin { background: #fee2e2; color: #dc2626; }
+  &.admin { background: #fef3c7; color: #d97706; }
+  &.user { background: #e0e7ff; color: #6366f1; }
+}
+
+.date-text {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.text-muted {
+  color: #cbd5e1;
+}
+
+.action-cell {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.delete-info {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  
+  p { margin: 0 0 8px 0; font-weight: 600; }
+  
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    
+    li { margin: 4px 0; font-size: 13px; color: #64748b; }
+  }
+}
+
+.pagination-wrapper {
+  padding: 16px 20px;
+  border-top: 1px solid #f1f5f9;
   display: flex;
   justify-content: flex-end;
 }
 
-/* 操作按钮样式 */
-.action-buttons {
-  display: flex;
-  gap: 4px;
-  flex-wrap: nowrap;
-}
-
-.action-buttons :deep(.el-button) {
-  padding: 4px 8px;
-}
-
-/* 响应式表格 */
-@media (max-width: 1400px) {
-  .admin-manage :deep(.el-table) {
-    font-size: 13px;
-  }
-  
-  .admin-manage :deep(.el-table .cell) {
-    padding: 0 8px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .action-buttons {
-    flex-wrap: wrap;
-  }
-  
-  .action-buttons :deep(.el-button) {
-    margin-bottom: 2px;
-  }
-}
-
-/* 搜索表单响应式 */
+// 响应式
 @media (max-width: 768px) {
-  .search-form {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .search-form :deep(.el-form-item) {
-    margin-bottom: 12px;
-    margin-right: 0;
-    width: 100%;
-  }
-  
-  .search-form :deep(.el-form-item__content) {
-    width: 100%;
-  }
-  
-  .search-form :deep(.el-select),
-  .search-form :deep(.el-input) {
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .admin-manage {
-    padding: 12px;
-  }
-  
-  .card-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+  .admin-page { padding: 16px; }
+  .page-header { flex-direction: column; gap: 16px; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-item {
+    :deep(.el-input),
+    :deep(.el-select) { width: 100%; }
   }
 }
 </style>

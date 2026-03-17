@@ -8,7 +8,8 @@ class CategoryController {
   async getCategories(req, res) {
     try {
       const userId = req.user.id;
-      const categories = await categoryService.getCategories(userId);
+      const userRole = req.user.role;
+      const categories = await categoryService.getCategories(userId, userRole);
       
       res.json({
         success: true,

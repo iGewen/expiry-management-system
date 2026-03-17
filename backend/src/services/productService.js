@@ -131,7 +131,22 @@ export class ProductService {
     if (categoryId) {
       const parsedCategoryId = parseInt(categoryId, 10);
       if (!isNaN(parsedCategoryId) && parsedCategoryId > 0) {
-        where.categoryId = parsedCategoryId;
+        // SUPER_ADMIN 按分类名称查询（查找所有同名分类的商品）
+        if (userRole === 'SUPER_ADMIN') {
+          const category = await prisma.category.findUnique({
+            where: { id: parsedCategoryId },
+            select: { name: true }
+          });
+          if (category) {
+            const sameNameCategories = await prisma.category.findMany({
+              where: { name: category.name },
+              select: { id: true }
+            });
+            where.categoryId = { in: sameNameCategories.map(c => c.id) };
+          }
+        } else {
+          where.categoryId = parsedCategoryId;
+        }
       }
     }
 
@@ -175,7 +190,8 @@ export class ProductService {
         category: includeOptions.category ? {
           select: {
             id: true,
-            name: true
+            name: true,
+            color: true
           }
         } : false,
         ...(userRole === 'SUPER_ADMIN' ? {
@@ -551,14 +567,13 @@ export class ProductService {
     // 月度新增趋势（最近6个月）
     stats.monthlyTrend = await this.getMonthlyTrend(where);
 
-    // 即将过期的商品列表（7天内）- 使用实时计算的状态
-    const now = dayjs().toDate();
+    // 即将过期的商品列表 - 使用 formattedProducts 中已计算的状态
     const upcomingExpiry = formattedProducts
-      .filter(p => p.status === 'WARNING' && dayjs(p.expiryDate).isAfter(now))
-      .sort((a, b) => dayjs(a.expiryDate).diff(dayjs(b.expiryDate)))
+      .filter(p => p.status === 'WARNING')
+      .sort((a, b) => a.remainingDays - b.remainingDays)
       .slice(0, 10);
 
-    stats.upcomingExpiry = upcomingExpiry.map(p => this.formatProduct(p));
+    stats.upcomingExpiry = upcomingExpiry;
 
     return stats;
   }
@@ -566,20 +581,27 @@ export class ProductService {
   /**
    * 获取即将过期商品（用于导出）
    * @param {number} userId - 用户ID
+   * @param {string} userRole - 用户角色
    * @param {number} days - 天数（7天或30天）
    */
-  async getExpiringProducts(userId, days = 7) {
+  async getExpiringProducts(userId, userRole, days = 7) {
     const today = dayjs().startOf('day');
     const endDate = today.add(days, 'day').toDate();
     
+    // 构建查询条件 - SUPER_ADMIN 可以导出所有用户的商品
+    const where = {
+      isDeleted: false,
+      expiryDate: {
+        gte: today.toDate(),
+        lte: endDate
+      }
+    };
+    if (userRole !== 'SUPER_ADMIN') {
+      where.userId = userId;
+    }
+    
     const products = await prisma.product.findMany({
-      where: {
-        userId,
-        isDeleted: false,
-        expiryDate: {
-          lte: endDate
-        }
-      },
+      where,
       orderBy: { expiryDate: 'asc' }
     });
 

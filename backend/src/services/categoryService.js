@@ -6,10 +6,13 @@ class CategoryService {
   /**
    * 获取用户的所有分类（带详细统计）
    */
-  async getCategories(userId) {
+  async getCategories(userId, userRole = 'USER') {
+    // SUPER_ADMIN 可以看到所有用户的分类，按名称合并
+    const where = userRole === 'SUPER_ADMIN' ? {} : { userId };
+    
     const categories = await prisma.category.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
+      where,
+      orderBy: [{ userId: 'asc' }, { createdAt: 'asc' }],
       include: {
         _count: {
           select: { products: { where: { isDeleted: false } } }
@@ -62,7 +65,54 @@ class CategoryService {
       })
     );
     
-    return categoriesWithStats;
+    if (userRole === 'SUPER_ADMIN') {
+      for (const cat of categoriesWithStats) {
+        if (existing) {
+          existing.productCount += cat.productCount;
+          existing.stats.normal += cat.stats.normal;
+          existing.stats.warning += cat.stats.warning;
+          existing.stats.expired += cat.stats.expired;
+        } else {
+        }
+      }
+    }
+    
+    if (userRole === 'SUPER_ADMIN') {
+      for (const cat of categoriesWithStats) {
+        if (existing) {
+          existing.productCount += cat.productCount;
+          existing.stats.normal += cat.stats.normal;
+          existing.stats.warning += cat.stats.warning;
+          existing.stats.expired += cat.stats.expired;
+        } else {
+            ...cat,
+          });
+        }
+      }
+    }
+    
+// SUPER_ADMIN 按名称合并分类
+    if (userRole === 'SUPER_ADMIN') {
+      const mergedMap = new Map();
+      for (const cat of categoriesWithStats) {
+        const existing = mergedMap.get(cat.name);
+        if (existing) {
+          existing.productCount += cat.productCount;
+          existing.stats.normal += cat.stats.normal;
+          existing.stats.warning += cat.stats.warning;
+          existing.stats.expired += cat.stats.expired;
+          existing.categoryIds.push(cat.id);
+        } else {
+          mergedMap.set(cat.name, {
+            ...cat,
+            categoryIds: [cat.id]
+          });
+        }
+      }
+      return Array.from(mergedMap.values());
+    }
+    
+        return categoriesWithStats;
   }
 
   /**

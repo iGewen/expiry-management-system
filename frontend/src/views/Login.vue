@@ -283,13 +283,13 @@ const handleFeishuLogin = async () => {
   .gradient-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0f9ff 100%);
+    background: $gradient-bg;
   }
   
   .circle {
     position: absolute;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
     animation: float 25s infinite ease-in-out;
     
     &.circle-1 {
@@ -363,7 +363,7 @@ const handleFeishuLogin = async () => {
 // 左侧宣传区
 .login-banner {
   flex: 1;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  background: $gradient-primary;
   padding: 60px 50px;
   display: flex;
   align-items: center;
@@ -468,7 +468,7 @@ const handleFeishuLogin = async () => {
   .header-icon {
     width: 64px;
     height: 64px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: $gradient-primary;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -513,13 +513,14 @@ const handleFeishuLogin = async () => {
       border-radius: 12px;
       box-shadow: 0 0 0 1px $border-base inset;
       background: rgba(255, 255, 255, 0.8);
+      transition: all 200ms ease;
 
       &:hover {
-        box-shadow: 0 0 0 1px #6366f1 inset;
+        box-shadow: 0 0 0 1px $primary-color inset;
       }
 
       &.is-focus {
-        box-shadow: 0 0 0 2px #6366f1 inset, 0 0 0 4px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 2px $primary-color inset, 0 0 0 4px rgba(99, 102, 241, 0.1);
       }
     }
 
@@ -547,14 +548,14 @@ const handleFeishuLogin = async () => {
 }
 
 .forgot-link {
-  color: #6366f1;
+  color: $primary-color;
   font-size: 14px;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.2s ease;
   
   &:hover {
-    color: #4f46e5;
+    color: $primary-hover;
     text-decoration: underline;
   }
 }
@@ -566,7 +567,7 @@ const handleFeishuLogin = async () => {
   font-weight: 600;
   letter-spacing: 2px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: $gradient-primary;
   border: none;
   transition: all 0.2s ease;
   
@@ -653,13 +654,13 @@ const handleFeishuLogin = async () => {
 }
 
 .register-link {
-  color: #6366f1;
+  color: $primary-color;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
   
   &:hover {
-    color: #4f46e5;
+    color: $primary-hover;
     text-decoration: underline;
   }
 }
@@ -681,13 +682,13 @@ const handleFeishuLogin = async () => {
   }
 
   .policy-link {
-    color: #6366f1;
+    color: $primary-color;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
 
     &:hover {
-      color: #4f46e5;
+      color: $primary-hover;
       text-decoration: underline;
     }
   }

@@ -107,18 +107,24 @@ class ReminderService {
   /**
    * 获取即将过期的商品预览（用于前端展示）
    */
-  async getUpcomingProducts(userId) {
+  async getUpcomingProducts(userId, userRole = 'USER') {
     const today = startOfDay(new Date());
     
+    // SUPER_ADMIN 可以看到所有用户的商品
+    const where = {
+      isDeleted: false,
+      status: 'WARNING',  // 只显示预警状态的商品
+      expiryDate: {
+        gte: today
+      }
+    };
+    
+    if (userRole !== 'SUPER_ADMIN') {
+      where.userId = userId;
+    }
+    
     const products = await prisma.product.findMany({
-      where: {
-        userId,
-        isDeleted: false,
-        status: { in: ['NORMAL', 'WARNING'] },
-        expiryDate: {
-          gte: today
-        }
-      },
+      where,
       orderBy: { expiryDate: 'asc' },
       take: 50  // 最多显示50个
     });

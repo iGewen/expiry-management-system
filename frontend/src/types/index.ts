@@ -38,6 +38,16 @@ export interface Product {
   status: 'NORMAL' | 'WARNING' | 'EXPIRED'
   createdAt: string
   updatedAt: string
+  categoryId: number | null
+  category?: {
+    id: number
+    name: string
+    color?: string
+  } | null
+  user?: {
+    id: number
+    username: string
+  }
 }
 
 export interface ProductForm {

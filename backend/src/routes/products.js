@@ -24,7 +24,16 @@ const updateValidation = [
   body('name').optional().trim().notEmpty().withMessage('商品名称不能为空').isLength({ max: 100 }),
   body('productionDate').optional().isISO8601(),
   body('shelfLife').optional().isInt({ min: 1, max: 3650 }).withMessage('保质期应为1-3650天'),
-  body('reminderDays').optional().isInt({ min: 1, max: 90 }).withMessage('提醒天数应为1-90天')
+  body('reminderDays').optional({ nullable: true }).custom((val) => {
+    if (val === null || val === '' || val === undefined) return true;
+    if (Number.isInteger(val) && val >= 0) return true;
+    throw new Error('提醒天数应为0或正整数');
+  }),
+  body('categoryId').optional({ nullable: true }).custom((val) => {
+    if (val === null || val === '' || val === undefined) return true;
+    if (Number.isInteger(val) && val > 0) return true;
+    throw new Error('分类ID格式不正确');
+  })
 ];
 
 const listValidation = [
@@ -57,12 +66,23 @@ router.post('/batch/import', logAction, upload.single('file'), productController
 router.post('/batch/update', [
   body('ids').isArray({ min: 1, max: 100 }).withMessage('批量更新数量应为1-100'),
   body('ids.*').isInt({ min: 1 }).withMessage('商品ID必须为正整数'),
-  body('categoryId').optional().isInt({ min: 1 }).withMessage('分类ID格式不正确'),
-  body('reminderDays').optional().isInt({ min: 1, max: 90 }).withMessage('提醒天数应为1-90天')
+  body('categoryId').optional({ nullable: true }).custom((val) => {
+    if (val === null || val === '' || val === undefined) return true;
+    if (Number.isInteger(val) && val > 0) return true;
+    throw new Error('分类ID格式不正确');
+  }),
+  body('reminderDays').optional({ nullable: true }).custom((val) => {
+    if (val === null || val === '' || val === undefined || val === 0) return true;
+    if (Number.isInteger(val) && val > 0) return true;
+    throw new Error('提醒天数应为0或正整数');
+  })
 ], handleValidationErrors, logAction, productController.batchUpdate.bind(productController));
 
 // 导出模板
 router.get('/template/export', productController.exportTemplate.bind(productController));
+
+// 导出全部商品
+router.get('/export/all', productController.exportAllProducts.bind(productController));
 
 // 导出即将过期商品
 router.get('/export/expiring', [

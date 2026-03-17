@@ -1,446 +1,359 @@
 <template>
-  <div class="import-export">
-    <el-row :gutter="20">
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never">
-          <template #header>
-            <span>批量导入</span>
-          </template>
-          <div class="import-section">
-            <el-alert
-              title="导入说明"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 20px;"
-            >
-              <p>请下载模板文件，按照格式填写数据后上传</p>
-              <p>支持格式：Excel (.xlsx), CSV (.csv)</p>
-              <p>必填字段：商品名称、生产日期、保质期天数</p>
-            </el-alert>
+  <div class="import-export-page">
+    <!-- 页面头部 -->
+    <header class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">数据导入导出</h1>
+        <p class="page-desc">批量导入商品数据或导出数据进行分析</p>
+      </div>
+    </header>
 
-            <el-button type="primary" @click="downloadTemplate">
-              <el-icon><Download /></el-icon>
-              下载模板
-            </el-button>
+    <!-- 功能卡片 -->
+    <div class="cards-grid">
+      <!-- 导入卡片 -->
+      <div class="feature-card import-card">
+        <div class="card-header">
+          <div class="card-icon import-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="card-title">
+            <h3>数据导入</h3>
+            <p>批量导入商品数据到系统</p>
+          </div>
+        </div>
 
-            <el-divider />
-
-            <el-upload
-              ref="uploadRef"
-              :auto-upload="false"
-              :limit="1"
-              :on-change="handleFileChange"
-              :on-exceed="handleExceed"
-              accept=".xlsx,.csv"
-              drag
-            >
-              <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-              <div class="el-upload__text">
-                将文件拖到此处，或<em>点击上传</em>
+        <div class="card-body">
+          <el-upload
+            ref="uploadRef"
+            class="upload-area"
+            drag
+            :auto-upload="false"
+            :show-file-list="true"
+            :limit="1"
+            accept=".xlsx,.xls,.csv"
+            @change="handleFileChange"
+          >
+            <div class="upload-content">
+              <div class="upload-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
               </div>
-              <template #tip>
-                <div class="el-upload__tip">
-                  只能上传 xlsx/csv 文件，且不超过 10MB
+              <p class="upload-text">拖拽文件到此处，或 <span class="link-text">点击上传</span></p>
+              <p class="upload-hint">支持 .xlsx、.xls、.csv 格式，单次最多 1000 条</p>
+            </div>
+          </el-upload>
+
+          <div class="template-section">
+            <span class="template-label">没有模板？</span>
+            <el-button type="primary" link @click="downloadTemplate">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              下载导入模板
+            </el-button>
+          </div>
+
+          <div class="import-rules">
+            <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>导入说明</h4>
+            <ul>
+              <li>商品名称为必填项</li>
+              <li>生产日期格式：YYYY-MM-DD</li>
+              <li>保质期为天数，如：30 表示 30 天</li>
+              <li>分类名称需与系统中已有的分类一致</li>
+            </ul>
+          </div>
+
+          <el-button 
+            type="primary" 
+            size="large" 
+            class="action-btn"
+            :loading="importing"
+            :disabled="!selectedFile"
+            @click="handleImport"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            开始导入
+          </el-button>
+
+          <!-- 导入结果 -->
+          <div v-if="importResult" class="import-result">
+            <el-alert :title="importResult.title" :type="importResult.type" :description="importResult.detail" show-icon :closable="false" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 导出卡片 -->
+      <div class="feature-card export-card">
+        <div class="card-header">
+          <div class="card-icon export-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <div class="card-title">
+            <h3>数据导出</h3>
+            <p>导出商品数据到 Excel 文件</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="export-options">
+            <h4>选择导出范围</h4>
+            <el-radio-group v-model="exportRange" class="export-range">
+              <el-radio label="all">
+                <div class="radio-content">
+                  <span class="radio-title">全部商品</span>
+                  <span class="radio-desc">导出系统中所有商品数据</span>
                 </div>
-              </template>
-            </el-upload>
+              </el-radio>
+              <el-radio label="expiring">
+                <div class="radio-content">
+                  <span class="radio-title">即将过期商品</span>
+                  <span class="radio-desc">导出 30 天内即将过期的商品</span>
+                </div>
+              </el-radio>
+              <el-radio label="expired">
+                <div class="radio-content">
+                  <span class="radio-title">已过期商品</span>
+                  <span class="radio-desc">导出所有已过期的商品</span>
+                </div>
+              </el-radio>
+              <el-radio label="category">
+                <div class="radio-content">
+                  <span class="radio-title">按分类导出</span>
+                  <span class="radio-desc">选择特定分类进行导出</span>
+                </div>
+              </el-radio>
+            </el-radio-group>
 
-            <el-button
-              type="success"
-              :loading="importing"
-              :disabled="!selectedFile"
-              @click="handleImport"
-              style="margin-top: 20px; width: 100%;"
-            >
-              <el-icon><Upload /></el-icon>
-              开始导入
-            </el-button>
-
-            <el-progress
-              v-if="importProgress > 0"
-              :percentage="importProgress"
-              :status="importProgress === 100 ? 'success' : undefined"
-              style="margin-top: 20px;"
-            />
-          </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never">
-          <template #header>
-            <span>批量导出</span>
-          </template>
-           <div class="export-section">
-            <el-alert
-              title="导出说明"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 20px;"
-            >
-              <p>可以按照筛选条件导出商品数据</p>
-              <p>支持格式：Excel (.xlsx), CSV (.csv)</p>
-              <p>支持按状态和日期范围筛选导出</p>
-            </el-alert>
-
-            <div style="height: 32px; margin-bottom: 20px;">
-              <!-- 占位，与左侧下载模板按钮对齐 -->
+            <div v-if="exportRange === 'category'" class="category-select">
+              <el-select v-model="selectedCategory" placeholder="选择分类" size="large" style="width: 100%;">
+                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+              </el-select>
             </div>
-
-            <el-divider />
-
-            <div class="export-form-wrapper">
-              <el-form :model="exportForm" label-width="100px">
-                <el-form-item label="商品状态">
-                  <el-select v-model="exportForm.status" placeholder="全部" clearable>
-                    <el-option label="正常" value="NORMAL" />
-                    <el-option label="即将过期" value="WARNING" />
-                    <el-option label="已过期" value="EXPIRED" />
-                  </el-select>
-                </el-form-item>
-                <el-row :gutter="20">
-                  <el-col :span="12">
-                    <el-form-item label="开始日期">
-                      <el-date-picker
-                        v-model="exportForm.startDate"
-                        type="date"
-                        placeholder="选择开始日期"
-                        value-format="YYYY-MM-DD"
-                        style="width: 100%;"
-                        clearable
-                      />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="结束日期">
-                      <el-date-picker
-                        v-model="exportForm.endDate"
-                        type="date"
-                        placeholder="选择结束日期"
-                        value-format="YYYY-MM-DD"
-                        style="width: 100%;"
-                        clearable
-                      />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-form-item label="导出格式">
-                  <el-radio-group v-model="exportForm.format">
-                    <el-radio value="xlsx">Excel (.xlsx)</el-radio>
-                    <el-radio value="csv">CSV (.csv)</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-form>
-              
-            </div>
-
-            <el-button
-              type="success"
-              :loading="exporting"
-              @click="handleExport"
-              style="margin-top: 20px; width: 100%;"
-            >
-              <el-icon><Download /></el-icon>
-              导出数据
-            </el-button>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px;">
-      <el-col :span="24">
-        <el-card shadow="never">
-          <template #header>
-            <span>导入历史</span>
-          </template>
-          <el-table :data="importHistory" v-loading="loading">
-            <el-table-column type="index" label="序号" width="60" />
-            <el-table-column prop="filename" label="文件名" min-width="200" />
-            <el-table-column prop="totalCount" label="总记录数" width="100" />
-            <el-table-column prop="successCount" label="成功" width="80">
-              <template #default="{ row }">
-                <el-tag type="success">{{ row.successCount }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="failCount" label="失败" width="80">
-              <template #default="{ row }">
-                <el-tag v-if="row.failCount > 0" type="danger">{{ row.failCount }}</el-tag>
-                <span v-else>0</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" width="100">
-              <template #default="{ row }">
-                <el-tag v-if="row.status === 'SUCCESS'" type="success">成功</el-tag>
-                <el-tag v-else-if="row.status === 'PARTIAL'" type="warning">部分成功</el-tag>
-                <el-tag v-else type="danger">失败</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="createdAt" label="导入时间" width="160">
-              <template #default="{ row }">
-                {{ dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="80" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDeleteHistory(row.id)">
-                  <el-icon><Delete /></el-icon>
-                  删除
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
-      </el-col>
-    </el-row>
+          <div class="export-fields">
+            <h4>选择导出字段</h4>
+            <el-checkbox-group v-model="exportFields">
+              <el-checkbox label="name">商品名称</el-checkbox>
+              <el-checkbox label="category">分类</el-checkbox>
+              <el-checkbox label="productionDate">生产日期</el-checkbox>
+              <el-checkbox label="shelfLife">保质期</el-checkbox>
+              <el-checkbox label="expiryDate">过期日期</el-checkbox>
+              <el-checkbox label="remainingDays">剩余天数</el-checkbox>
+              <el-checkbox label="status">状态</el-checkbox>
+            </el-checkbox-group>
+          </div>
+
+          <div class="export-format">
+            <h4>导出格式</h4>
+            <el-radio-group v-model="exportFormat">
+              <el-radio-button label="xlsx">Excel (.xlsx)</el-radio-button>
+              <el-radio-button label="csv">CSV (.csv)</el-radio-button>
+            </el-radio-group>
+          </div>
+
+          <el-button 
+            type="primary" 
+            size="large" 
+            class="action-btn"
+            :loading="exporting"
+            @click="handleExport"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            开始导出
+          </el-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type UploadInstance, type UploadFile } from 'element-plus'
-import { Download, UploadFilled, Upload, Delete } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { getProducts, exportProducts, importProducts } from '@/api/product'
+import { getCategories } from '@/api/category'
+import httpClient from '@/utils/request'
 import dayjs from 'dayjs'
-import * as XLSX from 'xlsx'
-import { exportProducts } from '@/api/product'
-import { getImportHistories, deleteImportHistory } from '@/api/importHistory'
-import request from '@/utils/request'
 
-const uploadRef = ref<UploadInstance>()
+const uploadRef = ref()
 const selectedFile = ref<File | null>(null)
 const importing = ref(false)
 const exporting = ref(false)
-const loading = ref(false)
-const importProgress = ref(0)
+const importResult = ref<any>(null)
+const categories = ref<any[]>([])
 
-const exportForm = reactive({
-  status: '',
-  startDate: '',
-  endDate: '',
-  format: 'xlsx'
-})
+const exportRange = ref('all')
+const selectedCategory = ref<number | null>(null)
+const exportFields = ref(['name', 'category', 'productionDate', 'shelfLife', 'expiryDate', 'remainingDays', 'status'])
+const exportFormat = ref('xlsx')
 
-const importHistory = ref<any[]>([])
-
-// 加载导入历史
-const loadImportHistory = async () => {
-  loading.value = true
+const loadCategories = async () => {
   try {
-    const data = await getImportHistories()
-    importHistory.value = data?.histories || []
-  } catch (error: any) {
-    ElMessage.error(error.response?.data?.message || '加载导入历史失败')
-  } finally {
-    loading.value = false
-  }
+    const res = await getCategories()
+    categories.value = res.data || []
+  } catch (error) { console.error('Load categories error:', error) }
 }
 
-// 删除导入历史
-const handleDeleteHistory = async (id: number) => {
-  try {
-    await ElMessageBox.confirm('确认要删除此导入记录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await deleteImportHistory(id)
-    ElMessage.success('删除成功')
-    loadImportHistory()
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.message || '删除失败')
-    }
-  }
+const handleFileChange = (file: any) => {
+  selectedFile.value = file.raw
+  importResult.value = null
 }
-
-onMounted(() => {
-  loadImportHistory()
-})
 
 const downloadTemplate = () => {
-  const template = [
-    {
-      '商品名称': '示例商品',
-      '生产日期': '2024-01-01',
-      '保质期天数': 365,
-      '提醒天数': 3
-    }
-  ]
-  
-  const ws = XLSX.utils.json_to_sheet(template)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, '商品数据')
-  XLSX.writeFile(wb, '商品导入模板.xlsx')
-  ElMessage.success('模板下载成功')
-}
-
-const handleFileChange = (file: UploadFile) => {
-  if (file.raw) {
-    const isExcel = file.raw.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    const isCsv = file.raw.type === 'text/csv'
-    const isLt10M = file.raw.size / 1024 / 1024 < 10
-
-    if (!isExcel && !isCsv) {
-      ElMessage.error('只能上传 Excel 或 CSV 文件')
-      return false
-    }
-    if (!isLt10M) {
-      ElMessage.error('文件大小不能超过 10MB')
-      return false
-    }
-    selectedFile.value = file.raw
-  }
-}
-
-const handleExceed = () => {
-  ElMessage.warning('每次只能上传一个文件')
+  const template = '商品名称,分类名称,生产日期,保质期(天),提前提醒天数\n示例商品,食品,2024-01-01,30,7'
+  const blob = new Blob(['\ufeff' + template], { type: 'text/csv;charset=utf-8' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url; link.download = '商品导入模板.csv'
+  document.body.appendChild(link); link.click(); document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
 }
 
 const handleImport = async () => {
-  if (!selectedFile.value) {
-    ElMessage.warning('请选择要导入的文件')
-    return
-  }
-
+  if (!selectedFile.value) { ElMessage.warning('请先选择文件'); return }
   importing.value = true
-  importProgress.value = 0
-
+  importResult.value = null
   try {
-    // 模拟进度
-    const progressInterval = setInterval(() => {
-      if (importProgress.value < 90) {
-        importProgress.value += 10
-      }
-    }, 200)
-
-    // 直接上传文件到后端
     const formData = new FormData()
     formData.append('file', selectedFile.value)
-    
-    const response = await request.post('/products/batch/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    clearInterval(progressInterval)
-    importProgress.value = 100
-    
-    const result = response.data.data // 后端返回 { success: true, data: { success: 0, failed: 0 } }
-    
-    // 后端已经保存了导入历史，直接重新加载
-    const successCount = result?.success || 0
-    const failedCount = result?.failed || 0
-    const totalCount = successCount + failedCount
-    
-    // 显示消息
-    if (totalCount > 0) {
-      ElMessage.success(`导入完成，成功 ${successCount} 条，失败 ${failedCount} 条`)
-      if (failedCount > 0 && result?.errors && result.errors.length > 0) {
-        console.error('导入错误详情:', result.errors)
-      }
-    } else {
-      ElMessage.success('导入成功')
+    const res = await httpClient.post('/products/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    if (res.success) {
+      importResult.value = { title: '导入成功', type: 'success', detail: `成功导入 ${res.data?.success || 0} 条，跳过 ${res.data?.skipped || 0} 条` }
+      ElMessage.success('导入完成')
     }
-    
-    // 重新加载导入历史
-    loadImportHistory()
-    
-    uploadRef.value?.clearFiles()
-    selectedFile.value = null
-    
-    setTimeout(() => {
-      importProgress.value = 0
-    }, 2000)
   } catch (error: any) {
-    ElMessage.error(error.response?.data?.message || '导入失败')
-    importProgress.value = 0
-  } finally {
-    importing.value = false
-  }
+    importResult.value = { title: '导入失败', type: 'error', detail: error.response?.data?.message || '导入过程中发生错误' }
+  } finally { importing.value = false }
 }
 
 const handleExport = async () => {
   exporting.value = true
   try {
-    const params: any = {
-      exportAll: true
-    }
-    if (exportForm.status) params.status = exportForm.status
-    if (exportForm.startDate) params.startDate = exportForm.startDate
-    if (exportForm.endDate) params.endDate = exportForm.endDate
+    let blob: Blob
+    let filename: string
+    const params: any = { fields: exportFields.value.join(','), format: exportFormat.value }
+    
+    if (exportRange.value === 'category' && selectedCategory.value) params.categoryId = selectedCategory.value
+    else if (exportRange.value === 'expiring') params.expiringDays = 30
+    else if (exportRange.value === 'expired') params.status = 'EXPIRED'
 
-    const data = await exportProducts(params)
+    const res = await httpClient.get('/products/export', { params, responseType: 'blob' })
+    blob = res as any
+    filename = `商品数据_${dayjs().format('YYYYMMDD_HHmmss')}.${exportFormat.value}`
     
-    // 生成Excel文件
-    const ws = XLSX.utils.json_to_sheet(data.map((item: any) => ({
-      '商品名称': item.name,
-      '生产日期': dayjs(item.productionDate).format('YYYY-MM-DD'),
-      '保质期天数': item.shelfLife,
-      '过期日期': dayjs(item.expiryDate).format('YYYY-MM-DD'),
-      '剩余天数': item.remainingDays,
-      '状态': item.status === 'EXPIRED' ? '已过期' : item.status === 'WARNING' ? '即将过期' : '正常',
-      '提醒天数': item.reminderDays,
-      '创建时间': dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
-    })))
-    
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, '商品数据')
-    
-    const filename = `商品数据_${dayjs().format('YYYYMMDDHHmmss')}.${exportForm.format}`
-    XLSX.writeFile(wb, filename)
-    
-    ElMessage.success(`导出成功，共 ${data.length} 条数据`)
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url; link.download = filename
+    document.body.appendChild(link); link.click(); document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    ElMessage.success('导出成功')
   } catch (error: any) {
     ElMessage.error(error.response?.data?.message || '导出失败')
-  } finally {
-    exporting.value = false
-  }
+  } finally { exporting.value = false }
 }
+
+onMounted(() => { loadCategories() })
 </script>
 
-<style scoped>
-.import-export {
-  padding: 20px;
+<style scoped lang="scss">
+@import '@/styles/variables.scss';
+
+.import-export-page { padding: 32px; background: #f8fafc; min-height: calc(100vh - 64px); }
+
+.page-header { margin-bottom: 24px; }
+.header-left {
+  .page-title { font-size: 28px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
+  .page-desc { font-size: 14px; color: #64748b; margin: 0; }
 }
 
-.import-section,
-.export-section {
-  padding: 10px 0;
-  min-height: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; @media (max-width: 1024px) { grid-template-columns: 1fr; } }
+
+.feature-card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden; }
+
+.card-header { display: flex; align-items: center; gap: 16px; padding: 24px; border-bottom: 1px solid #f1f5f9; }
+.card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
+  &.import-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  &.export-icon { background: linear-gradient(135deg, #10b981, #14b8a6); }
+}
+.card-title {
+  h3 { font-size: 18px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0; }
+  p { font-size: 13px; color: #64748b; margin: 0; }
 }
 
-.export-form-wrapper {
-  flex: 1;
-}
+.card-body { padding: 24px; }
 
-:deep(.el-upload-dragger) {
-  padding: 40px;
-}
-
-/* 响应式布局 */
-@media (max-width: 992px) {
-  .import-export .el-col {
-    margin-bottom: 20px;
-  }
-  
-  .import-export .el-col:last-child {
-    margin-bottom: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  :deep(.el-upload-dragger) {
-    padding: 20px;
-  }
-  
-  .import-section,
-  .export-section {
-    padding: 5px 0;
+.upload-area {
+  :deep(.el-upload-dragger) { border: 2px dashed #e2e8f0; border-radius: 12px; background: #fafafa; transition: all 0.3s ease;
+    &:hover { border-color: #6366f1; background: #f5f3ff; }
   }
 }
+
+.upload-content { padding: 32px; text-align: center; }
+.upload-icon { color: #94a3b8; margin-bottom: 12px; }
+.upload-text { font-size: 14px; color: #64748b; margin: 0 0 8px 0; .link-text { color: #6366f1; font-weight: 500; } }
+.upload-hint { font-size: 12px; color: #94a3b8; margin: 0; }
+
+.template-section { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9; }
+.template-label { font-size: 13px; color: #64748b; }
+
+.import-rules { margin-top: 20px; padding: 16px; background: #f8fafc; border-radius: 12px;
+  h4 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 12px 0; }
+  ul { margin: 0; padding: 0; list-style: none;
+    li { font-size: 13px; color: #64748b; padding: 6px 0; padding-left: 16px; position: relative;
+      &::before { content: '•'; position: absolute; left: 0; color: #6366f1; }
+    }
+  }
+}
+
+.action-btn { width: 100%; height: 48px; border-radius: 12px; font-size: 15px; font-weight: 600; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+.import-result { margin-top: 16px; }
+
+.export-options, .export-fields, .export-format {
+  h4 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 12px 0; }
+}
+
+.export-range { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  :deep(.el-radio) { height: auto; align-items: flex-start; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-right: 0;
+    &:hover { border-color: #6366f1; background: #f5f3ff; }
+    &.is-checked { border-color: #6366f1; background: #eef2ff; }
+  }
+}
+
+.radio-content { display: flex; flex-direction: column; gap: 2px; margin-left: 8px;
+  .radio-title { font-size: 14px; font-weight: 500; color: #1e293b; }
+  .radio-desc { font-size: 12px; color: #64748b; }
+}
+
+.category-select { margin-top: 12px; }
+
+.export-fields { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9;
+  :deep(.el-checkbox-group) { display: flex; flex-wrap: wrap; gap: 12px; }
+  :deep(.el-checkbox) { margin-right: 0; }
+}
+
+.export-format { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
 </style>

@@ -136,14 +136,16 @@ const updateStatusChart = () => {
       formatter: '{b}: {c} ({d}%)'
     },
     legend: {
-      bottom: '5%',
-      left: 'center'
+      orient: 'vertical',
+      right: '5%',
+      top: 'center'
     },
     series: [
       {
         name: '商品状态',
         type: 'pie',
         radius: ['40%', '70%'],
+        center: ['40%', '50%'],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 10,
@@ -339,9 +341,19 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/styles/variables.scss';
+
 .statistics {
-  padding: 20px;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+  
+  :deep(.el-card) {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
 }
 
 .card-header {
@@ -349,11 +361,12 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-}
-
-.card-header span {
-  font-weight: 600;
-  font-size: 16px;
+  
+  span {
+    font-weight: 600;
+    font-size: 18px;
+    color: #1e293b;
+  }
 }
 
 /* 响应式布局 */
@@ -369,7 +382,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .statistics :deep(.el-card__header) {
-    padding: 10px 15px;
+    padding: 16px 20px;
   }
   
   .card-header {

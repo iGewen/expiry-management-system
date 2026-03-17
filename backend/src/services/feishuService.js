@@ -18,6 +18,89 @@ export class FeishuService {
   }
 
   /**
+   * 验证飞书 Webhook 地址并发送测试消息
+   */
+  async validateWebhook(webhookUrl) {
+    try {
+      const response = await axios.post(webhookUrl, {
+        msg_type: 'text',
+        content: {
+          text: '🔗 飞书机器人配置成功！\n\n这是一条测试消息，来自过期管理系统。'
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
+      // 飞书机器人返回 StatusCode 为 0 表示成功
+      if (response.data?.StatusCode === 0 || response.data?.code === 0) {
+        logger.info('Feishu webhook test successful');
+        return true;
+      }
+
+      logger.warn('Feishu webhook test failed:', response.data);
+      return false;
+    } catch (error) {
+      logger.error('Feishu webhook validation error:', error.message);
+      throw new Error('飞书 Webhook 地址无效或无法访问');
+    }
+  }
+
+  /**
+   * 发送飞书提醒消息
+   */
+  async sendReminder(webhookUrl, products) {
+    try {
+      const productText = products.map((p, i) => 
+        `${i + 1}. ${p.name} - 剩余 ${p.remainingDays} 天`
+      ).join('\n');
+
+      const response = await axios.post(webhookUrl, {
+        msg_type: 'interactive',
+        card: {
+          header: {
+            title: {
+              tag: 'plain_text',
+              content: '⚠️ 商品过期提醒'
+            },
+            template: 'orange'
+          },
+          elements: [
+            {
+              tag: 'div',
+              text: {
+                tag: 'lark_md',
+                content: `**以下商品即将过期：**\n\n${productText}`
+              }
+            },
+            {
+              tag: 'note',
+              elements: [
+                {
+                  tag: 'plain_text',
+                  content: `共 ${products.length} 件商品需要处理`
+                }
+              ]
+            }
+          ]
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
+      return response.data?.StatusCode === 0 || response.data?.code === 0;
+    } catch (error) {
+      logger.error('Failed to send Feishu reminder:', error.message);
+      return false;
+    }
+  }
+
+  /**
    * 检查飞书登录是否配置
    */
   isConfigured() {

@@ -289,6 +289,7 @@ export class ProductController {
   async batchUpdate(req, res) {
     try {
       const userId = req.user.id;
+      const userRole = req.user.role;
       const { ids, categoryId, reminderDays } = req.body;
 
       if (!ids || ids.length === 0) {
@@ -310,13 +311,18 @@ export class ProductController {
       if (categoryId !== undefined) updateData.categoryId = categoryId;
       if (reminderDays !== undefined) updateData.reminderDays = reminderDays;
 
+      // 构建 where 条件 - SUPER_ADMIN 可以更新所有商品
+      const where = {
+        id: { in: ids },
+        isDeleted: false
+      };
+      if (userRole !== 'SUPER_ADMIN') {
+        where.userId = userId;
+      }
+
       // 更新商品
       const result = await prisma.product.updateMany({
-        where: {
-          id: { in: ids },
-          userId,
-          isDeleted: false
-        },
+        where,
         data: updateData
       });
 
@@ -349,9 +355,10 @@ export class ProductController {
   async exportExpiringProducts(req, res) {
     try {
       const userId = req.user.id;
+      const userRole = req.user.role;
       const days = parseInt(req.query.days) || 7; // 默认7天
 
-      const products = await productService.getExpiringProducts(userId, days);
+      const products = await productService.getExpiringProducts(userId, userRole, days);
 
       // 生成Excel数据
       const data = products.map(p => ({
@@ -387,6 +394,58 @@ export class ProductController {
       res.send(buffer);
     } catch (error) {
       logger.error('Export expiring products error:', error);
+      res.status(500).json({
+        success: false,
+        message: '导出失败'
+      });
+    }
+  }
+
+  async exportAllProducts(req, res) {
+    try {
+      const userId = req.user.id;
+      const userRole = req.user.role;
+
+      // 获取所有商品
+      const result = await productService.getProducts(userId, userRole, { exportAll: 'true' });
+      const products = result.products || [];
+
+      // 生成Excel数据
+      const data = products.map(p => ({
+        '商品名称': p.name,
+        '分类': p.category?.name || '',
+        '生产日期': dayjs(p.productionDate).format('YYYY-MM-DD'),
+        '保质期(天)': p.shelfLife,
+        '过期日期': dayjs(p.expiryDate).format('YYYY-MM-DD'),
+        '剩余天数': p.remainingDays,
+        '状态': p.status === 'EXPIRED' ? '已过期' : p.status === 'WARNING' ? '即将过期' : '正常',
+        '提醒天数': p.reminderDays
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, '商品列表');
+
+      // 设置列宽
+      worksheet['!cols'] = [
+        { wch: 20 }, // 商品名称
+        { wch: 10 }, // 分类
+        { wch: 12 }, // 生产日期
+        { wch: 10 }, // 保质期
+        { wch: 12 }, // 过期日期
+        { wch: 10 }, // 剩余天数
+        { wch: 10 }, // 状态
+        { wch: 10 }  // 提醒天数
+      ];
+
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      const filename = `商品列表_${dayjs().format('YYYYMMDD')}.xlsx`;
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=${encodeURIComponent(filename)}`);
+      res.send(buffer);
+    } catch (error) {
+      logger.error('Export all products error:', error);
       res.status(500).json({
         success: false,
         message: '导出失败'

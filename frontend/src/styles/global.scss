@@ -1,4 +1,4 @@
-// 全局样式 - 126邮箱风格
+// 全局样式 - 现代简约风格
 @import './variables.scss';
 
 // 重置样式
@@ -8,12 +8,24 @@
   box-sizing: border-box;
 }
 
+// Reset & Base
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body, #app {
   height: 100%;
-  font-family: $font-family;
+  font-family: $font-family-body;
   font-size: $font-size-base;
   color: $text-primary;
-  background: $bg-body-gradient;
+  background: $bg-body;
+  line-height: $line-height-normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
