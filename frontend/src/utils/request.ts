@@ -27,10 +27,17 @@ interface RequestConfig extends AxiosRequestConfig {
   retryDelay?: number
 }
 
+// 请求队列项
+interface QueueItem {
+  resolve: (value: any) => void
+  reject: (reason?: any) => void
+}
+
 class HttpClient {
   private instance: AxiosInstance
   private refreshPromise: Promise<void> | null = null
   private isRefreshing = false
+  private requestQueue: QueueItem[] = []
 
   constructor() {
     this.instance = axios.create({
@@ -77,28 +84,45 @@ class HttpClient {
 
         // 处理 401 - Token 过期
         if (status === 401 && data?.code === 'AUTH_TOKEN_EXPIRED') {
-          // 尝试刷新 Token（防止并发刷新）
+          // 尝试刷新 Token（使用队列机制防止并发刷新）
           if (!this.isRefreshing) {
             this.isRefreshing = true
-            this.refreshPromise = this.refreshToken().finally(() => {
-              this.isRefreshing = false
-              this.refreshPromise = null
-            })
+            this.refreshPromise = this.refreshToken()
+              .finally(() => {
+                this.isRefreshing = false
+                this.refreshPromise = null
+              })
           }
 
-          try {
-            await this.refreshPromise
-            
-            // 重试原请求
-            const token = localStorage.getItem('token')
-            if (config.headers && token) {
-              config.headers.Authorization = `Bearer ${token}`
-            }
-            return this.instance.request(config)
-          } catch (refreshError) {
+          // 如果是刷新 token 的请求，直接返回失败
+          if (config.url?.includes('/auth/refresh')) {
             this.handleLogout()
-            return Promise.reject(refreshError)
+            return Promise.reject(error)
           }
+
+          // 将请求加入队列，等待 token 刷新完成后重试
+          return new Promise((resolve, reject) => {
+            this.requestQueue.push({ resolve, reject })
+            
+            this.refreshPromise?.then(() => {
+              // 重试队列中的所有请求
+              this.requestQueue.forEach(item => {
+                const token = localStorage.getItem('token')
+                if (config.headers && token) {
+                  config.headers.Authorization = `Bearer ${token}`
+                }
+                this.instance.request(config)
+                  .then(item.resolve)
+                  .catch(item.reject)
+              })
+              this.requestQueue = []
+            }).catch((refreshError) => {
+              // 刷新失败，拒绝所有排队的请求
+              this.requestQueue.forEach(item => item.reject(refreshError))
+              this.requestQueue = []
+              this.handleLogout()
+            })
+          })
         }
 
         // 其他 401 错误
@@ -195,11 +219,6 @@ class HttpClient {
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
     router.push('/login')
-  }
-
-  // 创建去重键
-  private createDedupKey(config: AxiosRequestConfig): string {
-    return `${config.method}-${config.url}-${JSON.stringify(config.params)}-${JSON.stringify(config.data)}`
   }
 
   // GET 请求

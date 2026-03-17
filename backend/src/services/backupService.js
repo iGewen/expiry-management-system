@@ -8,9 +8,49 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BACKUP_DIR = path.join(__dirname, '../../backups');
 
+// 备份文件名正则：backup-YYYY-MM-DDTHH-MM-SS-mmmZ.json
+const BACKUP_FILENAME_PATTERN = /^backup-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.json$/;
+
 // 确保备份目录存在
 if (!fs.existsSync(BACKUP_DIR)) {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
+/**
+ * 验证并安全获取备份文件路径
+ * @param {string} filename - 备份文件名
+ * @returns {string|null} - 安全的文件路径，验证失败返回 null
+ */
+function getSafeBackupPath(filename) {
+  // 1. 检查文件名格式
+  if (!BACKUP_FILENAME_PATTERN.test(filename)) {
+    logger.warn(`Invalid backup filename format: ${filename}`);
+    return null;
+  }
+  
+  // 2. 使用 path.basename 确保文件名不包含路径分隔符
+  const safeName = path.basename(filename);
+  if (safeName !== filename) {
+    logger.warn(`Path traversal attempt detected: ${filename}`);
+    return null;
+  }
+  
+  // 3. 构建完整路径
+  const filepath = path.join(BACKUP_DIR, safeName);
+  
+  // 4. 解析真实路径并验证
+  const resolvedPath = path.resolve(filepath);
+  if (!resolvedPath.startsWith(BACKUP_DIR + path.sep)) {
+    logger.warn(`Path escape attempt detected: ${filename}`);
+    return null;
+  }
+  
+  // 5. 检查文件是否存在
+  if (!fs.existsSync(resolvedPath)) {
+    return null;
+  }
+  
+  return resolvedPath;
 }
 
 class BackupService {
@@ -94,7 +134,7 @@ class BackupService {
    */
   async getBackupList() {
     const files = fs.readdirSync(BACKUP_DIR)
-      .filter(f => f.startsWith('backup-') && f.endsWith('.json') && this.isValidBackupFilename(f))
+      .filter(f => BACKUP_FILENAME_PATTERN.test(f))
       .map(f => {
         const filepath = path.join(BACKUP_DIR, f);
         const stats = fs.statSync(filepath);
@@ -113,10 +153,10 @@ class BackupService {
    * 恢复备份
    */
   async restoreBackup(userId, filename) {
-    const filepath = path.join(BACKUP_DIR, filename);
+    const filepath = getSafeBackupPath(filename);
     
-    if (!fs.existsSync(filepath)) {
-      throw new Error('备份文件不存在');
+    if (!filepath) {
+      throw new Error('备份文件不存在或文件名非法');
     }
 
     const backup = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
@@ -215,33 +255,13 @@ class BackupService {
   }
 
   /**
-   * 验证备份文件名是否合法
-   */
-  isValidBackupFilename(filename) {
-    // 只允许 backup-YYYY-MM-DDTHH-MM-SS.mmmZ.json 格式
-    const validPattern = /^backup-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.json$/;
-    return validPattern.test(filename);
-  }
-
-  /**
    * 删除备份
    */
   async deleteBackup(filename) {
-    // 验证文件名格式
-    if (!this.isValidBackupFilename(filename)) {
-      throw new Error('非法的备份文件名格式');
-    }
-
-    const filepath = path.join(BACKUP_DIR, filename);
+    const filepath = getSafeBackupPath(filename);
     
-    if (!fs.existsSync(filepath)) {
-      throw new Error('备份文件不存在');
-    }
-
-    // 安全检查：确保文件在备份目录内
-    const resolvedPath = path.resolve(filepath);
-    if (!resolvedPath.startsWith(BACKUP_DIR)) {
-      throw new Error('非法的文件路径');
+    if (!filepath) {
+      throw new Error('备份文件不存在或文件名非法');
     }
 
     fs.unlinkSync(filepath);
@@ -254,24 +274,7 @@ class BackupService {
    * 下载备份文件
    */
   getBackupFilePath(filename) {
-    // 验证文件名格式
-    if (!this.isValidBackupFilename(filename)) {
-      return null;
-    }
-
-    const filepath = path.join(BACKUP_DIR, filename);
-    
-    if (!fs.existsSync(filepath)) {
-      return null;
-    }
-
-    // 安全检查
-    const resolvedPath = path.resolve(filepath);
-    if (!resolvedPath.startsWith(BACKUP_DIR)) {
-      return null;
-    }
-
-    return filepath;
+    return getSafeBackupPath(filename);
   }
 
   /**

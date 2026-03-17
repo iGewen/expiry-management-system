@@ -9,7 +9,6 @@ class ReminderController {
   async getSetting(req, res) {
     try {
       const userId = req.user.id;
-      const userRole = req.user.role;
       const setting = await reminderService.getReminderSetting(userId);
       
       res.json({
@@ -31,7 +30,6 @@ class ReminderController {
   async updateSetting(req, res) {
     try {
       const userId = req.user.id;
-      const userRole = req.user.role;
       const { enabled, reminderTime, phones, remindBySms, remindByEmail, feishuEnabled, feishuWebhook } = req.body;
       
       const setting = await reminderService.updateReminderSetting(userId, {
@@ -64,7 +62,6 @@ class ReminderController {
   async triggerReminder(req, res) {
     try {
       const userId = req.user.id;
-      const userRole = req.user.role;
       const result = await reminderService.sendReminder(userId);
       
       res.json({
@@ -87,7 +84,6 @@ class ReminderController {
   async getLogs(req, res) {
     try {
       const userId = req.user.id;
-      const userRole = req.user.role;
       const { page = 1, pageSize = 20 } = req.query;
       
       const result = await reminderService.getReminderLogs(userId, parseInt(page), parseInt(pageSize));

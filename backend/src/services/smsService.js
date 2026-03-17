@@ -85,10 +85,11 @@ export class SmsService {
       };
     }
 
-    // 检查发送频率限制（60秒内只能发一次）
+    // 检查发送频率限制
     const lastSentKey = `${SMS_LAST_SENT_PREFIX}${phone}`;
     const lastSent = await store.get(lastSentKey);
-    if (lastSent && Date.now() - lastSent < 60000) {
+    const rateLimitSeconds = config.security.smsRateLimitSeconds || 60;
+    if (lastSent && Date.now() - lastSent < rateLimitSeconds * 1000) {
       return {
         success: false,
         message: '发送过于频繁，请稍后再试',
@@ -121,8 +122,9 @@ export class SmsService {
         const expireMinutes = config.security.smsCodeExpireMinutes || 5;
         await this.storeCode(phone, code, purpose, expireMinutes * 60);
         
-        // 记录最后发送时间（60秒过期）
-        await store.set(lastSentKey, Date.now(), 60);
+        // 记录最后发送时间
+        const rateLimitSeconds = config.security.smsRateLimitSeconds || 60;
+        await store.set(lastSentKey, Date.now(), rateLimitSeconds);
 
         logger.info(`SMS code sent to ${phone.slice(0, 3)}****${phone.slice(-4)}`);
         

@@ -147,7 +147,8 @@ export const config = {
     lockoutMinutes: 30, // 锁定时间
     smsCodeExpireMinutes: 5, // 验证码有效期 5 分钟
     smsCodeLength: 6, // 验证码长度
-    smsCodeMaxAttempts: 5 // 验证码验证最大尝试次数
+    smsCodeMaxAttempts: 5, // 验证码验证最大尝试次数
+    smsRateLimitSeconds: 60 // 短信发送频率限制（秒）
   },
   
   // Redis 配置
