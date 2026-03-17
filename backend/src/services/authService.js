@@ -138,7 +138,11 @@ export class AuthService {
         id: true,
         username: true,
         phone: true,
+        email: true,
+        avatar: true,
+        feishuOpenId: true,
         role: true,
+        createdAt: true
       }
     });
 
@@ -217,6 +221,9 @@ export class AuthService {
         id: user.id,
         username: user.username,
         phone: user.phone,
+        email: user.email,
+        avatar: user.avatar,
+        feishuOpenId: user.feishuOpenId,
         role: user.role,
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt
@@ -359,6 +366,10 @@ export class AuthService {
         select: {
           id: true,
           username: true,
+          phone: true,
+          email: true,
+          avatar: true,
+          feishuOpenId: true,
           role: true,
           isActive: true
         }
@@ -377,6 +388,10 @@ export class AuthService {
         user: {
           id: user.id,
           username: user.username,
+          phone: user.phone,
+          email: user.email,
+          avatar: user.avatar,
+          feishuOpenId: user.feishuOpenId,
           role: user.role
         }
       };
@@ -417,6 +432,9 @@ export class AuthService {
         id: true,
         username: true,
         phone: true,
+        email: true,
+        avatar: true,
+        feishuOpenId: true,
         role: true,
         isActive: true,
         createdAt: true,
