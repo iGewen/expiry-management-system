@@ -57,9 +57,9 @@ class CategoryService {
       products.forEach(p => {
         let expiryDate = p.expiryDate;
         if (!expiryDate) {
-          expiryDate = dayjs(p.productionDate).add(p.shelfLife, "day").toDate();
+          expiryDate = dayjs(p.productionDate).add(p.shelfLife - 1, "day").toDate();
         }
-        const remainingDays = dayjs(expiryDate).diff(today, "day");
+        const remainingDays = dayjs(expiryDate).startOf("day").diff(today, "day");
         
         if (remainingDays <= 0) expiredCount++;
         else if (remainingDays <= p.reminderDays) warningCount++;
@@ -130,7 +130,7 @@ class CategoryService {
     const formattedProducts = products.map(p => {
       let expiryDate = p.expiryDate;
       if (!expiryDate) {
-        expiryDate = dayjs(p.productionDate).add(p.shelfLife, 'day').toDate();
+        expiryDate = dayjs(p.productionDate).add(p.shelfLife - 1, "day").toDate();
       }
       const remainingDays = dayjs(expiryDate).diff(today, 'day');
       let status;

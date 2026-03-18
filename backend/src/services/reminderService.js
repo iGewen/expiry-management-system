@@ -95,8 +95,7 @@ class ReminderService {
     // 只获取今天刚进入提醒范围的商品（剩余天数 = reminderDays）
     // 即：expiryDate - today = reminderDays
     const productsToRemind = products.filter(product => {
-      const expiryDate = startOfDay(new Date(product.expiryDate));
-      const daysLeft = differenceInDays(expiryDate, today);
+      const daysLeft = dayjs(product.expiryDate).startOf("day").diff(today, "day");
       
       // 只提醒今天刚进入范围的商品（剩余天数等于提醒天数）
       return daysLeft === product.reminderDays;
@@ -211,8 +210,7 @@ class ReminderService {
       try {
         // 构建商品详情列表
         const productDetails = products.map(p => {
-          const expiryDate = startOfDay(new Date(p.expiryDate));
-          const daysLeft = differenceInDays(expiryDate, today);
+          const daysLeft = dayjs(p.expiryDate).startOf("day").diff(today, "day");
           return {
             name: p.name,
             remainingDays: daysLeft,

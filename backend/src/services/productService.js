@@ -13,7 +13,7 @@ export class ProductService {
    */
   calculateStatus(productionDate, shelfLife, reminderDays) {
     const expiryDate = dayjs(productionDate).add(shelfLife, 'day');
-    const remainingDays = expiryDate.diff(dayjs(), 'day');
+    const remainingDays = expiryDate.startOf("day").diff(dayjs().startOf("day"), "day");
     
     if (remainingDays <= 0) {
       return 'EXPIRED';
@@ -519,10 +519,10 @@ export class ProductService {
     const formattedProducts = allProducts.map(product => {
       let expiryDate = product.expiryDate;
       if (!expiryDate) {
-        expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
+        expiryDate = dayjs(product.productionDate).add(product.shelfLife - 1, "day").toDate();
       }
       
-      const remainingDays = dayjs(expiryDate).startOf("day").diff(today, "day");
+      const remainingDays = dayjs(expiryDate).startOf("day").startOf("day").diff(today, "day");
       let status;
       if (remainingDays <= 0) {
         status = 'EXPIRED';
@@ -609,9 +609,9 @@ export class ProductService {
     return products.map(product => {
       let expiryDate = product.expiryDate;
       if (!expiryDate) {
-        expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
+        expiryDate = dayjs(product.productionDate).add(product.shelfLife - 1, "day").toDate();
       }
-      const remainingDays = dayjs(expiryDate).startOf("day").diff(today, "day");
+      const remainingDays = dayjs(expiryDate).startOf("day").startOf("day").diff(today, "day");
       
       let status;
       if (remainingDays <= 0) {
@@ -672,11 +672,11 @@ export class ProductService {
     // 如果没有冗余字段（从旧数据迁移），动态计算
     if (!expiryDate) {
       // 兼容旧数据
-      expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
+      expiryDate = dayjs(product.productionDate).add(product.shelfLife - 1, "day").toDate();
     }
     
     // 计算剩余天数
-    const remainingDays = dayjs(expiryDate).startOf('day').diff(dayjs().startOf('day'), 'day') - 1;
+    const remainingDays = dayjs(expiryDate).startOf('day').diff(dayjs().startOf("day"), "day");
     
     // 重新计算状态：根据当前时间判断
     let status;
