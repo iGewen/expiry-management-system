@@ -130,10 +130,7 @@ class ReminderService {
     });
 
     return products.map(product => {
-      const daysLeft = differenceInDays(
-        startOfDay(new Date(product.expiryDate)),
-        today
-      );
+      const daysLeft = calculateRemainingDays(product.expiryDate);
       return {
         ...product,
         remainingDays: daysLeft

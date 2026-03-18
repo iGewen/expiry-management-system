@@ -1,3 +1,4 @@
+import { calculateRemainingDays } from "../utils/dateUtils.js";
 import cron from 'node-cron';
 import reminderService from './reminderService.js';
 import { PrismaClient } from '@prisma/client';
@@ -102,7 +103,7 @@ class SchedulerService {
         for (const p of products) {
           const expiryDate = new Date(p.expiryDate);
           expiryDate.setHours(0, 0, 0, 0);
-          const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+          const diffDays = calculateRemainingDays(expiryDate, today);
           
           if (diffDays <= p.reminderDays && p.status !== 'WARNING') {
             warningIds.push(p.id);
