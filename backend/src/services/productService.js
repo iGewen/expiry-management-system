@@ -521,7 +521,7 @@ export class ProductService {
         expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
       }
       
-      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      const remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
       let status;
       if (remainingDays <= 0) {
         status = 'EXPIRED';
@@ -610,7 +610,7 @@ export class ProductService {
       if (!expiryDate) {
         expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
       }
-      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      const remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
       
       let status;
       if (remainingDays <= 0) {
