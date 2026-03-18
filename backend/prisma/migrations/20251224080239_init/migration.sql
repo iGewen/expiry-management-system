@@ -3,16 +3,23 @@ CREATE TABLE `users` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(50) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(100) NULL,
     `phone` VARCHAR(20) NULL,
-    `avatar` VARCHAR(255) NULL,
+    `email` VARCHAR(100) NULL,
+    `avatar` VARCHAR(500) NULL,
+    `feishuOpenId` VARCHAR(100) NULL,
     `role` ENUM("USER", "ADMIN", "SUPER_ADMIN") NOT NULL DEFAULT "USER",
     `isActive` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `lastLoginAt` DATETIME(3) NULL,
 
     UNIQUE INDEX `users_username_key`(`username`),
+    UNIQUE INDEX `users_phone_key`(`phone`),
+    UNIQUE INDEX `users_email_key`(`email`),
+    UNIQUE INDEX `users_feishuOpenId_key`(`feishuOpenId`),
     INDEX `users_username_idx`(`username`),
+    INDEX `users_phone_idx`(`phone`),
+    INDEX `users_feishuOpenId_idx`(`feishuOpenId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
