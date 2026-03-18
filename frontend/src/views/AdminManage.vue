@@ -3,8 +3,8 @@
     <!-- 页面头部 -->
     <header class="page-header">
       <div class="header-left">
-        <h1 class="page-title">系统管理</h1>
-        <p class="page-desc">管理用户账号和系统权限</p>
+        
+        
       </div>
       <div class="header-right">
         <el-button type="primary" @click="showAddDialog">

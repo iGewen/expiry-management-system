@@ -3,8 +3,8 @@
     <!-- 页面头部 -->
     <header class="page-header">
       <div class="header-left">
-        <h1 class="page-title">日志审计</h1>
-        <p class="page-desc">查看系统操作日志，追踪用户行为</p>
+        
+        
       </div>
       <div class="header-right">
         <el-button type="danger" plain @click="handleClearLogs">

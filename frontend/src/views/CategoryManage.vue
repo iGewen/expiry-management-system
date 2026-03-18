@@ -3,8 +3,8 @@
     <!-- 页面头部 -->
     <header class="page-header">
       <div class="header-left">
-        <h1 class="page-title">分类管理</h1>
-        <p class="page-desc">管理商品分类，便于分类查看和统计</p>
+        
+        
       </div>
       <div class="header-right">
         <el-button type="primary" @click="showAddDialog">

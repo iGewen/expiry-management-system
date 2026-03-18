@@ -3,8 +3,8 @@
     <!-- 页面头部 -->
     <header class="page-header">
       <div class="header-left">
-        <h1 class="page-title">个人设置</h1>
-        <p class="page-desc">管理您的账号信息和安全设置</p>
+        
+        
       </div>
     </header>
 

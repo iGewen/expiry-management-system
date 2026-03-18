@@ -2,8 +2,8 @@
   <div class="product-page">
     <header class="page-header">
       <div class="header-left">
-        <h1 class="page-title">商品管理</h1>
-        <p class="page-desc">管理商品信息，追踪保质期状态</p>
+        
+        
       </div>
       <div class="header-right">
         <el-dropdown @command="handleExport" trigger="click">
