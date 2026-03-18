@@ -130,7 +130,8 @@ class ReminderService {
     });
 
     return products.map(product => {
-      const daysLeft = calculateRemainingDays(product.expiryDate);
+      // 使用 dayjs 统一计算：剩余天数 = 到期日 - 当前日期
+      const daysLeft = dayjs(product.expiryDate).startOf("day").diff(dayjs().startOf("day"), "day") - 1;
       return {
         ...product,
         remainingDays: daysLeft
