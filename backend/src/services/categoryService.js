@@ -20,50 +20,62 @@ class CategoryService {
       }
     });
     
-    // 获取每个分类的详细统计
-    const categoriesWithStats = await Promise.all(
-      categories.map(async (cat) => {
-        const products = await prisma.product.findMany({
-          where: { 
-            categoryId: cat.id, 
-            isDeleted: false 
-          },
-          select: {
-            expiryDate: true,
-            productionDate: true,
-            shelfLife: true,
-            reminderDays: true
-          }
-        });
+    // 一次性查询所有相关商品（优化 N+1 问题）
+    const categoryIds = categories.map(c => c.id);
+    const allProducts = await prisma.product.findMany({
+      where: { 
+        categoryId: { in: categoryIds },
+        isDeleted: false 
+      },
+      select: {
+        categoryId: true,
+        expiryDate: true,
+        productionDate: true,
+        shelfLife: true,
+        reminderDays: true
+      }
+    });
+    
+    // 按分类 ID 分组商品
+    const productsByCategory = new Map();
+    for (const p of allProducts) {
+      if (!productsByCategory.has(p.categoryId)) {
+        productsByCategory.set(p.categoryId, []);
+      }
+      productsByCategory.get(p.categoryId).push(p);
+    }
+    
+    // 计算每个分类的统计
+    const today = dayjs().startOf("day");
+    const categoriesWithStats = categories.map(cat => {
+      const products = productsByCategory.get(cat.id) || [];
+      
+      let normalCount = 0;
+      let warningCount = 0;
+      let expiredCount = 0;
 
-        let normalCount = 0;
-        let warningCount = 0;
-        let expiredCount = 0;
-        const today = dayjs().startOf('day');
+      products.forEach(p => {
+        let expiryDate = p.expiryDate;
+        if (!expiryDate) {
+          expiryDate = dayjs(p.productionDate).add(p.shelfLife, "day").toDate();
+        }
+        const remainingDays = dayjs(expiryDate).diff(today, "day");
+        
+        if (remainingDays <= 0) expiredCount++;
+        else if (remainingDays <= p.reminderDays) warningCount++;
+        else normalCount++;
+      });
 
-        products.forEach(p => {
-          let expiryDate = p.expiryDate;
-          if (!expiryDate) {
-            expiryDate = dayjs(p.productionDate).add(p.shelfLife, 'day').toDate();
-          }
-          const remainingDays = dayjs(expiryDate).diff(today, 'day');
-          
-          if (remainingDays <= 0) expiredCount++;
-          else if (remainingDays <= p.reminderDays) warningCount++;
-          else normalCount++;
-        });
-
-        return {
-          ...cat,
-          productCount: cat._count.products,
-          stats: {
-            normal: normalCount,
-            warning: warningCount,
-            expired: expiredCount
-          }
-        };
-      })
-    );
+      return {
+        ...cat,
+        productCount: cat._count.products,
+        stats: {
+          normal: normalCount,
+          warning: warningCount,
+          expired: expiredCount
+        }
+      };
+    });
     
     // SUPER_ADMIN 按名称合并分类
     if (userRole === 'SUPER_ADMIN') {
