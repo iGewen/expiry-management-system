@@ -522,7 +522,7 @@ export class ProductService {
         expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
       }
       
-      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      const remainingDays = dayjs(expiryDate).startOf("day").diff(today, "day") - 1;
       let status;
       if (remainingDays <= 0) {
         status = 'EXPIRED';
@@ -611,7 +611,7 @@ export class ProductService {
       if (!expiryDate) {
         expiryDate = dayjs(product.productionDate).add(product.shelfLife, 'day').toDate();
       }
-      const remainingDays = dayjs(expiryDate).diff(today, 'day');
+      const remainingDays = dayjs(expiryDate).startOf("day").diff(today, "day") - 1;
       
       let status;
       if (remainingDays <= 0) {
@@ -676,7 +676,7 @@ export class ProductService {
     }
     
     // 计算剩余天数
-    const remainingDays = dayjs(expiryDate).diff(dayjs(), 'day');
+    const remainingDays = dayjs(expiryDate).startOf('day').diff(dayjs().startOf('day'), 'day') - 1;
     
     // 重新计算状态：根据当前时间判断
     let status;
