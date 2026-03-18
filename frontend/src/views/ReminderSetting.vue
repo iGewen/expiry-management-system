@@ -177,14 +177,14 @@
               v-for="product in upcomingProducts.slice(0, 10)" 
               :key="product.id" 
               class="product-item"
-              :class="getExpireClass(product.remainingDays, product.reminderDays)"
+              :class="getExpireClass(product.remainingDays, product.reminderDays, product.status)"
             >
               <div class="product-info">
                 <span class="product-name">{{ product.name }}</span>
                 <span class="product-date">过期: {{ dayjs(product.expiryDate).format('MM-DD') }}</span>
               </div>
               <div class="product-days">
-                <el-tag :type="getExpireType(product.remainingDays, product.reminderDays)" size="small">
+                <el-tag :type="getExpireType(product.remainingDays, product.reminderDays, product.status)" size="small">
                   {{ product.remainingDays }} 天
                 </el-tag>
                 <span class="reminder-days">提醒: {{ product.reminderDays }}天前</span>
@@ -458,15 +458,21 @@ const loadLogs = async () => {
   }
 }
 
-const getExpireType = (days: number, reminderDays?: number) => {
-  if (days <= 0) return "danger"
+const getExpireType = (days: number, reminderDays?: number, status?: string) => {
+  // 优先使用商品的实际状态
+  if (status === "EXPIRED" || days <= 0) return "danger"
+  if (status === "WARNING") return "warning"
+  // 兜底计算
   const threshold = reminderDays || 7
   if (days <= threshold) return "warning"
   return "info"
 }
 
-const getExpireClass = (days: number, reminderDays?: number) => {
-  if (days <= 0) return "expired"
+const getExpireClass = (days: number, reminderDays?: number, status?: string) => {
+  // 优先使用商品的实际状态
+  if (status === "EXPIRED" || days <= 0) return "expired"
+  if (status === "WARNING") return "soon"
+  // 兜底计算
   const threshold = reminderDays || 7
   if (days <= threshold) return "soon"
   return "normal"
