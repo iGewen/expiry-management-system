@@ -226,9 +226,9 @@ initRedis();
 
 const server = app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT} in ${config.env} mode`);
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  console.log(`📝 API Documentation: http://localhost:${PORT}/api`);
-  console.log(`❤️ Health Check: http://localhost:${PORT}/health`);
+  logger.info(`🚀 Server is running on http://localhost:${PORT}`);
+  logger.info(`📝 API Documentation: http://localhost:${PORT}/api`);
+  logger.info(`❤️ Health Check: http://localhost:${PORT}/health`);
   
   // 启动定时任务
   schedulerService.start();

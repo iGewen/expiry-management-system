@@ -65,33 +65,7 @@ class CategoryService {
       })
     );
     
-    if (userRole === 'SUPER_ADMIN') {
-      for (const cat of categoriesWithStats) {
-        if (existing) {
-          existing.productCount += cat.productCount;
-          existing.stats.normal += cat.stats.normal;
-          existing.stats.warning += cat.stats.warning;
-          existing.stats.expired += cat.stats.expired;
-        } else {
-        }
-      }
-    }
-    
-    if (userRole === 'SUPER_ADMIN') {
-      for (const cat of categoriesWithStats) {
-        if (existing) {
-          existing.productCount += cat.productCount;
-          existing.stats.normal += cat.stats.normal;
-          existing.stats.warning += cat.stats.warning;
-          existing.stats.expired += cat.stats.expired;
-        } else {
-            ...cat,
-          });
-        }
-      }
-    }
-    
-// SUPER_ADMIN 按名称合并分类
+    // SUPER_ADMIN 按名称合并分类
     if (userRole === 'SUPER_ADMIN') {
       const mergedMap = new Map();
       for (const cat of categoriesWithStats) {
@@ -112,7 +86,7 @@ class CategoryService {
       return Array.from(mergedMap.values());
     }
     
-        return categoriesWithStats;
+    return categoriesWithStats;
   }
 
   /**
@@ -148,6 +122,7 @@ class CategoryService {
       }
       const remainingDays = dayjs(expiryDate).diff(today, 'day');
       let status;
+
       if (remainingDays <= 0) {
         status = 'EXPIRED';
         expiredCount++;
@@ -161,7 +136,6 @@ class CategoryService {
 
       return {
         ...p,
-        expiryDate,
         remainingDays,
         status
       };
@@ -169,13 +143,12 @@ class CategoryService {
 
     return {
       ...category,
-      productCount: products.length,
+      products: formattedProducts,
       stats: {
         normal: normalCount,
         warning: warningCount,
         expired: expiredCount
-      },
-      products: formattedProducts
+      }
     };
   }
 
@@ -259,7 +232,7 @@ class CategoryService {
     });
 
     if (productCount > 0) {
-      throw new Error(`该分类下有 ${productCount} 个商品，无法删除`);
+      throw new Error('该分类下有商品，无法删除');
     }
 
     await prisma.category.delete({
@@ -267,40 +240,7 @@ class CategoryService {
     });
 
     logger.info(`Category deleted: ${category.name} by user ${userId}`);
-    return true;
-  }
-
-  /**
-   * 获取默认分类列表
-   */
-  getDefaultCategories() {
-    return [
-      { name: '食品', color: '#67C23A' },
-      { name: '饮料', color: '#409EFF' },
-      { name: '日用品', color: '#E6A23C' },
-      { name: '化妆品', color: '#F56C6C' },
-      { name: '药品', color: '#909399' },
-      { name: '其他', color: '#C0C4CC' }
-    ];
-  }
-
-  /**
-   * 为新用户初始化默认分类
-   */
-  async initDefaultCategories(userId) {
-    const defaultCategories = this.getDefaultCategories();
-    
-    for (const cat of defaultCategories) {
-      await prisma.category.create({
-        data: {
-          name: cat.name,
-          color: cat.color,
-          userId
-        }
-      });
-    }
-
-    logger.info(`Default categories initialized for user ${userId}`);
+    return { message: '分类已删除' };
   }
 }
 

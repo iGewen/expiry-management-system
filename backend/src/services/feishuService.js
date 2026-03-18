@@ -48,65 +48,86 @@ export class FeishuService {
     }
   }
 
-  /**
-   * 发送飞书提醒消息
+    /**
+   * 发送飞书提醒消息（带重试机制）
    */
-  async sendReminder(webhookUrl, products) {
-    try {
-      if (!products || products.length === 0) {
-        logger.warn('No products to send in Feishu reminder');
-        return false;
-      }
-
-      const productText = products.map((p, i) => 
-        `${i + 1}. ${p.name} - 剩余 ${p.remainingDays} 天`
-      ).join('\n');
-
-      logger.info(`Sending Feishu reminder to ${webhookUrl.substring(0, 50)}... with ${products.length} products`);
-
-      const response = await axios.post(webhookUrl, {
-        msg_type: 'interactive',
-        card: {
-          header: {
-            title: {
-              tag: 'plain_text',
-              content: '⚠️ 商品过期提醒'
-            },
-            template: 'orange'
-          },
-          elements: [
-            {
-              tag: 'div',
-              text: {
-                tag: 'lark_md',
-                content: `**以下商品即将过期：**\n\n${productText}`
-              }
-            },
-            {
-              tag: 'note',
-              elements: [
-                {
-                  tag: 'plain_text',
-                  content: `共 ${products.length} 件商品需要处理`
-                }
-              ]
-            }
-          ]
-        }
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      const success = response.data?.StatusCode === 0 || response.data?.code === 0;
-      logger.info(`Feishu reminder result: ${JSON.stringify(response.data)}`);
-      return success;
-    } catch (error) {
-      logger.error('Failed to send Feishu reminder:', error.message);
+  async sendReminder(webhookUrl, products, maxRetries = 3) {
+    if (!products || products.length === 0) {
+      logger.warn("No products to send in Feishu reminder");
       return false;
     }
+
+    const productText = products.map((p, i) => 
+      `${i + 1}. ${p.name} - 剩余 ${p.remainingDays} 天`
+    ).join("\n");
+
+    logger.info(`Sending Feishu reminder to ${webhookUrl.substring(0, 50)}... with ${products.length} products`);
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await axios.post(webhookUrl, {
+          msg_type: "interactive",
+          card: {
+            header: {
+              title: {
+                tag: "plain_text",
+                content: "⚠️ 商品过期提醒"
+              },
+              template: "orange"
+            },
+            elements: [
+              {
+                tag: "div",
+                text: {
+                  tag: "lark_md",
+                  content: `**以下商品即将过期：**\n\n${productText}`
+                }
+              },
+              {
+                tag: "note",
+                elements: [
+                  {
+                    tag: "plain_text",
+                    content: `共 ${products.length} 件商品需要处理`
+                  }
+                ]
+              }
+            ]
+          }
+        }, {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          timeout: 10000
+        });
+
+        const success = response.data?.StatusCode === 0 || response.data?.code === 0;
+        logger.info(`Feishu reminder result (attempt ${attempt}): ${JSON.stringify(response.data)}`);
+        
+        if (success) {
+          return true;
+        }
+        
+        // 检查是否是限流错误
+        if (response.data?.code === 11232 || response.data?.msg?.includes("frequency limited")) {
+          if (attempt < maxRetries) {
+            const waitTime = attempt * 3000;
+            logger.warn(`Feishu rate limited, retrying in ${waitTime}ms (attempt ${attempt}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
+          }
+        }
+        
+        return false;
+      } catch (error) {
+        logger.error(`Failed to send Feishu reminder (attempt ${attempt}):`, error.message);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+      }
+    }
+    
+    return false;
   }
 
   /**
