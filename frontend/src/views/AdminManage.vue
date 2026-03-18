@@ -1,15 +1,12 @@
 <template>
   <div class="admin-page">
     <!-- 页面头部 -->
-    
 
     <!-- 筛选栏 -->
     <section class="filter-section">
       <div class="filter-bar" style="display:flex;justify-content:space-between;align-items:center;">
-        <el-button type="primary" @click="showAddDialog">
-                  <el-icon><Plus /></el-icon>
-                  添加用户
-                </el-button>
+        <div style="display:flex;gap:8px;align-items:center;">
+
         <div class="filter-item">
           <el-input v-model="searchForm.username" placeholder="搜索用户名..." clearable @keyup.enter="handleSearch">
             <template #prefix>
@@ -28,6 +25,13 @@
           <el-icon><Refresh /></el-icon>
           重置
         </el-button>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <el-button type="primary" @click="showAddDialog">
+          <el-icon><Plus /></el-icon>
+          添加用户
+        </el-button>
+        </div>
       </div>
     </section>
 

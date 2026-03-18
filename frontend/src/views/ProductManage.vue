@@ -1,20 +1,10 @@
 <template>
   <div class="product-page">
-    
 
     <section class="filter-section">
       <div class="filter-bar" style="display:flex;justify-content:space-between;align-items:center;">
-        <el-dropdown @command="handleExport" trigger="click">
-                  <el-button><el-icon><Download /></el-icon>导出<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item command="7">近7天过期</el-dropdown-item>
-                      <el-dropdown-item command="30">近30天过期</el-dropdown-item>
-                      <el-dropdown-item command="all">全部商品</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button type="primary" @click="showAddDialog"><el-icon><Plus /></el-icon>添加商品</el-button>
+        <div style="display:flex;gap:8px;align-items:center;">
+
         <el-input v-model="searchForm.name" placeholder="搜索商品..." clearable @keyup.enter="handleSearch" style="width:160px">
           <template #prefix><el-icon><Search /></el-icon></template>
         </el-input>
@@ -31,7 +21,21 @@
           <el-button type="primary" @click="showBatchEditDialog">批量编辑({{ selectedIds.length }})</el-button>
           <el-button type="danger" @click="handleBatchDelete">批量删除</el-button>
         </template>
-      </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <el-dropdown @command="handleExport" trigger="click">
+          <el-button><el-icon><Download /></el-icon>导出<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="7">近7天过期</el-dropdown-item>
+              <el-dropdown-item command="30">近30天过期</el-dropdown-item>
+              <el-dropdown-item command="all">全部商品</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <el-button type="primary" @click="showAddDialog"><el-icon><Plus /></el-icon>添加商品</el-button>
+        </div>
+            </div>
     </section>
 
     <section class="table-section">
