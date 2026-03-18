@@ -5,7 +5,7 @@
 
     <!-- 筛选栏 -->
     <section class="filter-section">
-      <div class="filter-bar">
+      <div class="filter-bar" style="display:flex;justify-content:space-between;align-items:center;">
         <el-button type="primary" @click="showAddDialog">
                   <el-icon><Plus /></el-icon>
                   添加用户
