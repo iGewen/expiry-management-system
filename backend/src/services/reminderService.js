@@ -4,7 +4,6 @@ import feishuService from './feishuService.js';
 import logger from '../utils/logger.js';
 import { startOfDay, addDays, differenceInDays } from 'date-fns';
 
-import dayjs from "dayjs";
 class ReminderService {
   /**
    * 获取用户提醒设置
@@ -71,38 +70,50 @@ class ReminderService {
     };
   }
 
-  /**
-   * 获取需要提醒的商品 - 只获取今天刚进入提醒范围的商品
-   * 即：剩余天数 = 设置的提醒天数（只提醒一次）
+/**
+   * 获取需要提醒的商品 - 获取所有在预警期内且今日未提醒的商品
+   * 即：剩余天数 <= 提醒天数，且今天没有发送过提醒
    */
   async getProductsToRemind(userId) {
     const today = startOfDay(new Date());
+    const todayStart = dayjs().startOf("day").toDate();
     
-    // 获取所有未删除、未过期或即将过期的商品
+    // 获取所有预警期内的商品（剩余天数 <= reminderDays）
     const products = await prisma.product.findMany({
       where: {
         userId,
         isDeleted: false,
-        status: { in: ['NORMAL', 'WARNING'] },
+        status: "WARNING",
         expiryDate: {
           gte: today
         },
-        reminderDays: { gt: 0 }  // 只获取设置了提醒天数的商品
+        reminderDays: { gt: 0 }
       },
-      orderBy: { expiryDate: 'asc' }
+      orderBy: { expiryDate: "asc" }
     });
 
-    // 只获取今天刚进入提醒范围的商品（剩余天数 = reminderDays）
-    // 即：expiryDate - today = reminderDays
-    const productsToRemind = products.filter(product => {
-      const daysLeft = dayjs(product.expiryDate).startOf("day").diff(today, "day");
-      
-      // 只提醒今天刚进入范围的商品（剩余天数等于提醒天数）
-      return daysLeft === product.reminderDays;
+    if (products.length === 0) {
+      return [];
+    }
+
+    // 获取今天已提醒的商品ID
+    const todayLogs = await prisma.reminderLog.findMany({
+      where: {
+        userId,
+        sentAt: {
+          gte: todayStart
+        },
+        status: "success"
+      },
+      select: { productId: true }
     });
 
-    return productsToRemind;
+    const remindedProductIds = new Set(todayLogs.map(log => log.productId));
+
+    // 过滤出今天未提醒的商品
+    return products.filter(product => !remindedProductIds.has(product.id));
   }
+
 
   /**
    * 获取即将过期的商品预览（用于前端展示）
@@ -130,8 +141,10 @@ class ReminderService {
     });
 
     return products.map(product => {
-      // 使用 dayjs 统一计算：剩余天数 = 到期日 - 当前日期
-      const daysLeft = dayjs(product.expiryDate).startOf("day").diff(dayjs().startOf("day"), "day");
+      const daysLeft = differenceInDays(
+        startOfDay(new Date(product.expiryDate)),
+        today
+      );
       return {
         ...product,
         remainingDays: daysLeft
@@ -210,7 +223,8 @@ class ReminderService {
       try {
         // 构建商品详情列表
         const productDetails = products.map(p => {
-          const daysLeft = dayjs(p.expiryDate).startOf("day").diff(today, "day");
+          const expiryDate = startOfDay(new Date(p.expiryDate));
+          const daysLeft = differenceInDays(expiryDate, today);
           return {
             name: p.name,
             remainingDays: daysLeft,
