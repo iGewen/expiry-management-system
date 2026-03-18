@@ -1,18 +1,7 @@
 <template>
   <div class="dashboard-page">
     <!-- 页面标题区 -->
-    <header class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">数据概览</h1>
-        <p class="page-desc">实时监控商品状态与保质期数据</p>
-      </div>
-      <div class="header-actions">
-        <el-button type="primary" @click="$router.push('/products')">
-          <el-icon><Plus /></el-icon>
-          添加商品
-        </el-button>
-      </div>
-    </header>
+    
 
     <!-- 核心指标卡片 -->
     <section class="metrics-grid">

@@ -1,27 +1,20 @@
 <template>
   <div class="product-page">
-    <header class="page-header">
-      <div class="header-left">
-        
-        
-      </div>
-      <div class="header-right">
-        <el-dropdown @command="handleExport" trigger="click">
-          <el-button><el-icon><Download /></el-icon>导出<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="7">近7天过期</el-dropdown-item>
-              <el-dropdown-item command="30">近30天过期</el-dropdown-item>
-              <el-dropdown-item command="all">全部商品</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <el-button type="primary" @click="showAddDialog"><el-icon><Plus /></el-icon>添加商品</el-button>
-      </div>
-    </header>
+    
 
     <section class="filter-section">
       <div class="filter-bar">
+        <el-dropdown @command="handleExport" trigger="click">
+                  <el-button><el-icon><Download /></el-icon>导出<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="7">近7天过期</el-dropdown-item>
+                      <el-dropdown-item command="30">近30天过期</el-dropdown-item>
+                      <el-dropdown-item command="all">全部商品</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+                <el-button type="primary" @click="showAddDialog"><el-icon><Plus /></el-icon>添加商品</el-button>
         <el-input v-model="searchForm.name" placeholder="搜索商品..." clearable @keyup.enter="handleSearch" style="width:160px">
           <template #prefix><el-icon><Search /></el-icon></template>
         </el-input>

@@ -1,22 +1,15 @@
 <template>
   <div class="admin-page">
     <!-- 页面头部 -->
-    <header class="page-header">
-      <div class="header-left">
-        
-        
-      </div>
-      <div class="header-right">
-        <el-button type="primary" @click="showAddDialog">
-          <el-icon><Plus /></el-icon>
-          添加用户
-        </el-button>
-      </div>
-    </header>
+    
 
     <!-- 筛选栏 -->
     <section class="filter-section">
       <div class="filter-bar">
+        <el-button type="primary" @click="showAddDialog">
+                  <el-icon><Plus /></el-icon>
+                  添加用户
+                </el-button>
         <div class="filter-item">
           <el-input v-model="searchForm.username" placeholder="搜索用户名..." clearable @keyup.enter="handleSearch">
             <template #prefix>
