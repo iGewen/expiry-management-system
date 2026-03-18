@@ -2,23 +2,7 @@
   <div class="log-audit-page">
     <!-- 页面头部 -->
 
-<div style="display:flex;justify-content:flex-end;margin-bottom:16px;gap:8px;">
-  <el-button type="danger" plain @click="handleClearLogs">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          清空日志
-        </el-button>
-        <el-button @click="handleExport">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          导出日志
-        </el-button>
-</div>
-    <!-- 统计卡片 -->
+<!-- 统计卡片 -->
     <section class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon blue">
@@ -70,18 +54,16 @@
 
     <!-- 筛选栏 -->
     <section class="filter-section">
-      <div class="filter-bar">
-        <div class="filter-item">
-          <el-input v-model="searchForm.username" placeholder="搜索用户..." clearable @keyup.enter="handleSearch">
+      <div class="filter-bar" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <el-input v-model="searchForm.username" placeholder="搜索用户..." clearable @keyup.enter="handleSearch" style="width:180px;">
             <template #prefix>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </template>
           </el-input>
-        </div>
-        <div class="filter-item">
-          <el-select v-model="searchForm.action" placeholder="操作类型" clearable @change="handleSearch">
+          <el-select v-model="searchForm.action" placeholder="操作类型" clearable @change="handleSearch" style="width:180px;">
             <el-option label="登录" value="LOGIN" />
             <el-option label="登出" value="LOGOUT" />
             <el-option label="创建商品" value="CREATE_PRODUCT" />
@@ -91,17 +73,31 @@
             <el-option label="批量删除" value="DELETE_PRODUCTS" />
             <el-option label="导入商品" value="IMPORT_PRODUCTS" />
           </el-select>
+          <el-date-picker v-model="searchForm.dateRange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="YYYY-MM-DD" @change="handleSearch" style="width:260px;" />
+          <el-button @click="handleReset">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+            重置
+          </el-button>
         </div>
-        <div class="filter-item">
-          <el-date-picker v-model="searchForm.dateRange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="YYYY-MM-DD" @change="handleSearch" />
+        <div style="display:flex;gap:8px;">
+          <el-button type="danger" plain @click="handleClearLogs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            清空日志
+          </el-button>
+          <el-button @click="handleExport">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            导出日志
+          </el-button>
         </div>
-        <el-button @click="handleReset">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          重置
-        </el-button>
       </div>
     </section>
 
