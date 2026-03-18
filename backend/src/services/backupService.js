@@ -1,5 +1,6 @@
 import prisma from '../config/database.js';
 import logger from '../utils/logger.js';
+import dayjs from "dayjs";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -285,7 +286,7 @@ class BackupService {
     
     try {
       backup = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-    } catch (e) {
+    } catch (_e) { // eslint-disable-line no-unused-vars
       throw new Error('无效的JSON格式');
     }
 
@@ -390,10 +391,10 @@ class BackupService {
     today.setHours(0, 0, 0, 0);
     
     const expiryDate = new Date(productionDate);
-    expiryDate.setDate(expiryDate.getDate() + shelfLife);
+    expiryDate.setDate(expiryDate.getDate() + shelfLife - 1);
     expiryDate.setHours(0, 0, 0, 0);
     
-    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    const daysLeft = dayjs(expiryDate).startOf("day").diff(dayjs(today).startOf("day"), "day");
     
     if (daysLeft < 0) return 'EXPIRED';
     if (daysLeft <= (reminderDays || 3)) return 'WARNING';
