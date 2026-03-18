@@ -634,6 +634,7 @@ onMounted(() => {
   
   &.soon {
     border-left-color: $warning-color;
+    background: rgba($warning-color, 0.08);
   }
   
   &.normal {
