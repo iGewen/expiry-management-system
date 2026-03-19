@@ -364,11 +364,12 @@ export class AuthService {
    */
   async refreshToken(refreshToken) {
     try {
-      // 检查token是否在黑名单
+      // 检查token是否在黑名单中
       const isBlacklisted = await this.isTokenBlacklisted(refreshToken);
       if (isBlacklisted) {
         throw new Error('Token已失效，请重新登录');
       }
+      
       const decoded = jwt.verify(refreshToken, config.jwt.secret);
       
       const user = await prisma.user.findUnique({
@@ -459,7 +460,6 @@ export class AuthService {
 
     return user;
   }
-}
 
   /**
    * 登出 - 将refreshToken加入黑名单
@@ -467,14 +467,12 @@ export class AuthService {
   async logout(refreshToken) {
     try {
       const decoded = jwt.verify(refreshToken, config.jwt.secret);
-      // 将token加入黑名单，过期时间与token有效期一致
       const ttl = config.jwt.refreshExpiresIn || '7d';
       const ttlSeconds = this.parseTTL(ttl);
       await store.set(`token:blacklist:${refreshToken}`, '1', ttlSeconds);
       logger.info(`User ${decoded.userId} logged out, token blacklisted`);
       return { success: true, message: '登出成功' };
     } catch (error) {
-      // token无效也返回成功
       return { success: true, message: '登出成功' };
     }
   }
@@ -498,7 +496,7 @@ export class AuthService {
       case 'm': return value * 60;
       case 'h': return value * 3600;
       case 'd': return value * 86400;
-      default: return 86400 * 7; // 默认7天
+      default: return 86400 * 7;
     }
   }
 }
