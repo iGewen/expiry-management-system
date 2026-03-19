@@ -369,6 +369,10 @@ export class FeishuController {
         });
       }
 
+      // 检查是否是第一个注册的用户（自动成为管理员）
+      const userCount = await prisma.user.count();
+      const userRole = userCount === 0 ? 'ADMIN' : 'USER';
+
       // 创建用户
       const bcrypt = (await import('bcrypt')).default;
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -380,7 +384,8 @@ export class FeishuController {
           phone,
           feishuOpenId: feishuInfo.openId,
           avatar: feishuInfo.avatar || null,
-          isActive: true
+          isActive: true,
+          role: userRole
         }
       });
 
