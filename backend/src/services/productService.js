@@ -12,7 +12,7 @@ export class ProductService {
    * 计算商品状态
    */
   calculateStatus(productionDate, shelfLife, reminderDays) {
-    const expiryDate = dayjs(productionDate).add(shelfLife, 'day');
+    const expiryDate = dayjs(productionDate).add(shelfLife - 1, 'day');
     const remainingDays = expiryDate.startOf("day").diff(dayjs().startOf("day"), "day");
     
     if (remainingDays <= 0) {
@@ -27,7 +27,7 @@ export class ProductService {
    * 计算过期日期
    */
   calculateExpiryDate(productionDate, shelfLife) {
-    return dayjs(productionDate).add(shelfLife, 'day').toDate();
+    return dayjs(productionDate).add(shelfLife - 1, 'day').toDate();
   }
 
   /**
