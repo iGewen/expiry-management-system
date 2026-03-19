@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import { store } from '../config/redis.js';
 import logger from '../utils/logger.js';
+import prisma from '../config/database.js';
 
 const authService = new AuthService();
 
@@ -337,9 +338,6 @@ export class FeishuController {
       }
 
       // 验证手机号验证码
-      const { default: AuthService } = await import('../services/authService.js');
-      const authService = new AuthService();
-      
       try {
         await authService.verifyPhoneCode(phone, verifyCode, 'register');
       } catch (error) {
@@ -350,7 +348,6 @@ export class FeishuController {
       }
 
       // 检查用户名是否已存在
-      const { default: prisma } = await import('../config/database.js');
       const existingUsername = await prisma.user.findUnique({
         where: { username }
       });
