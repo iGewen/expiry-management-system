@@ -2,9 +2,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# 安装必要的系统依赖（Prisma需要）
+RUN apk add --no-cache openssl libc6-compat
+
 # 安装依赖
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # 复制源代码
 COPY . .
