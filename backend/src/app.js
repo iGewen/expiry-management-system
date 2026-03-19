@@ -10,6 +10,32 @@ import logger, { requestLogger } from './utils/logger.js';
 import prisma, { checkDatabaseHealth, disconnectDatabase } from './config/database.js';
 import { errorHandler, notFoundHandler } from './middleware/validation.js';
 
+// 数据库迁移（生产环境自动执行）
+import { execSync } from 'child_process';
+
+const runMigrations = () => {
+  // 仅在生产环境且非调试模式时自动迁移
+  if (process.env.NODE_ENV === 'production' && process.env.SKIP_MIGRATION !== 'true') {
+    try {
+      logger.info('Running database migrations...');
+      execSync('npx prisma migrate deploy', { 
+        stdio: 'inherit',
+        cwd: path.join(process.cwd(), 'prisma')
+      });
+      logger.info('Database migrations completed');
+    } catch (error) {
+      logger.error('Database migration failed:', error.message);
+      // 生产环境迁移失败应该阻止启动
+      if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+      }
+    }
+  }
+};
+
+// 启动时运行迁移
+runMigrations();
+
 // 路由
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';

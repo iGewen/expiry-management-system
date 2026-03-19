@@ -15,12 +15,8 @@ COPY . .
 # 生成 Prisma Client
 RUN npx prisma generate
 
-# 复制启动脚本
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 # 暴露端口
 EXPOSE 3000
 
 # 启动命令
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["node", "src/app.js"]
