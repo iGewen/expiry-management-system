@@ -58,7 +58,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: mysql://expiry_user:${MYSQL_PASSWORD:-expiry123456}@mysql:3306/expiry_management
+      DATABASE_URL: mysql://expiry_user:hehaifeng520@mysql:3306/expiry_management
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123456}
