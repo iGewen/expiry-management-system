@@ -55,11 +55,6 @@ import backupRoutes from './routes/backup.js';
 import feishuRoutes from './routes/feishu.js';
 import schedulerService from './services/schedulerService.js';
 
-const app = express();
-
-// 信任代理（Docker/Nginx 环境）
-app.set('trust proxy', 1);
-
 // 安全中间件
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
