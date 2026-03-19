@@ -1,6 +1,5 @@
 import { calculateExpiryDate, calculateRemainingDays, calculateStatus } from "../utils/dateUtils.js";
 import prisma from '../config/database.js';
-import dayjs from 'dayjs';
 
 import { store } from '../config/redis.js';
 
@@ -8,28 +7,6 @@ const PRODUCT_LIST_CACHE_TTL = 30; // 商品列表缓存30秒
 const STATS_CACHE_TTL = 60; // 统计数据缓存60秒
 
 export class ProductService {
-  /**
-   * 计算商品状态
-   */
-  calculateStatus(productionDate, shelfLife, reminderDays) {
-    const expiryDate = dayjs(productionDate).add(shelfLife - 1, 'day');
-    const remainingDays = expiryDate.startOf("day").diff(dayjs().startOf("day"), "day");
-    
-    if (remainingDays <= 0) {
-      return 'EXPIRED';
-    } else if (remainingDays <= reminderDays) {
-      return 'WARNING';
-    }
-    return 'NORMAL';
-  }
-  
-  /**
-   * 计算过期日期
-   */
-  calculateExpiryDate(productionDate, shelfLife) {
-    return dayjs(productionDate).add(shelfLife - 1, 'day').toDate();
-  }
-
   /**
    * 清除商品列表缓存（通过增加版本号）
    */
@@ -50,8 +27,9 @@ export class ProductService {
     }
     
     const productionDateObj = new Date(productionDate);
-    const expiryDate = this.calculateExpiryDate(productionDateObj, shelfLife);
-    const status = this.calculateStatus(productionDateObj, shelfLife, reminderDays || 3);
+    const expiryDate = calculateExpiryDate(productionDate, shelfLife);
+    const remainingDays = calculateRemainingDays(expiryDate);
+    const status = calculateStatus(remainingDays, reminderDays || 3);
     
     const product = await prisma.product.create({
       data: {
@@ -317,15 +295,17 @@ export class ProductService {
       
       updateData.productionDate = newProductionDate;
       updateData.shelfLife = newShelfLife;
-      updateData.expiryDate = this.calculateExpiryDate(newProductionDate, newShelfLife);
-      updateData.status = this.calculateStatus(newProductionDate, newShelfLife, reminderDays || product.reminderDays);
+      updateData.expiryDate = calculateExpiryDate(productionDate || product.productionDate, newShelfLife);
+      const remainingDays = calculateRemainingDays(updateData.expiryDate);
+      updateData.status = calculateStatus(remainingDays, reminderDays || product.reminderDays);
     }
     
     if (reminderDays !== undefined) {
       updateData.reminderDays = reminderDays;
       // 重新计算状态（因为提醒天数可能影响状态）
       if (!productionDate && !shelfLife) {
-        updateData.status = this.calculateStatus(product.productionDate, product.shelfLife, reminderDays);
+        const remainingDays = calculateRemainingDays(product.expiryDate);
+        updateData.status = calculateStatus(remainingDays, reminderDays);
       }
     }
 
@@ -453,8 +433,9 @@ export class ProductService {
           }
           
           const productionDateObj = new Date(productionDate);
-          const expiryDate = this.calculateExpiryDate(productionDateObj, parseInt(shelfLife, 10));
-          const status = this.calculateStatus(productionDateObj, parseInt(shelfLife, 10), parseInt(reminderDays, 10) || 3);
+          const expiryDate = calculateExpiryDate(productionDate, parseInt(shelfLife, 10));
+          const remainingDays = calculateRemainingDays(expiryDate);
+          const status = calculateStatus(remainingDays, parseInt(reminderDays, 10) || 3);
 
           await tx.product.create({
             data: {
