@@ -133,6 +133,11 @@ export class FeishuController {
         const refreshToken = authService.generateRefreshToken(result.user.id);
         
         logger.info(`User ${result.user.username} logged in via Feishu (bound)`);
+        const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+        await prisma.user.update({
+          where: { id: result.user.id },
+          data: { lastLoginAt: new Date(), lastLoginIp: ipAddress }
+        });
         
         // 使用会话 token 方式，避免 token 暴露在 URL 中
         const sessionToken = await generateSessionToken({
