@@ -46,7 +46,7 @@ export const authenticate = async (req, res, next) => {
         role: true,
         isActive: true,
         createdAt: true,
-        lastLoginAt: true
+        lastLoginAt: true,
         lastLoginIp: true,
       }
     });
@@ -154,7 +154,7 @@ export const optionalAuth = async (req, res, next) => {
         role: true,
         isActive: true,
         createdAt: true,
-        lastLoginAt: true
+        lastLoginAt: true,
         lastLoginIp: true,
       }
     });
