@@ -12,6 +12,7 @@ import { errorHandler, notFoundHandler } from './middleware/validation.js';
 
 // 数据库迁移（生产环境自动执行）
 import { execSync } from 'child_process';
+import path from 'path';
 
 const runMigrations = () => {
   // 仅在生产环境且非调试模式时自动迁移
