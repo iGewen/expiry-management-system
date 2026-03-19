@@ -371,7 +371,7 @@ export class FeishuController {
 
       // 检查是否是第一个注册的用户（自动成为管理员）
       const userCount = await prisma.user.count();
-      const userRole = userCount === 0 ? 'ADMIN' : 'USER';
+      const userRole = userCount === 0 ? 'SUPER_ADMIN' : 'USER';
 
       // 创建用户
       const bcrypt = (await import('bcrypt')).default;
