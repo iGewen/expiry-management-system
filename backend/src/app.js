@@ -9,6 +9,7 @@ import { initRedis, closeRedis } from './config/redis.js';
 import logger, { requestLogger } from './utils/logger.js';
 import prisma, { checkDatabaseHealth, disconnectDatabase } from './config/database.js';
 import { errorHandler, notFoundHandler } from './middleware/validation.js';
+import { apiLimiter, loginLimiter, smsLimiter, createLimiter } from './middleware/rateLimiter.js';
 
 // 创建 Express 应用
 const app = express();
@@ -61,6 +62,7 @@ app.use(helmet({
 }));
 
 // CORS 配置
+app.use(apiLimiter);
 app.use(cors({
   origin: (origin, callback) => {
     // 允许无 origin 的请求（如移动应用、Postman）
@@ -82,8 +84,8 @@ app.use(cors({
 }));
 
 // 请求体解析
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // 响应压缩（仅生产环境）
 if (config.env === 'production') {

@@ -110,3 +110,39 @@ export async function cleanupUploads(maxAgeHours = 24) {
 
 // 定期清理（每小时）
 setInterval(() => cleanupUploads(24), 60 * 60 * 1000);
+
+// 文件内容验证中间件
+export function verifyFileContent(req, res, next) {
+  if (!req.file) {
+    return next();
+  }
+  
+  const fs = await import('fs');
+  const buffer = fs.readFileSync(req.file.path);
+  
+  const detectedType = detectFileType(buffer);
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  
+  // 验证文件内容与扩展名是否匹配
+  const validCombinations = {
+    '.xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    '.xls': ['application/vnd.ms-excel'],
+    '.csv': ['text/csv', null] // CSV可能没有明确签名
+  };
+  
+  if (!detectedType && ext === '.csv') {
+    // CSV文件允许没有签名
+    return next();
+  }
+  
+  if (!detectedType || !validCombinations[ext]?.includes(detectedType)) {
+    // 删除无效文件
+    fs.unlinkSync(req.file.path);
+    return res.status(400).json({
+      success: false,
+      message: '文件内容与扩展名不匹配，可能存在安全风险'
+    });
+  }
+  
+  next();
+}

@@ -4,7 +4,6 @@ import reminderService from './reminderService.js';
 import { PrismaClient } from '@prisma/client';
 import logger from '../utils/logger.js';
 
-const prisma = new PrismaClient();
 
 class SchedulerService {
   constructor() {
@@ -64,8 +63,6 @@ class SchedulerService {
     const statusUpdateJob = cron.schedule('5 0 * * *', async () => {
       logger.info('Running scheduled status update job...');
       try {
-        const { PrismaClient } = await import('@prisma/client');
-        const prisma = new PrismaClient();
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);

@@ -10,7 +10,7 @@ const authService = new AuthService();
 
 // Redis 键前缀
 const TEMP_TOKEN_PREFIX = 'feishu:temp:';
-const TEMP_TOKEN_TTL = 300; // 5分钟
+const TEMP_TOKEN_TTL = 120; // 5分钟
 
 /**
  * 生成临时 token（存储到 Redis）
@@ -23,7 +23,7 @@ async function generateTempToken(feishuInfo) {
       iat: Date.now()
     },
     config.jwt.secret,
-    { expiresIn: '5m' }
+    { expiresIn: '2m' }
   );
   
   // 存储到 Redis，5分钟过期

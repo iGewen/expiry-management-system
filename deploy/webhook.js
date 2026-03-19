@@ -5,7 +5,7 @@ const crypto = require('crypto');
 // 配置
 const CONFIG = {
   port: 9000,
-  secret: 'hehaifeng-webhook-secret', // Webhook 密钥
+  secret: process.env.WEBHOOK_SECRET || 'default-secret', // Webhook 密钥
   projectPath: '/var/www/expiry-management-system',
   branches: ['main'] // 监听的分支
 };

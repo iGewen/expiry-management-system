@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mysql:
@@ -10,8 +10,6 @@ services:
       MYSQL_DATABASE: expiry_management
       MYSQL_USER: expiry_user
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -27,8 +25,6 @@ services:
     container_name: expiry-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -64,8 +60,6 @@ services:
       - ALIYUN_SMS_TEMPLATE_CODE_RESET=${ALIYUN_SMS_TEMPLATE_CODE_RESET}
       - ALIYUN_SMS_TEMPLATE_CODE_REMINDER=${ALIYUN_SMS_TEMPLATE_CODE_REMINDER}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
-    ports:
-      - "3000:3000"
     networks:
       - expiry-network
     healthcheck:
