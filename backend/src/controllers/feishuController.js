@@ -339,7 +339,7 @@ export class FeishuController {
 
       // 验证手机号验证码
       try {
-        await authService.verifyPhoneCode(phone, verifyCode, 'register');
+        await authService.verifyCode(phone, verifyCode, 'register');
       } catch (error) {
         return res.status(400).json({
           success: false,
