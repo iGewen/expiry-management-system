@@ -47,6 +47,7 @@ export class UserService {
           createdAt: true,
           updatedAt: true,
           lastLoginAt: true,
+        lastLoginIp: true,
           _count: {
             select: {
               products: {
@@ -100,6 +101,7 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
           lastLoginAt: true,
+        lastLoginIp: true,
         _count: {
           select: {
             products: true,

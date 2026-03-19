@@ -211,7 +211,7 @@ export class AuthService {
     // 更新最后登录时间
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date() }
+      data: { lastLoginAt: new Date(), lastLoginIp: ipAddress }
     });
 
     // 生成 token
@@ -230,7 +230,8 @@ export class AuthService {
         feishuOpenId: user.feishuOpenId,
         role: user.role,
         createdAt: user.createdAt,
-        lastLoginAt: user.lastLoginAt
+        lastLoginAt: user.lastLoginAt,
+        lastLoginIp: user.lastLoginIp
       },
       token,
       refreshToken
