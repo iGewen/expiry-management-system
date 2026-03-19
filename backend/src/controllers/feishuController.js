@@ -114,7 +114,11 @@ export class FeishuController {
   async callback(req, res) {
     try {
       const { code, state } = req.query;
-      const frontendUrl = process.env.CORS_ORIGIN?.split(',')[0] || 'http://localhost:5173';
+      
+      // 从请求头自动获取前端URL（支持反向代理）
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const frontendUrl = `${protocol}://${host}`;
 
       if (!code) {
         return res.redirect(`${frontendUrl}/login?error=feishu_auth_failed&message=授权失败`);
@@ -155,7 +159,9 @@ export class FeishuController {
       res.redirect(redirectUrl);
     } catch (error) {
       logger.error('Feishu callback error:', error);
-      const frontendUrl = process.env.CORS_ORIGIN?.split(',')[0] || 'http://localhost:5173';
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const frontendUrl = `${protocol}://${host}`;
       res.redirect(`${frontendUrl}/login?error=feishu_auth_failed&message=${encodeURIComponent(error.message || '飞书登录失败')}`);
     }
   }
