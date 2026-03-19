@@ -1,12 +1,6 @@
 <template>
   <div class="settings-page">
     <!-- 页面头部 -->
-    <header class="page-header">
-      <div class="header-left">
-        
-        
-      </div>
-    </header>
 
     <div class="settings-grid">
       <!-- 个人信息卡片 -->
@@ -302,7 +296,7 @@ onMounted(() => {
 @import '@/styles/variables.scss';
 
 .settings-page {
-  padding: 32px;
+  padding: 16px;
   background: #f8fafc;
   min-height: calc(100vh - 64px);
 }
@@ -327,7 +321,7 @@ onMounted(() => {
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 16px;
 }
 
 @media (max-width: 1024px) {
@@ -348,7 +342,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
+  padding: 14px;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -380,7 +374,7 @@ onMounted(() => {
 }
 
 .card-body {
-  padding: 20px;
+  padding: 14px;
 }
 
 .profile-section .avatar-section {
@@ -453,7 +447,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
+  padding: 14px;
   border-radius: 12px;
   background: #f8fafc;
   margin-bottom: 20px;
