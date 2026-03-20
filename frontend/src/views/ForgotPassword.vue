@@ -477,7 +477,7 @@ const handleReset = async () => {
 }
 
 .brand-title {
-  font-family: 'Noto Serif SC', serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 24px;
   font-weight: 700;
   color: var(--fg-primary);
@@ -616,7 +616,7 @@ const handleReset = async () => {
   }
 
   .mobile-brand-title {
-    font-family: 'Noto Serif SC', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 18px;
     font-weight: 700;
     color: var(--fg-primary);
@@ -641,7 +641,7 @@ const handleReset = async () => {
 }
 
 .form-title {
-  font-family: 'Noto Serif SC', serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 24px;
   font-weight: 700;
   color: var(--fg-primary);
