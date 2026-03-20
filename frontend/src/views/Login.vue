@@ -597,12 +597,14 @@ const handleFeishuLogin = async () => {
   box-shadow:
     0 25px 50px -12px var(--shadow-color),
     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  transform: translateY(0) !important;
   transition: box-shadow 0.3s ease;
 
   &:hover {
     box-shadow:
       0 30px 60px -15px rgba(30, 58, 95, 0.12),
       0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  transform: translateY(0) !important;
   }
 }
 
