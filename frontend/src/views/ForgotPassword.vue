@@ -277,8 +277,8 @@ const handleReset = async () => {
 }
 </script>
 
-<style scoped lang="scss">
-// CSS 变量 - 完全匹配设计稿配色
+<style lang="scss">
+// CSS 变量 - 完全匹配设计稿配色（非scoped，确保全局生效）
 :root {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
@@ -299,6 +299,8 @@ const handleReset = async () => {
   --error: #dc2626;
   --shadow-color: rgba(30, 58, 95, 0.08);
 }
+</style>
+<style scoped lang="scss">
 
 // ========================================
 // 页面容器
