@@ -904,6 +904,21 @@ const handleReset = async () => {
   }
 }
 
+// ========================================
+// 屏幕阅读器专用类（隐藏元素但保持可访问性）
+// ========================================
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
