@@ -268,7 +268,7 @@ export class FeishuService {
       cleanMobile = cleanMobile.substring(3);
     }
 
-    logger.info(`Feishu login attempt: open_id=${open_id}, name=${name}, mobile=${cleanMobile ? cleanMobile.slice(0,3)+****+cleanMobile.slice(-4) : 'none'}`);
+    logger.info(`Feishu login attempt: open_id=${open_id}, name=${name}, mobile=${cleanMobile ? cleanMobile.slice(0,3)+'****'+cleanMobile.slice(-4) : 'none'}`);
 
     // 3. 检查是否已绑定
     const existingUser = await prisma.user.findFirst({
