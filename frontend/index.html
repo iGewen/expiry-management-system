@@ -5,6 +5,35 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>商品保质期管理系统</title>
+    <!-- 全局 CSS 变量 - 必须在最前面定义，防止 FOUC 闪烁 -->
+    <style>
+      :root {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --bg-card: #ffffff;
+        --fg-primary: #1e293b;
+        --fg-secondary: #475569;
+        --fg-muted: #94a3b8;
+        --accent: #1e3a5f;
+        --accent-hover: #2c5282;
+        --accent-light: #3b6b9a;
+        --accent-subtle: rgba(30, 58, 95, 0.08);
+        --accent-bg: rgba(30, 58, 95, 0.04);
+        --border: rgba(148, 163, 184, 0.25);
+        --input-bg: #f1f5f9;
+        --input-focus-bg: #ffffff;
+        --success: #059669;
+        --warning: #d97706;
+        --error: #dc2626;
+        --shadow-color: rgba(30, 58, 95, 0.08);
+      }
+      /* 防止 FOUC - 给 body 初始背景色 */
+      html, body {
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

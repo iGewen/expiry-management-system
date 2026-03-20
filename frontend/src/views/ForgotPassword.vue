@@ -164,6 +164,7 @@
                   class="input-field"
                   placeholder="新密码 (8-20位)"
                   v-model="form.newPassword"
+                  autocomplete="new-password"
                 />
                 <button type="button" class="password-toggle" @click="showPassword = !showPassword">
                   <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -189,6 +190,7 @@
                   class="input-field"
                   placeholder="确认新密码"
                   v-model="form.confirmPassword"
+                  autocomplete="new-password"
                 />
                 <button type="button" class="password-toggle" @click="showConfirmPassword = !showConfirmPassword">
                   <svg v-if="!showConfirmPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -277,28 +279,7 @@ const handleReset = async () => {
 </script>
 
 <style lang="scss">
-// CSS 变量 - 完全匹配设计稿配色（非scoped，确保全局生效）
-:root {
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --fg-primary: #1e293b;
-  --fg-secondary: #475569;
-  --fg-muted: #94a3b8;
-  --accent: #1e3a5f;
-  --accent-hover: #2c5282;
-  --accent-light: #3b6b9a;
-  --accent-subtle: rgba(30, 58, 95, 0.08);
-  --accent-bg: rgba(30, 58, 95, 0.04);
-  --border: rgba(148, 163, 184, 0.25);
-  --input-bg: #f1f5f9;
-  --input-focus-bg: #ffffff;
-  --success: #059669;
-  --warning: #d97706;
-  --error: #dc2626;
-  --shadow-color: rgba(30, 58, 95, 0.08);
-}
-
+// CSS 变量已在 index.html 中定义，此处仅保留全局样式类
 // ========================================
 // 屏幕阅读器专用类（隐藏元素但保持可访问性）
 // 注意：此类必须在非scoped样式块中定义，确保全局生效
