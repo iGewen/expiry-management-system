@@ -305,9 +305,10 @@ const handleFeishuLogin = async () => {
 // 背景装饰
 // ========================================
 .bg-decoration {
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
+  z-index: 0;
 }
 
 .bg-grid {
@@ -374,9 +375,9 @@ const handleFeishuLogin = async () => {
 // ========================================
 .auth-wrapper {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   display: flex;
-  width: 1100px;
+  width: 1024px;
   max-width: 95%;
   min-height: 640px;
   background: $bg-card;
@@ -390,10 +391,11 @@ const handleFeishuLogin = async () => {
 // 左侧信息面板
 // ========================================
 .info-panel {
-  flex: 1;
-  padding: 60px 50px;
+  width: 50%;
+  padding-right: 64px;
   display: flex;
   align-items: center;
+  justify-content: center;
   background: $bg-card;
   position: relative;
   
@@ -401,10 +403,11 @@ const handleFeishuLogin = async () => {
     content: '';
     position: absolute;
     right: 0;
-    top: 10%;
-    bottom: 10%;
+    top: 20%;
+    height: 60%;
     width: 1px;
-    background: linear-gradient(transparent, $border-auth, transparent);
+    background: linear-gradient(transparent, $border-auth 20%, $border-auth 80%, transparent);
+    transform: translateY(0);
   }
 }
 
@@ -450,25 +453,26 @@ const handleFeishuLogin = async () => {
 
 // 标语
 .slogan {
-  font-size: 16px;
+  font-size: 14px;
   color: $accent;
   font-weight: 600;
-  margin: 0 0 40px 0;
-  letter-spacing: 1px;
+  margin: 0 0 24px 0;
+  letter-spacing: 0.1em;
 }
 
 // 功能列表
 .features {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: 4px;
+  margin-bottom: 48px;
 }
 
 .feature-item {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
+  padding: 12px 0;
 }
 
 .feature-icon {
@@ -504,11 +508,11 @@ const handleFeishuLogin = async () => {
 .service-promise {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px;
-  background: $accent-bg;
-  border: 1px solid $accent-subtle;
-  border-radius: 12px;
+  gap: 24px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid $border-auth;
+  font-size: 14px;
 }
 
 .promise-icon {
@@ -527,7 +531,7 @@ const handleFeishuLogin = async () => {
 // 右侧表单面板
 // ========================================
 .form-panel {
-  flex: 1;
+  width: 50%;
   display: flex;
   flex-direction: column;
   background: $bg-card;
@@ -539,6 +543,8 @@ const handleFeishuLogin = async () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 448px;
+  margin: 0 auto;
 }
 
 // 表单头部
@@ -763,10 +769,16 @@ const handleFeishuLogin = async () => {
 // 页面底部
 // ========================================
 .auth-footer {
-  padding: 20px 56px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 16px 0;
   border-top: 1px solid $border-auth;
   text-align: center;
-  background: $bg-primary;
+  background: rgba($bg-primary, 0.9);
+  backdrop-filter: blur(4px);
   
   .copyright {
     margin: 0 0 8px 0;
