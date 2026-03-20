@@ -378,7 +378,7 @@ const handleFeishuLogin = async () => {
   position: absolute;
   border: 1px solid rgba(30, 58, 95, 0.06);
   border-radius: 4px;
-  animation: float 20s ease-in-out infinite;
+  
 
   &.shape-1 {
     width: 300px;
@@ -598,7 +598,7 @@ const handleFeishuLogin = async () => {
     0 25px 50px -12px var(--shadow-color),
     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
   transform: translateY(0) !important;
-  transition: box-shadow 0.3s ease;
+  transition: none; will-change: transform, box-shadow;
 
   &:hover {
     box-shadow:
