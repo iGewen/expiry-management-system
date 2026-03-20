@@ -541,13 +541,6 @@ const handleFeishuLogin = async () => {
   align-items: flex-start;
   gap: 12px;
   padding: 12px 0;
-  opacity: 0;
-  transform: translateX(-20px);
-  animation: slideIn 0.5s ease forwards;
-
-  &:nth-child(1) { animation-delay: 0.1s; }
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.3s; }
 }
 
 @keyframes slideIn {
@@ -621,14 +614,13 @@ const handleFeishuLogin = async () => {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px var(--shadow-color),
     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transition: box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 
+    box-shadow:
       0 30px 60px -15px rgba(30, 58, 95, 0.12),
       0 0 0 1px rgba(255, 255, 255, 0.9) inset;
   }
