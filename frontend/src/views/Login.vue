@@ -182,8 +182,8 @@
               {{ loading ? '登录中...' : '登录' }}
             </button>
 
-            <!-- 飞书登录 -->
-            <div v-show="feishuEnabled" class="feishu-login">
+            <!-- 飞书登录 - 始终占据空间 -->
+            <div class="feishu-login" :class="{ 'feishu-disabled': !feishuEnabled }">
               <div class="divider">
                 <span>或</span>
               </div>
@@ -869,6 +869,16 @@ const handleFeishuLogin = async () => {
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+  }
+}
+
+// 飞书登录区域 - 始终占据空间
+.feishu-login {
+  margin-top: 24px;
+
+  &.feishu-disabled {
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
