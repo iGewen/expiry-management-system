@@ -72,7 +72,12 @@ app.use(cors({
     
     const allowedOrigins = config.cors.origin.split(',').map(o => o.trim());
     
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+    // 如果配置了 '*'，动态返回请求的origin（支持credentials）
+    if (allowedOrigins.includes('*')) {
+      return callback(null, origin);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
