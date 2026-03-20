@@ -2,7 +2,7 @@ import prisma from '../config/database.js';
 import smsService from './smsService.js';
 import feishuService from './feishuService.js';
 import logger from '../utils/logger.js';
-import { startOfDay, addDays, differenceInDays } from 'date-fns';
+import { dayjs, calculateRemainingDays } from '../utils/dateUtils.js';
 
 class ReminderService {
   /**
@@ -75,7 +75,7 @@ class ReminderService {
    * 即：剩余天数 <= 提醒天数，且今天没有发送过提醒
    */
   async getProductsToRemind(userId) {
-    const today = startOfDay(new Date());
+    const today = dayjs().startOf("day").toDate();
     const todayStart = dayjs().startOf("day").toDate();
     
     // 获取所有预警期内的商品（剩余天数 <= reminderDays）
@@ -119,7 +119,7 @@ class ReminderService {
    * 获取即将过期的商品预览（用于前端展示）
    */
   async getUpcomingProducts(userId, userRole = 'USER') {
-    const today = startOfDay(new Date());
+    const today = dayjs().startOf('day').toDate();
     
     // SUPER_ADMIN 可以看到所有用户的商品
     const where = {
@@ -141,13 +141,10 @@ class ReminderService {
     });
 
     return products.map(product => {
-      const daysLeft = differenceInDays(
-        startOfDay(new Date(product.expiryDate)),
-        today
-      );
+      const remainingDays = calculateRemainingDays(product.expiryDate);
       return {
         ...product,
-        remainingDays: daysLeft
+        remainingDays
       };
     });
   }
@@ -179,7 +176,7 @@ class ReminderService {
     }
 
     const results = [];
-    const today = startOfDay(new Date());
+    const today = dayjs().startOf('day').toDate();
 
     // 发送短信提醒到所有配置的手机号
     if (setting.remindBySms && smsService.isEnabled()) {
@@ -223,11 +220,10 @@ class ReminderService {
       try {
         // 构建商品详情列表
         const productDetails = products.map(p => {
-          const expiryDate = startOfDay(new Date(p.expiryDate));
-          const daysLeft = differenceInDays(expiryDate, today);
+          const remainingDays = calculateRemainingDays(p.expiryDate);
           return {
             name: p.name,
-            remainingDays: daysLeft,
+            remainingDays,
             expiryDate: p.expiryDate
           };
         });
