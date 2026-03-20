@@ -809,6 +809,7 @@ const handleRegister = async () => {
 
 // 输入框组
 .input-group {
+  width: 100%;
   position: relative;
 
   &.has-button {
