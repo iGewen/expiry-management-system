@@ -183,7 +183,7 @@
             </button>
 
             <!-- 飞书登录 -->
-            <div v-if="feishuEnabled" class="feishu-login">
+            <div v-show="feishuEnabled" class="feishu-login">
               <div class="divider">
                 <span>或</span>
               </div>
