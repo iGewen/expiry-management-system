@@ -397,8 +397,8 @@ const updateLineChart = (monthlyTrend: any[]) => {
       },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(99, 102, 241, 0.15)' },
-          { offset: 1, color: 'rgba(99, 102, 241, 0.01)' }
+          { offset: 0, color: 'rgba(30, 58, 95, 0.15)' },
+          { offset: 1, color: 'rgba(30, 58, 95, 0.01)' }
         ])
       }
     }]
