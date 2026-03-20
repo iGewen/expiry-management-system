@@ -407,26 +407,29 @@ const handleRegister = async () => {
 </script>
 
 <style scoped lang="scss">
-// CSS 变量
+// CSS 变量 - 优化对比度
 :root {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
-  --fg-primary: #1e293b;
-  --fg-secondary: #475569;
-  --fg-muted: #94a3b8;
+  --fg-primary: #0f172a;
+  --fg-secondary: #334155;
+  --fg-muted: #64748b;
   --accent: #1e3a5f;
   --accent-hover: #2c5282;
   --accent-light: #3b6b9a;
-  --accent-subtle: rgba(30, 58, 95, 0.08);
-  --accent-bg: rgba(30, 58, 95, 0.04);
-  --border: rgba(148, 163, 184, 0.25);
+  --accent-subtle: rgba(30, 58, 95, 0.1);
+  --accent-bg: rgba(30, 58, 95, 0.06);
+  --border: rgba(100, 116, 139, 0.3);
+  --border-strong: rgba(100, 116, 139, 0.4);
   --input-bg: #f1f5f9;
+  --input-bg-hover: #e2e8f0;
   --input-focus-bg: #ffffff;
   --success: #059669;
   --warning: #d97706;
   --error: #dc2626;
-  --shadow-color: rgba(30, 58, 95, 0.08);
+  --shadow-color: rgba(30, 58, 95, 0.12);
+  --shadow-strong: rgba(30, 58, 95, 0.18);
 }
 
 // ========================================
@@ -705,18 +708,22 @@ const handleRegister = async () => {
   max-width: 448px;
   padding: 32px;
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 16px;
   box-shadow: 
-    0 25px 50px -12px var(--shadow-color),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    0 4px 6px -1px rgba(30, 58, 95, 0.08),
+    0 10px 20px -5px var(--shadow-color),
+    0 25px 50px -12px var(--shadow-strong),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 
-      0 30px 60px -15px rgba(30, 58, 95, 0.12),
-      0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+      0 6px 10px -2px rgba(30, 58, 95, 0.1),
+      0 15px 30px -8px rgba(30, 58, 95, 0.15),
+      0 30px 60px -15px var(--shadow-strong),
+      0 0 0 1px rgba(255, 255, 255, 1) inset;
   }
 }
 
@@ -804,7 +811,7 @@ const handleRegister = async () => {
   height: 48px;
   padding: 0 16px 0 48px;
   background: var(--input-bg);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   border-radius: 10px;
   font-size: 15px;
   color: var(--fg-primary);
@@ -815,10 +822,15 @@ const handleRegister = async () => {
     color: var(--fg-muted);
   }
 
+  &:hover:not(:focus) {
+    background: var(--input-bg-hover);
+    border-color: var(--border-strong);
+  }
+
   &:focus {
     border-color: var(--accent);
     background: var(--input-focus-bg);
-    box-shadow: 0 0 0 3px var(--accent-subtle);
+    box-shadow: 0 0 0 3px var(--accent-subtle), 0 2px 4px rgba(30, 58, 95, 0.05);
   }
 }
 
