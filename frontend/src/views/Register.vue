@@ -133,9 +133,8 @@
 
             <el-form-item prop="phone">
               <div class="input-group">
-                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                  <line x1="12" y1="18" x2="12.01" y2="18"/>
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
                 </svg>
                 <input
                   type="tel"
@@ -236,7 +235,7 @@
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
               </span>
-              <span class="checkbox-label">我已阅读并同意 <a href="#" class="link">服务协议</a> 和 <a href="#" class="link">隐私政策</a></span>
+              <span class="checkbox-label">我已阅读并同意 <router-link to="/terms" class="link">服务协议</router-link> 和 <router-link to="/privacy-policy" class="link">隐私政策</router-link></span>
             </label>
 
             <button type="button" class="btn-primary" :disabled="loading" @click="handleRegister">

@@ -117,9 +117,8 @@
           <el-form ref="formRef" :model="form" :rules="rules" class="auth-form">
             <el-form-item prop="phone">
               <div class="input-group">
-                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                  <line x1="12" y1="18" x2="12.01" y2="18"/>
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
                 </svg>
                 <input
                   type="tel"
