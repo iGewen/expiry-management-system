@@ -311,40 +311,21 @@ const handleReset = async () => {
   overflow-x: hidden;
   background: var(--bg-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  animation: pageFadeIn 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// 优雅的页面淡入动画
-@keyframes pageFadeIn {
-  0% { 
+// 整个页面统一淡入
+.auth-wrapper {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
     opacity: 0;
-    filter: blur(8px);
+    transform: translateY(20px);
   }
-  30% {
-    opacity: 0.3;
-    filter: blur(4px);
-  }
-  100% { 
+  to {
     opacity: 1;
-    filter: blur(0);
-  }
-}
-
-// 重置密码卡片淡入效果
-.auth-card {
-  animation: cardSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
-}
-
-@keyframes cardSlideUp {
-  0% { 
-    opacity: 0; 
-    transform: translateY(30px) scale(0.95);
-    filter: blur(4px);
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateY(0);
   }
 }
 
