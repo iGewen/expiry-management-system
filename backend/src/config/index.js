@@ -34,14 +34,18 @@ function validateJwtSecret() {
 function getCorsOrigin() {
   const origin = process.env.CORS_ORIGIN;
   
-  if (process.env.NODE_ENV === 'production') {
-    // 生产环境不允许使用默认的 localhost
-    if (!origin || origin.includes('localhost')) {
-      logger.warn('WARNING: CORS_ORIGIN is set to localhost in production');
-    }
+  // 如果设置了CORS_ORIGIN，使用配置的值
+  if (origin) {
+    return origin;
   }
   
-  return origin || 'http://localhost:5173';
+  // 生产环境：自适应，允许所有来源
+  if (process.env.NODE_ENV === 'production') {
+    return '*';
+  }
+  
+  // 开发环境：默认 localhost
+  return 'http://localhost:5173';
 }
 
 // 短信配置验证
