@@ -20,7 +20,7 @@
           <!-- 品牌区域 -->
           <div class="brand-section">
             <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
@@ -39,7 +39,7 @@
           <div class="features">
             <div class="feature-item">
               <div class="feature-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12,6 12,12 16,14"/>
                 </svg>
@@ -51,7 +51,7 @@
             </div>
             <div class="feature-item">
               <div class="feature-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
@@ -63,7 +63,7 @@
             </div>
             <div class="feature-item">
               <div class="feature-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <line x1="18" y1="20" x2="18" y2="10"/>
                   <line x1="12" y1="20" x2="12" y2="4"/>
                   <line x1="6" y1="20" x2="6" y2="14"/>
@@ -102,7 +102,7 @@
           <!-- 移动端 Logo -->
           <div class="mobile-brand">
             <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
@@ -188,7 +188,7 @@
               </div>
               <button type="button" class="btn-secondary" :disabled="feishuLoading" @click="handleFeishuLogin">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--accent)">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                 </svg>
                 飞书扫码登录
               </button>
@@ -308,26 +308,26 @@ const handleFeishuLogin = async () => {
 </script>
 
 <style scoped lang="scss">
-// CSS 变量 - 优化对比度
+// CSS 变量 - 完全匹配设计稿配色
 :root {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
-  --fg-primary: #0f172a;
-  --fg-secondary: #334155;
-  --fg-muted: #64748b;
+  --fg-primary: #1e293b;
+  --fg-secondary: #475569;
+  --fg-muted: #94a3b8;
   --accent: #1e3a5f;
   --accent-hover: #2c5282;
   --accent-light: #3b6b9a;
-  --accent-subtle: rgba(30, 58, 95, 0.1);
-  --accent-bg: rgba(30, 58, 95, 0.06);
-  --border: rgba(100, 116, 139, 0.3);
-  --border-strong: rgba(100, 116, 139, 0.4);
+  --accent-subtle: rgba(30, 58, 95, 0.08);
+  --accent-bg: rgba(30, 58, 95, 0.04);
+  --border: rgba(148, 163, 184, 0.25);
   --input-bg: #f1f5f9;
-  --input-bg-hover: #e2e8f0;
   --input-focus-bg: #ffffff;
-  --shadow-color: rgba(30, 58, 95, 0.12);
-  --shadow-strong: rgba(30, 58, 95, 0.18);
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --shadow-color: rgba(30, 58, 95, 0.08);
 }
 
 // ========================================
@@ -339,7 +339,7 @@ const handleFeishuLogin = async () => {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bg-primary);
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -429,7 +429,7 @@ const handleFeishuLogin = async () => {
 }
 
 // ========================================
-// 主体布局 - max-w-5xl (1024px)
+// 主体布局 - max-width: 1024px
 // ========================================
 .auth-wrapper {
   position: relative;
@@ -437,11 +437,13 @@ const handleFeishuLogin = async () => {
   display: flex;
   width: 100%;
   max-width: 1024px;
-  padding: 0 16px;
+  margin: 0 auto;
+  padding: 32px;
+  gap: 0;
 }
 
 // ========================================
-// 左侧信息面板 - w-1/2, pr-16 (64px)
+// 左侧信息面板 - width: 50%, padding-right: 64px
 // ========================================
 .info-panel {
   display: none;
@@ -483,7 +485,6 @@ const handleFeishuLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   box-shadow: 0 8px 20px rgba(30, 58, 95, 0.2);
   flex-shrink: 0;
 }
@@ -498,22 +499,21 @@ const handleFeishuLogin = async () => {
 }
 
 .brand-subtitle {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--fg-muted);
-  margin: 4px 0 0 0;
-  letter-spacing: 0.5px;
+  margin: 2px 0 0 0;
 }
 
-// 标语 - text-sm, tracking-widest, mb: 6
+// 标语
 .slogan {
   font-size: 14px;
   color: var(--accent);
   font-weight: 500;
   margin: 0 0 24px 0;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
 }
 
-// 功能列表 - space-y-1 (4px gap)
+// 功能列表
 .features {
   display: flex;
   flex-direction: column;
@@ -549,7 +549,6 @@ const handleFeishuLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -566,11 +565,11 @@ const handleFeishuLogin = async () => {
 }
 
 .feature-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-secondary);
 }
 
-// 底部说明 - mt-12, pt-8, border-t
+// 底部说明
 .service-promise {
   display: flex;
   align-items: center;
@@ -578,7 +577,7 @@ const handleFeishuLogin = async () => {
   margin-top: 48px;
   padding-top: 32px;
   border-top: 1px solid var(--border);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-secondary);
 }
 
@@ -589,13 +588,14 @@ const handleFeishuLogin = async () => {
 }
 
 // ========================================
-// 右侧表单面板 - w-1/2, max-w-md (448px)
+// 右侧表单面板 - width: 50%, max-width: 448px
 // ========================================
 .form-panel {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0; // 防止flex收缩问题
 }
 
 .auth-card {
@@ -603,36 +603,32 @@ const handleFeishuLogin = async () => {
   max-width: 448px;
   padding: 32px;
   background: var(--bg-card);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 
-    0 4px 6px -1px rgba(30, 58, 95, 0.08),
-    0 10px 20px -5px var(--shadow-color),
-    0 25px 50px -12px var(--shadow-strong),
-    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    0 25px 50px -12px var(--shadow-color),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 
-      0 6px 10px -2px rgba(30, 58, 95, 0.1),
-      0 15px 30px -8px rgba(30, 58, 95, 0.15),
-      0 30px 60px -15px var(--shadow-strong),
-      0 0 0 1px rgba(255, 255, 255, 1) inset;
+      0 30px 60px -15px rgba(30, 58, 95, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.9) inset;
   }
 }
 
-// 移动端品牌 - 仅在 <1024px 显示
+// 移动端品牌
 .mobile-brand {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   margin-bottom: 24px;
 
   .brand-logo {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 
   .mobile-brand-title {
@@ -668,11 +664,11 @@ const handleFeishuLogin = async () => {
 // ========================================
 .auth-form {
   :deep(.el-form-item) {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 }
 
-// 输入框组 - 高度48px, padding-left: 48px, 圆角10px
+// 输入框组
 .input-group {
   position: relative;
 }
@@ -680,9 +676,9 @@ const handleFeishuLogin = async () => {
 .input-field {
   width: 100%;
   height: 48px;
-  padding: 0 16px 0 48px;
+  padding: 14px 16px 14px 48px;
   background: var(--input-bg);
-  border: 1.5px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 15px;
   color: var(--fg-primary);
@@ -693,15 +689,10 @@ const handleFeishuLogin = async () => {
     color: var(--fg-muted);
   }
 
-  &:hover:not(:focus) {
-    background: var(--input-bg-hover);
-    border-color: var(--border-strong);
-  }
-
   &:focus {
     border-color: var(--accent);
     background: var(--input-focus-bg);
-    box-shadow: 0 0 0 3px var(--accent-subtle), 0 2px 4px rgba(30, 58, 95, 0.05);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
   }
 }
 
@@ -744,7 +735,7 @@ const handleFeishuLogin = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .checkbox-wrapper {
@@ -800,10 +791,11 @@ const handleFeishuLogin = async () => {
   }
 }
 
-// 主按钮 - 高度48px, 圆角10px
+// 主按钮
 .btn-primary {
   width: 100%;
   height: 48px;
+  padding: 14px 24px;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   color: white;
   font-size: 15px;
@@ -848,7 +840,7 @@ const handleFeishuLogin = async () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 20px 0;
+  margin: 24px 0;
   color: var(--fg-muted);
   font-size: 13px;
 
@@ -861,10 +853,11 @@ const handleFeishuLogin = async () => {
   }
 }
 
-// 次级按钮 - 飞书登录
+// 次级按钮
 .btn-secondary {
   width: 100%;
   height: 48px;
+  padding: 14px 24px;
   background: transparent;
   color: var(--fg-primary);
   font-size: 15px;
@@ -876,7 +869,7 @@ const handleFeishuLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 
   &:hover:not(:disabled) {
     background: rgba(30, 58, 95, 0.03);
@@ -897,12 +890,12 @@ const handleFeishuLogin = async () => {
   color: var(--fg-secondary);
 }
 
-// 政策链接 - mt-6, pt-6, border-t
+// 政策链接
 .policy-links {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
@@ -924,7 +917,7 @@ const handleFeishuLogin = async () => {
 }
 
 // ========================================
-// 页脚 - fixed bottom-0, backdrop-blur-sm
+// 页脚
 // ========================================
 .auth-footer {
   position: fixed;
@@ -945,6 +938,10 @@ const handleFeishuLogin = async () => {
 // 响应式 - ≥1024px 显示左右分栏
 // ========================================
 @media (min-width: 1024px) {
+  .auth-wrapper {
+    padding: 32px;
+  }
+
   .info-panel {
     display: flex;
   }
@@ -962,7 +959,7 @@ const handleFeishuLogin = async () => {
 @media (max-width: 1023px) {
   .auth-wrapper {
     flex-direction: column;
-    padding: 24px 16px;
+    padding: 16px;
     padding-bottom: 80px;
   }
 

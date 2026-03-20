@@ -20,7 +20,7 @@
           <!-- 品牌区域 -->
           <div class="brand-section">
             <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
@@ -39,7 +39,7 @@
           <div class="security-card">
             <div class="security-header">
               <div class="security-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="12" y1="16" x2="12" y2="12"/>
                   <line x1="12" y1="8" x2="12.01" y2="8"/>
@@ -49,19 +49,19 @@
             </div>
             <ul class="security-list">
               <li>
-                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
                 <span>验证码将发送至注册手机号</span>
               </li>
               <li>
-                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
                 <span>验证码有效期为5分钟</span>
               </li>
               <li>
-                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
                 <span>请勿将验证码告知他人</span>
@@ -94,7 +94,7 @@
           <!-- 移动端 Logo -->
           <div class="mobile-brand">
             <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
@@ -105,7 +105,7 @@
 
           <div class="form-header">
             <div class="header-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
@@ -278,26 +278,26 @@ const handleReset = async () => {
 </script>
 
 <style scoped lang="scss">
-// CSS 变量 - 优化对比度
+// CSS 变量 - 完全匹配设计稿配色
 :root {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
-  --fg-primary: #0f172a;
-  --fg-secondary: #334155;
-  --fg-muted: #64748b;
+  --fg-primary: #1e293b;
+  --fg-secondary: #475569;
+  --fg-muted: #94a3b8;
   --accent: #1e3a5f;
   --accent-hover: #2c5282;
   --accent-light: #3b6b9a;
-  --accent-subtle: rgba(30, 58, 95, 0.1);
-  --accent-bg: rgba(30, 58, 95, 0.06);
-  --border: rgba(100, 116, 139, 0.3);
-  --border-strong: rgba(100, 116, 139, 0.4);
+  --accent-subtle: rgba(30, 58, 95, 0.08);
+  --accent-bg: rgba(30, 58, 95, 0.04);
+  --border: rgba(148, 163, 184, 0.25);
   --input-bg: #f1f5f9;
-  --input-bg-hover: #e2e8f0;
   --input-focus-bg: #ffffff;
-  --shadow-color: rgba(30, 58, 95, 0.12);
-  --shadow-strong: rgba(30, 58, 95, 0.18);
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --shadow-color: rgba(30, 58, 95, 0.08);
 }
 
 // ========================================
@@ -309,7 +309,7 @@ const handleReset = async () => {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bg-primary);
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -399,7 +399,7 @@ const handleReset = async () => {
 }
 
 // ========================================
-// 主体布局 - max-w-5xl (1024px)
+// 主体布局 - max-width: 1024px
 // ========================================
 .auth-wrapper {
   position: relative;
@@ -407,11 +407,13 @@ const handleReset = async () => {
   display: flex;
   width: 100%;
   max-width: 1024px;
-  padding: 0 16px;
+  margin: 0 auto;
+  padding: 32px;
+  gap: 0;
 }
 
 // ========================================
-// 左侧信息面板 - w-1/2, pr-16 (64px)
+// 左侧信息面板 - width: 50%, padding-right: 64px
 // ========================================
 .info-panel {
   display: none;
@@ -453,7 +455,6 @@ const handleReset = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   box-shadow: 0 8px 20px rgba(30, 58, 95, 0.2);
   flex-shrink: 0;
 }
@@ -468,10 +469,9 @@ const handleReset = async () => {
 }
 
 .brand-subtitle {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--fg-muted);
-  margin: 4px 0 0 0;
-  letter-spacing: 0.5px;
+  margin: 2px 0 0 0;
 }
 
 // 标语
@@ -480,7 +480,7 @@ const handleReset = async () => {
   color: var(--accent);
   font-weight: 500;
   margin: 0 0 32px 0;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
 }
 
 // 安全提示卡片
@@ -506,7 +506,6 @@ const handleReset = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
 }
 
 .security-title {
@@ -534,7 +533,6 @@ const handleReset = async () => {
     }
 
     .check-icon {
-      color: var(--accent);
       flex-shrink: 0;
     }
   }
@@ -546,7 +544,7 @@ const handleReset = async () => {
   align-items: center;
   gap: 24px;
   margin-top: 32px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-secondary);
 }
 
@@ -557,13 +555,14 @@ const handleReset = async () => {
 }
 
 // ========================================
-// 右侧表单面板 - w-1/2, max-w-md (448px)
+// 右侧表单面板 - width: 50%, max-width: 448px
 // ========================================
 .form-panel {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0; // 防止flex收缩问题
 }
 
 .auth-card {
@@ -571,36 +570,32 @@ const handleReset = async () => {
   max-width: 448px;
   padding: 32px;
   background: var(--bg-card);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 
-    0 4px 6px -1px rgba(30, 58, 95, 0.08),
-    0 10px 20px -5px var(--shadow-color),
-    0 25px 50px -12px var(--shadow-strong),
-    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    0 25px 50px -12px var(--shadow-color),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 
-      0 6px 10px -2px rgba(30, 58, 95, 0.1),
-      0 15px 30px -8px rgba(30, 58, 95, 0.15),
-      0 30px 60px -15px var(--shadow-strong),
-      0 0 0 1px rgba(255, 255, 255, 1) inset;
+      0 30px 60px -15px rgba(30, 58, 95, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.9) inset;
   }
 }
 
 // 移动端品牌
 .mobile-brand {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   margin-bottom: 24px;
 
   .brand-logo {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 
   .mobile-brand-title {
@@ -626,7 +621,6 @@ const handleReset = async () => {
   align-items: center;
   justify-content: center;
   margin: 0 auto 16px;
-  color: var(--accent);
 }
 
 .form-title {
@@ -658,7 +652,7 @@ const handleReset = async () => {
 
   &.has-button {
     .input-field {
-      padding-right: 110px;
+      padding-right: 120px;
     }
   }
 }
@@ -666,9 +660,9 @@ const handleReset = async () => {
 .input-field {
   width: 100%;
   height: 48px;
-  padding: 0 16px 0 48px;
+  padding: 14px 16px 14px 48px;
   background: var(--input-bg);
-  border: 1.5px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 15px;
   color: var(--fg-primary);
@@ -679,15 +673,10 @@ const handleReset = async () => {
     color: var(--fg-muted);
   }
 
-  &:hover:not(:focus) {
-    background: var(--input-bg-hover);
-    border-color: var(--border-strong);
-  }
-
   &:focus {
     border-color: var(--accent);
     background: var(--input-focus-bg);
-    box-shadow: 0 0 0 3px var(--accent-subtle), 0 2px 4px rgba(30, 58, 95, 0.05);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
   }
 }
 
@@ -756,6 +745,7 @@ const handleReset = async () => {
 .btn-primary {
   width: 100%;
   height: 48px;
+  padding: 14px 24px;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   color: white;
   font-size: 15px;
@@ -800,6 +790,7 @@ const handleReset = async () => {
 .btn-secondary {
   width: 100%;
   height: 48px;
+  padding: 14px 24px;
   background: transparent;
   color: var(--fg-primary);
   font-size: 15px;
@@ -838,6 +829,10 @@ const handleReset = async () => {
 // 响应式
 // ========================================
 @media (min-width: 1024px) {
+  .auth-wrapper {
+    padding: 32px;
+  }
+
   .info-panel {
     display: flex;
   }
@@ -854,7 +849,7 @@ const handleReset = async () => {
 @media (max-width: 1023px) {
   .auth-wrapper {
     flex-direction: column;
-    padding: 24px 16px;
+    padding: 16px;
     padding-bottom: 80px;
   }
 
