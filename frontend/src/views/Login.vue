@@ -132,6 +132,7 @@
                   type="text"
                   class="input-field"
                   placeholder="请输入用户名/手机号"
+                  autocomplete="username"
                   v-model="loginForm.username"
                   @keyup.enter="handleLogin"
                 />
