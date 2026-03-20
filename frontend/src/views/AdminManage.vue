@@ -540,7 +540,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #1e3a5f, #2c5282);
   color: white;
   display: flex;
   align-items: center;
@@ -574,7 +574,7 @@ onMounted(() => {
   
   &.super_admin { background: #fee2e2; color: #dc2626; }
   &.admin { background: #fef3c7; color: #d97706; }
-  &.user { background: #e0e7ff; color: #6366f1; }
+  &.user { background: rgba(30, 58, 95, 0.1); color: #1e3a5f; }
 }
 
 .date-text {

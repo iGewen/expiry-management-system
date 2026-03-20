@@ -226,7 +226,7 @@ onMounted(() => { loadBackups() })
 .header-left { .page-title { font-size: 28px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; } .page-desc { font-size: 14px; color: #64748b; margin: 0; } }
 
 .status-section { margin-bottom: 24px; }
-.status-card { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; color: white; }
+.status-card { background: linear-gradient(135deg, #1e3a5f, #2c5282); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; color: white; }
 .status-icon { width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; }
 .status-info { h3 { font-size: 18px; margin: 0 0 8px 0; font-weight: 600; } .status-text { font-size: 14px; margin: 0 0 4px 0; &.success { color: #86efac; } } .last-backup { font-size: 13px; opacity: 0.8; margin: 0; } }
 
@@ -235,14 +235,14 @@ onMounted(() => { loadBackups() })
 .action-card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden; }
 .card-header { display: flex; align-items: center; gap: 16px; padding: 20px; border-bottom: 1px solid #f1f5f9; }
 .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
-  &.blue { background: linear-gradient(135deg, #6366f1, #8b5cf6); } &.orange { background: linear-gradient(135deg, #f59e0b, #f97316); }
+  &.blue { background: linear-gradient(135deg, #1e3a5f, #2c5282); } &.orange { background: linear-gradient(135deg, #f59e0b, #f97316); }
 }
 .card-title { h3 { font-size: 16px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0; } p { font-size: 13px; color: #64748b; margin: 0; } }
 .card-body { padding: 20px; }
 
 .backup-options { margin-bottom: 20px; .option-item { margin-bottom: 16px; &:last-child { margin-bottom: 0; } .option-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; } } }
 
-.upload-area { margin-bottom: 16px; :deep(.el-upload-dragger) { border: 2px dashed #e2e8f0; border-radius: 12px; background: #fafafa; padding: 24px; &:hover { border-color: #6366f1; } } }
+.upload-area { margin-bottom: 16px; :deep(.el-upload-dragger) { border: 2px dashed #e2e8f0; border-radius: 12px; background: #fafafa; padding: 24px; &:hover { border-color: #1e3a5f; } } }
 .upload-content { text-align: center; color: #64748b; svg { color: #94a3b8; margin-bottom: 8px; } p { font-size: 14px; margin: 4px 0 0 0; } span { font-size: 12px; color: #94a3b8; } }
 
 .action-btn { width: 100%; height: 44px; border-radius: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -253,7 +253,7 @@ onMounted(() => { loadBackups() })
 
 .backup-grid { display: flex; flex-direction: column; gap: 12px; }
 .backup-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; transition: all 0.2s ease; &:hover { background: #f1f5f9; } }
-.backup-icon { width: 48px; height: 48px; background: #eef2ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #6366f1; flex-shrink: 0; }
+.backup-icon { width: 48px; height: 48px; background: rgba(30, 58, 95, 0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #1e3a5f; flex-shrink: 0; }
 .backup-info { flex: 1; min-width: 0; .backup-name { font-size: 14px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .backup-meta { font-size: 12px; color: #64748b; margin-top: 4px; span { margin-right: 12px; } } .backup-note { font-size: 12px; color: #94a3b8; margin-top: 4px; font-style: italic; } }
 .backup-actions { display: flex; gap: 8px; flex-shrink: 0; }
 

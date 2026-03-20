@@ -355,9 +355,9 @@ onMounted(() => {
   justify-content: center;
 }
 
-.card-icon.blue { background: #eef2ff; color: #6366f1; }
+.card-icon.blue { background: rgba(30, 58, 95, 0.08); color: #1e3a5f; }
 .card-icon.orange { background: #fef3c7; color: #f59e0b; }
-.card-icon.purple { background: #f3e8ff; color: #8b5cf6; }
+.card-icon.purple { background: #f3e8ff; color: #2c5282; }
 .card-icon.feishu-blue { background: #e8f1ff; color: #3370ff; }
 
 .card-title h3 {
@@ -387,7 +387,7 @@ onMounted(() => {
 .profile-section .avatar-section .user-avatar {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #1e3a5f, #2c5282);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -414,7 +414,7 @@ onMounted(() => {
 
 .role-badge.super_admin { background: #fee2e2; color: #dc2626; }
 .role-badge.admin { background: #fef3c7; color: #d97706; }
-.role-badge.user { background: #eef2ff; color: #6366f1; }
+.role-badge.user { background: rgba(30, 58, 95, 0.08); color: #1e3a5f; }
 
 .settings-form .el-form-item__label {
   font-size: 14px;
@@ -428,11 +428,11 @@ onMounted(() => {
 }
 
 .settings-form .el-input__wrapper:hover {
-  box-shadow: 0 0 0 1px #6366f1 inset;
+  box-shadow: 0 0 0 1px #1e3a5f inset;
 }
 
 .settings-form .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 2px #6366f1 inset;
+  box-shadow: 0 0 0 2px #1e3a5f inset;
 }
 
 .save-btn {
@@ -454,7 +454,7 @@ onMounted(() => {
 }
 
 .feishu-status.bound {
-  background: #eef2ff;
+  background: rgba(30, 58, 95, 0.08);
 }
 
 .feishu-status .status-icon {
@@ -505,8 +505,8 @@ onMounted(() => {
 }
 
 .bind-item.bound {
-  background: #eef2ff;
-  border-color: #6366f1;
+  background: rgba(30, 58, 95, 0.08);
+  border-color: #1e3a5f;
 }
 
 .bind-item.disabled {
@@ -514,7 +514,7 @@ onMounted(() => {
 }
 
 .bind-item:hover:not(.disabled) {
-  border-color: #6366f1;
+  border-color: #1e3a5f;
 }
 
 .bind-icon {
@@ -574,7 +574,7 @@ onMounted(() => {
 
 .info-list .info-value.copyable {
   cursor: pointer;
-  color: #6366f1;
+  color: #1e3a5f;
 }
 
 .info-list .info-value.copyable:hover {

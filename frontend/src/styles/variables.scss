@@ -49,12 +49,12 @@ $gradient-bg-auth: linear-gradient(135deg, $bg-primary 0%, $bg-secondary 100%);
 // 二、原色彩系统 (保留向后兼容)
 // ========================================
 
-// 主色调 - Indigo
-$primary-color: #6366f1;
-$primary-hover: #4f46e5;
-$primary-active: #4338ca;
-$primary-light: #818cf8;
-$primary-subtle: #e0e7ff;
+// 主色调 - 商务蓝 (统一配色)
+$primary-color: #1e3a5f;
+$primary-hover: #2c5282;
+$primary-active: #1a3152;
+$primary-light: #3b6b9a;
+$primary-subtle: rgba(30, 58, 95, 0.1);
 
 // 辅助色 - Cyan
 $secondary-color: #06b6d4;
@@ -95,7 +95,7 @@ $text-disabled: #cbd5e1;
 // 边框颜色
 $border-base: #e2e8f0;
 $border-light: #f1f5f9;
-$border-focus: #6366f1;
+$border-focus: #1e3a5f;
 
 // ========================================
 // 三、字体系统 (Typography)
@@ -186,7 +186,7 @@ $container-max-width: 1440px;
 // ========================================
 
 $gradient-bg: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
-$gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+$gradient-primary: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
 $gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
 $gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
 

@@ -50,7 +50,7 @@
         </el-table-column>
         <el-table-column label="分类" width="80">
           <template #default="{row}">
-            <span v-if="row.category" class="tag" :style="{background:row.category.color||'#6366f1',color:'#fff'}">{{ row.category.name }}</span>
+            <span v-if="row.category" class="tag" :style="{background:row.category.color||'#1e3a5f',color:'#fff'}">{{ row.category.name }}</span>
             <span v-else>-</span>
           </template>
         </el-table-column>

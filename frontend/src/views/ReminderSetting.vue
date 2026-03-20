@@ -516,7 +516,7 @@ onMounted(() => {
   
   .el-icon {
     font-size: 20px;
-    color: #6366f1;
+    color: #1e3a5f;
   }
 }
 

@@ -10,8 +10,8 @@
             <path d="M12 24L20 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <defs>
               <linearGradient id="logo-gradient" x1="0" y1="0" x2="48" y2="48">
-                <stop stop-color="#6366f1"/>
-                <stop offset="1" stop-color="#8b5cf6"/>
+                <stop stop-color="#1e3a5f"/>
+                <stop offset="1" stop-color="#2c5282"/>
               </linearGradient>
             </defs>
           </svg>
@@ -262,11 +262,11 @@ const handleCommand = async (command: string) => {
     
     &:hover {
       background: #f1f5f9;
-      color: #6366f1;
+      color: #1e3a5f;
     }
     
     &.is-active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
       color: white;
       
       .el-icon {
@@ -303,7 +303,7 @@ const handleCommand = async (command: string) => {
   transition: all 0.2s ease;
   
   &:hover {
-    color: #6366f1;
+    color: #1e3a5f;
     background: #f8fafc;
   }
 }
@@ -363,7 +363,7 @@ const handleCommand = async (command: string) => {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
   color: white;
   display: flex;
   align-items: center;

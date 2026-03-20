@@ -301,7 +301,7 @@ onMounted(() => { loadCategories() })
 
 .card-header { display: flex; align-items: center; gap: 16px; padding: 24px; border-bottom: 1px solid #f1f5f9; }
 .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;
-  &.import-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  &.import-icon { background: linear-gradient(135deg, #1e3a5f, #2c5282); }
   &.export-icon { background: linear-gradient(135deg, #10b981, #14b8a6); }
 }
 .card-title {
@@ -313,13 +313,13 @@ onMounted(() => { loadCategories() })
 
 .upload-area {
   :deep(.el-upload-dragger) { border: 2px dashed #e2e8f0; border-radius: 12px; background: #fafafa; transition: all 0.3s ease;
-    &:hover { border-color: #6366f1; background: #f5f3ff; }
+    &:hover { border-color: #1e3a5f; background: rgba(30, 58, 95, 0.04); }
   }
 }
 
 .upload-content { padding: 32px; text-align: center; }
 .upload-icon { color: #94a3b8; margin-bottom: 12px; }
-.upload-text { font-size: 14px; color: #64748b; margin: 0 0 8px 0; .link-text { color: #6366f1; font-weight: 500; } }
+.upload-text { font-size: 14px; color: #64748b; margin: 0 0 8px 0; .link-text { color: #1e3a5f; font-weight: 500; } }
 .upload-hint { font-size: 12px; color: #94a3b8; margin: 0; }
 
 .template-section { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9; }
@@ -329,7 +329,7 @@ onMounted(() => { loadCategories() })
   h4 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 12px 0; }
   ul { margin: 0; padding: 0; list-style: none;
     li { font-size: 13px; color: #64748b; padding: 6px 0; padding-left: 16px; position: relative;
-      &::before { content: '•'; position: absolute; left: 0; color: #6366f1; }
+      &::before { content: '•'; position: absolute; left: 0; color: #1e3a5f; }
     }
   }
 }
@@ -344,8 +344,8 @@ onMounted(() => { loadCategories() })
 
 .export-range { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
   :deep(.el-radio) { height: auto; align-items: center; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-right: 0;
-    &:hover { border-color: #6366f1; background: #f5f3ff; }
-    &.is-checked { border-color: #6366f1; background: #eef2ff; }
+    &:hover { border-color: #1e3a5f; background: rgba(30, 58, 95, 0.04); }
+    &.is-checked { border-color: #1e3a5f; background: rgba(30, 58, 95, 0.08); }
   }
 }
 

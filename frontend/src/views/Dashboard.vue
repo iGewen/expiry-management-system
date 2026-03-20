@@ -96,7 +96,7 @@
           </el-table-column>
           <el-table-column label="分类" width="80">
             <template #default="{ row }">
-              <span v-if="row.category" class="tag" :style="{background: row.category.color || '#6366f1'}">{{ row.category.name }}</span>
+              <span v-if="row.category" class="tag" :style="{background: row.category.color || '#1e3a5f'}">{{ row.category.name }}</span>
               <span v-else>-</span>
             </template>
           </el-table-column>
@@ -386,12 +386,12 @@ const updateLineChart = (monthlyTrend: any[]) => {
       lineStyle: {
         width: 3,
         color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-          { offset: 0, color: '#6366f1' },
-          { offset: 1, color: '#8b5cf6' }
+          { offset: 0, color: '#1e3a5f' },
+          { offset: 1, color: '#2c5282' }
         ])
       },
       itemStyle: {
-        color: '#6366f1',
+        color: '#1e3a5f',
         borderWidth: 3,
         borderColor: '#fff'
       },
@@ -515,7 +515,7 @@ onUnmounted(() => {
     height: 3px;
   }
   
-  &.primary::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  &.primary::before { background: linear-gradient(90deg, #1e3a5f, #2c5282); }
   &.warning::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
   &.danger::before { background: linear-gradient(90deg, #ef4444, #f87171); }
   &.success::before { background: linear-gradient(90deg, #10b981, #34d399); }
@@ -535,8 +535,8 @@ onUnmounted(() => {
   justify-content: center;
   
   .primary & {
-    background: #eef2ff;
-    color: #6366f1;
+    background: rgba(30, 58, 95, 0.08);
+    color: #1e3a5f;
   }
   
   .warning & {
@@ -745,7 +745,7 @@ onUnmounted(() => {
 }
 
 .txt { font-size: 13px; color: #1e293b; }
-.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; background: #6366f1; color: #fff; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; background: #1e3a5f; color: #fff; }
 
 .days-badge {
   display: inline-flex;

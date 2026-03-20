@@ -227,7 +227,7 @@ const categorySearch = reactive({
 const form = reactive({
   id: 0,
   name: '',
-  color: '#6366f1'
+  color: '#1e3a5f'
 })
 
 const rules: FormRules = {
@@ -239,7 +239,7 @@ const rules: FormRules = {
 }
 
 const predefineColors = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316',
+  '#1e3a5f', '#2c5282', '#ec4899', '#ef4444', '#f97316',
   '#eab308', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6'
 ]
 
@@ -294,7 +294,7 @@ const showAddDialog = () => {
   dialogTitle.value = '添加分类'
   form.id = 0
   form.name = ''
-  form.color = '#6366f1'
+  form.color = '#1e3a5f'
   dialogVisible.value = true
 }
 
@@ -451,7 +451,7 @@ onMounted(() => {
     height: 100%;
   }
   
-  &.primary::before { background: #6366f1; }
+  &.primary::before { background: #1e3a5f; }
   &.success::before { background: #10b981; }
   &.warning::before { background: #f59e0b; }
   &.danger::before { background: #ef4444; }
@@ -465,7 +465,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   
-  .primary & { background: #eef2ff; color: #6366f1; }
+  .primary & { background: rgba(30, 58, 95, 0.08); color: #1e3a5f; }
   .success & { background: #d1fae5; color: #10b981; }
   .warning & { background: #fef3c7; color: #f59e0b; }
   .danger & { background: #fee2e2; color: #ef4444; }
