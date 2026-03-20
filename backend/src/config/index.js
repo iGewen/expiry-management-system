@@ -76,6 +76,22 @@ function getSmsConfig() {
 
 // Redis 配置
 function getRedisConfig() {
+  // 支持 REDIS_URL 格式（redis://:password@host:port）或分别配置 REDIS_HOST
+  if (process.env.REDIS_URL) {
+    try {
+      const url = new URL(process.env.REDIS_URL);
+      return {
+        enabled: true,
+        host: url.hostname || 'localhost',
+        port: parseInt(url.port || '6379', 10),
+        password: url.password || undefined,
+        db: parseInt(url.pathname?.replace('/', '') || '0', 10)
+      };
+    } catch (e) {
+      logger.warn('Failed to parse REDIS_URL, falling back to REDIS_HOST');
+    }
+  }
+  
   if (process.env.REDIS_HOST) {
     return {
       enabled: true,

@@ -156,6 +156,7 @@
                   class="input-field"
                   placeholder="验证码"
                   maxlength="6"
+                  autocomplete="one-time-code"
                   v-model="form.verifyCode"
                 />
                 <button
