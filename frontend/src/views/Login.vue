@@ -660,7 +660,7 @@ const handleFeishuLogin = async () => {
 // 表单头部
 .form-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .form-title {
@@ -682,7 +682,7 @@ const handleFeishuLogin = async () => {
 // ========================================
 .auth-form {
   :deep(.el-form-item) {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 }
 
