@@ -1,42 +1,82 @@
 <template>
-  <div class="login-container">
+  <div class="auth-container">
     <!-- 背景装饰 -->
     <div class="bg-decoration">
-      <div class="gradient-bg"></div>
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
+      <div class="bg-grid"></div>
+      <div class="bg-glow bg-glow-1"></div>
+      <div class="bg-glow bg-glow-2"></div>
+      <div class="floating-shape shape-1"></div>
+      <div class="floating-shape shape-2"></div>
     </div>
 
-    <!-- 忘记密码主体 -->
-    <div class="login-wrapper">
-      <!-- 左侧宣传区 -->
-      <div class="login-banner">
-        <div class="banner-content">
-          <div class="logo">
-            <div class="logo-icon">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.2"/>
-                <path d="M12 24L20 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- 重置密码主体 -->
+    <div class="auth-wrapper">
+      <!-- 左侧信息面板 -->
+      <div class="info-panel">
+        <div class="info-content">
+          <!-- 品牌区域 -->
+          <div class="brand-section">
+            <div class="brand-logo">
+              <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+                <path d="M12 24L20 32L36 16" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h1>商品保质期管理系统</h1>
+            <div class="brand-text">
+              <h1 class="brand-title">商品保质期管理系统</h1>
+              <p class="brand-subtitle">Enterprise Expiration Management</p>
+            </div>
           </div>
+
+          <!-- 标语 -->
           <p class="slogan">安全找回 · 保护账号</p>
-          <div class="security-box">
-            <h3>🔒 安全提示</h3>
-            <ul>
-              <li>验证码将发送到您的注册手机</li>
-              <li>验证码有效期为5分钟</li>
-              <li>请勿将验证码告知他人</li>
+
+          <!-- 安全提示卡片 -->
+          <div class="security-card">
+            <div class="security-header">
+              <div class="security-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <h3 class="security-title">安全提示</h3>
+            </div>
+            <ul class="security-list">
+              <li>
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>验证码将发送到您的注册手机</span>
+              </li>
+              <li>
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>验证码有效期为5分钟</span>
+              </li>
+              <li>
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>请勿将验证码告知他人</span>
+              </li>
             </ul>
+          </div>
+
+          <!-- 服务承诺 -->
+          <div class="service-promise">
+            <div class="promise-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <span class="promise-text">数据安全保障 · 7×24小时服务支持</span>
           </div>
         </div>
       </div>
 
-      <!-- 右侧表单 -->
-      <div class="login-form-wrapper">
-        <div class="form-container">
+      <!-- 右侧表单卡片 -->
+      <div class="form-panel">
+        <div class="form-card">
           <div class="form-header">
             <div class="header-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -44,17 +84,18 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
             </div>
-            <h2>重置密码</h2>
-            <p>通过手机验证找回账号密码</p>
+            <h2 class="form-title">重置密码</h2>
+            <p class="form-subtitle">通过手机验证找回账号密码</p>
           </div>
 
-          <el-form ref="formRef" :model="form" :rules="rules" class="login-form">
+          <el-form ref="formRef" :model="form" :rules="rules" class="auth-form">
             <el-form-item prop="phone">
               <div class="input-label">手机号</div>
               <el-input v-model="form.phone" placeholder="请输入注册时的手机号" size="large">
                 <template #prefix>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
                 </template>
               </el-input>
@@ -65,12 +106,13 @@
               <div class="code-row">
                 <el-input v-model="form.verifyCode" placeholder="6位验证码" size="large" maxlength="6">
                   <template #prefix>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </template>
                 </el-input>
-                <el-button type="primary" size="large" :disabled="countdown > 0 || !isPhoneValid" :loading="sendingCode" @click="handleSendCode" class="code-btn">
+                <el-button size="large" class="btn-code" :disabled="countdown > 0 || !isPhoneValid" :loading="sendingCode" @click="handleSendCode">
                   {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
                 </el-button>
               </div>
@@ -80,8 +122,9 @@
               <div class="input-label">新密码</div>
               <el-input v-model="form.newPassword" type="password" placeholder="6-20位，需包含字母和数字" size="large" show-password>
                 <template #prefix>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                 </template>
               </el-input>
@@ -91,18 +134,19 @@
               <div class="input-label">确认密码</div>
               <el-input v-model="form.confirmPassword" type="password" placeholder="请再次输入新密码" size="large" show-password>
                 <template #prefix>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                 </template>
               </el-input>
             </el-form-item>
 
-            <el-button type="primary" size="large" class="login-button" :loading="loading" @click="handleReset">
+            <el-button type="primary" size="large" class="btn-primary" :loading="loading" @click="handleReset">
               {{ loading ? '重置中...' : '重置密码' }}
             </el-button>
 
-            <div class="register-hint">
+            <div class="form-footer">
               <router-link to="/login" class="back-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -113,8 +157,8 @@
           </el-form>
         </div>
 
-        <div class="login-footer">
-          <p>© 2024 商品保质期管理系统. All rights reserved.</p>
+        <div class="auth-footer">
+          <p class="copyright">© 2024 商品保质期管理系统. All rights reserved.</p>
         </div>
       </div>
     </div>
@@ -176,81 +220,543 @@ const handleReset = async () => {
 <style scoped lang="scss">
 @import '@/styles/variables.scss';
 
-.login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+// ========================================
+// 页面容器
+// ========================================
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: $gradient-bg-auth;
+  font-family: $font-family-sans;
+}
 
-.bg-decoration { position: absolute; inset: 0;
-  .gradient-bg { position: absolute; inset: 0; background: $gradient-bg; }
-  .circle { position: absolute; border-radius: 50%; background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(6,182,212,0.08) 100%); animation: float 25s infinite ease-in-out;
-    &.circle-1 { width: 400px; height: 400px; top: -150px; left: -150px; }
-    &.circle-2 { width: 300px; height: 300px; bottom: -100px; right: 5%; animation-delay: 5s; }
-    &.circle-3 { width: 200px; height: 200px; top: 40%; right: -80px; animation-delay: 10s; }
+// ========================================
+// 背景装饰
+// ========================================
+.bg-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(30, 58, 95, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 58, 95, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  
+  &.bg-glow-1 {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    left: -200px;
+    background: rgba(30, 58, 95, 0.04);
+  }
+  
+  &.bg-glow-2 {
+    width: 400px;
+    height: 400px;
+    bottom: -100px;
+    right: -100px;
+    background: rgba(59, 130, 246, 0.03);
   }
 }
 
-@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } }
-
-.login-wrapper { position: relative; z-index: 1; display: flex; width: 1100px; max-width: 95%; min-height: 640px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.5); overflow: hidden; }
-
-.login-banner { flex: 1; background: $gradient-primary; padding: 60px 50px; display: flex; align-items: center; position: relative;
-  &::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.3; }
+.floating-shape {
+  position: absolute;
+  border: 1px solid rgba(30, 58, 95, 0.06);
+  border-radius: 12px;
+  animation: float 20s infinite ease-in-out;
+  
+  &.shape-1 {
+    width: 80px;
+    height: 80px;
+    top: 15%;
+    right: 8%;
+    animation-delay: 0s;
+  }
+  
+  &.shape-2 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 5%;
+    animation-delay: 5s;
+  }
 }
 
-.banner-content { position: relative; color: white; }
-.logo { margin-bottom: 48px;
-  .logo-icon { width: 64px; height: 64px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; animation: fadeInDown 0.8s ease-out; border: 1px solid rgba(255,255,255,0.2); }
-  h1 { font-size: 28px; font-weight: 700; margin: 0; letter-spacing: 1px; animation: fadeInDown 0.8s ease-out 0.2s both; }
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
 }
-.slogan { font-size: 17px; margin-bottom: 56px; opacity: 0.9; animation: fadeInDown 0.8s ease-out 0.4s both; font-weight: 400; }
 
-.security-box { padding: 24px; background: rgba(255,255,255,0.1); border-radius: 16px; animation: fadeInLeft 0.8s ease-out 0.6s both;
-  h3 { font-size: 16px; font-weight: 600; margin: 0 0 16px 0; }
-  ul { margin: 0; padding: 0; list-style: none;
-    li { font-size: 14px; padding: 8px 0; padding-left: 20px; position: relative; color: rgba(255,255,255,0.9);
-      &::before { content: '✓'; position: absolute; left: 0; color: rgba(255,255,255,0.8); }
+// ========================================
+// 主体布局
+// ========================================
+.auth-wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 1100px;
+  max-width: 95%;
+  min-height: 640px;
+  background: $bg-card;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px $shadow-auth;
+  border: 1px solid $border-auth;
+  overflow: hidden;
+}
+
+// ========================================
+// 左侧信息面板
+// ========================================
+.info-panel {
+  flex: 1;
+  padding: 60px 50px;
+  display: flex;
+  align-items: center;
+  background: $bg-card;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    bottom: 10%;
+    width: 1px;
+    background: linear-gradient(transparent, $border-auth, transparent);
+  }
+}
+
+.info-content {
+  width: 100%;
+}
+
+// 品牌区域
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  background: $gradient-accent;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 20px $shadow-logo;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $fg-primary;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: $fg-muted;
+  margin: 4px 0 0 0;
+  letter-spacing: 0.5px;
+}
+
+// 标语
+.slogan {
+  font-size: 16px;
+  color: $accent;
+  font-weight: 600;
+  margin: 0 0 40px 0;
+  letter-spacing: 1px;
+}
+
+// 安全提示卡片
+.security-card {
+  padding: 24px;
+  background: $input-bg;
+  border: 1px solid $border-auth;
+  border-radius: 16px;
+  margin-bottom: 32px;
+}
+
+.security-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.security-icon {
+  width: 40px;
+  height: 40px;
+  background: $accent-subtle;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $accent;
+}
+
+.security-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $fg-primary;
+  margin: 0;
+}
+
+.security-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 14px;
+    color: $fg-secondary;
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    
+    .check-icon {
+      color: $accent;
+      flex-shrink: 0;
     }
   }
 }
 
-.login-form-wrapper { flex: 1; display: flex; flex-direction: column; background: transparent; }
-.form-container { flex: 1; padding: 50px 56px; display: flex; flex-direction: column; justify-content: center; }
-
-.form-header { margin-bottom: 32px; animation: fadeInRight 0.8s ease-out; text-align: center;
-  .header-icon { width: 64px; height: 64px; background: $gradient-primary; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; box-shadow: 0 8px 24px rgba(99,102,241,0.25); }
-  h2 { font-size: 26px; color: $text-primary; margin: 0 0 8px 0; font-weight: 700; }
-  p { font-size: 14px; color: $text-secondary; margin: 0; }
+// 服务承诺
+.service-promise {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  background: $accent-bg;
+  border: 1px solid $accent-subtle;
+  border-radius: 12px;
 }
 
-.login-form { animation: fadeInRight 0.8s ease-out 0.2s both;
-  :deep(.el-form-item) { margin-bottom: 18px; }
-  .input-label { font-size: 14px; font-weight: 600; color: $text-regular; margin-bottom: 8px; }
-  :deep(.el-input .el-input__wrapper) { padding: 0 16px; height: 48px; border-radius: 12px; box-shadow: 0 0 0 1px $border-base inset; background: rgba(255,255,255,0.8); transition: all 200ms ease;
-    &:hover { box-shadow: 0 0 0 1px $primary-color inset; }
-    &.is-focus { box-shadow: 0 0 0 2px $primary-color inset, 0 0 0 4px rgba(99,102,241,0.1); }
+.promise-icon {
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.promise-text {
+  font-size: 13px;
+  color: $fg-secondary;
+}
+
+// ========================================
+// 右侧表单面板
+// ========================================
+.form-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: $bg-card;
+}
+
+.form-card {
+  flex: 1;
+  padding: 50px 56px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+// 表单头部
+.form-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: $accent-subtle;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: $accent;
+}
+
+.form-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: $fg-primary;
+  margin: 0 0 8px 0;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  color: $fg-muted;
+  margin: 0;
+}
+
+// ========================================
+// 表单样式
+// ========================================
+.auth-form {
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
   }
-  :deep(.el-input__prefix) { color: $text-secondary; }
-  :deep(.el-input__inner) { height: 48px; font-size: 15px; }
+  
+  .input-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $fg-primary;
+    margin-bottom: 8px;
+  }
+  
+  :deep(.el-input) {
+    .el-input__wrapper {
+      padding: 0 16px;
+      height: 48px;
+      border-radius: 12px;
+      background: $input-bg;
+      box-shadow: 0 0 0 1px $border-input inset;
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 0 0 1px $accent inset;
+      }
+
+      &.is-focus {
+        background: $input-focus-bg;
+        box-shadow: 0 0 0 2px $accent inset, 0 0 0 4px $accent-subtle;
+      }
+    }
+
+    .el-input__prefix {
+      color: $fg-muted;
+      margin-right: 10px;
+    }
+    
+    &.is-focus .el-input__prefix {
+      color: $accent;
+    }
+
+    .el-input__inner {
+      height: 48px;
+      font-size: 15px;
+      color: $fg-primary;
+      
+      &::placeholder {
+        color: $fg-muted;
+      }
+    }
+  }
 }
 
-.code-row { display: flex; gap: 12px; :deep(.el-input) { flex: 1; } }
-.code-btn { width: 120px; flex-shrink: 0; height: 48px; border-radius: 12px; }
-
-.login-button { width: 100%; height: 48px; font-size: 16px; font-weight: 600; letter-spacing: 2px; border-radius: 12px; background: $gradient-primary; border: none; transition: all 0.2s ease; margin-top: 8px;
-  &:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.35); }
+// 验证码行
+.code-row {
+  display: flex;
+  gap: 12px;
+  
+  :deep(.el-input) {
+    flex: 1;
+  }
 }
 
-.register-hint { text-align: center; margin-top: 24px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; color: $text-secondary; font-size: 14px; text-decoration: none; transition: color 0.2s ease; svg { width: 14px; height: 14px; } &:hover { color: $primary-color; } }
+.btn-code {
+  width: 120px;
+  flex-shrink: 0;
+  height: 48px;
+  border-radius: 12px;
+  background: $accent-subtle;
+  border: none;
+  color: $accent;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: rgba(30, 58, 95, 0.12);
+  }
+  
+  &:disabled {
+    color: $fg-muted;
+    background: $input-bg;
+  }
+}
 
-.login-footer { padding: 20px 56px; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; background: rgba(255,255,255,0.3); p { margin: 0; font-size: 12px; color: $text-secondary; } }
+// 主按钮
+.btn-primary {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-radius: 12px;
+  background: $gradient-accent;
+  border: none;
+  color: white;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px $shadow-button;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
 
-@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+// 表单底部
+.form-footer {
+  text-align: center;
+  margin-top: 24px;
+}
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $fg-secondary;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  &:hover {
+    color: $accent;
+  }
+}
+
+// ========================================
+// 页面底部
+// ========================================
+.auth-footer {
+  padding: 20px 56px;
+  border-top: 1px solid $border-auth;
+  text-align: center;
+  background: $bg-primary;
+  
+  .copyright {
+    margin: 0;
+    font-size: 12px;
+    color: $fg-muted;
+  }
+}
+
+// ========================================
+// 响应式适配
+// ========================================
 @media (max-width: 992px) {
-  .login-wrapper { flex-direction: column; width: 100%; max-width: 500px; min-height: auto; }
-  .login-banner { padding: 40px 32px; .logo h1 { font-size: 24px; } .slogan { margin-bottom: 32px; font-size: 15px; } .security-box { display: none; } }
-  .form-container { padding: 40px 32px; }
-  .login-footer { padding: 16px 32px; }
+  .auth-wrapper {
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    min-height: auto;
+  }
+  
+  .info-panel {
+    padding: 40px 32px;
+    
+    &::after {
+      display: none;
+    }
+    
+    .security-card {
+      display: none;
+    }
+    
+    .service-promise {
+      display: none;
+    }
+  }
+  
+  .brand-section {
+    margin-bottom: 0;
+    justify-content: center;
+  }
+  
+  .slogan {
+    text-align: center;
+    margin-bottom: 0;
+  }
+  
+  .form-card {
+    padding: 40px 32px;
+  }
+  
+  .auth-footer {
+    padding: 16px 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-wrapper {
+    border-radius: 16px;
+    max-width: 95%;
+  }
+  
+  .info-panel {
+    padding: 32px 24px;
+  }
+  
+  .brand-title {
+    font-size: 18px;
+  }
+  
+  .form-card {
+    padding: 32px 24px;
+  }
+  
+  .form-title {
+    font-size: 22px;
+  }
+  
+  :deep(.el-input) {
+    .el-input__wrapper {
+      height: 44px;
+    }
+    
+    .el-input__inner {
+      height: 44px;
+    }
+  }
+  
+  .btn-primary,
+  .btn-code {
+    height: 44px;
+  }
+  
+  .btn-code {
+    width: 100px;
+    font-size: 13px;
+  }
 }
 </style>

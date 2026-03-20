@@ -1,10 +1,52 @@
 // ========================================
-// 全站 UI/UX 设计系统文档 v1.0.0
-// 更新日期：2026年3月17日
+// 商务蓝配色系统 v2.0.0
+// 更新日期：2026年3月20日
 // ========================================
 
 // ========================================
-// 一、色彩系统 (Color System)
+// 一、新的商务蓝配色系统 (Auth Pages)
+// ========================================
+
+// 背景色系
+$bg-primary: #f8fafc;
+$bg-secondary: #ffffff;
+$bg-card: #ffffff;
+$input-bg: #f1f5f9;
+$input-focus-bg: #ffffff;
+
+// 文字色系
+$fg-primary: #1e293b;
+$fg-secondary: #475569;
+$fg-muted: #94a3b8;
+
+// 主题色（商务蓝）
+$accent: #1e3a5f;
+$accent-hover: #2c5282;
+$accent-light: #3b6b9a;
+$accent-subtle: rgba(30, 58, 95, 0.08);
+$accent-bg: rgba(30, 58, 95, 0.04);
+
+// 边框色
+$border-auth: rgba(148, 163, 184, 0.25);
+$border-input: rgba(148, 163, 184, 0.25);
+
+// 阴影色
+$shadow-auth: rgba(30, 58, 95, 0.08);
+$shadow-auth-hover: rgba(30, 58, 95, 0.12);
+$shadow-button: rgba(30, 58, 95, 0.25);
+$shadow-logo: rgba(30, 58, 95, 0.2);
+
+// 状态色
+$success-color: #059669;
+$warning-color: #d97706;
+$error-color: #dc2626;
+
+// 渐变
+$gradient-accent: linear-gradient(135deg, $accent 0%, $accent-hover 100%);
+$gradient-bg-auth: linear-gradient(135deg, $bg-primary 0%, $bg-secondary 100%);
+
+// ========================================
+// 二、原色彩系统 (保留向后兼容)
 // ========================================
 
 // 主色调 - Indigo
@@ -20,11 +62,10 @@ $secondary-hover: #0891b2;
 $secondary-light: #22d3ee;
 
 // 功能色
-$success-color: #10b981;
 $success-light: #34d399;
 $success-subtle: #d1fae5;
 
-$warning-color: #f59e0b;
+$warning-color-legacy: #f59e0b;
 $warning-light: #fbbf24;
 $warning-subtle: #fef3c7;
 
@@ -41,7 +82,6 @@ $neutral-light: #94a3b8;
 
 // 背景色
 $bg-body: #f8fafc;
-$bg-card: #ffffff;
 $bg-hover: #f1f5f9;
 $bg-active: #e2e8f0;
 
@@ -58,10 +98,10 @@ $border-light: #f1f5f9;
 $border-focus: #6366f1;
 
 // ========================================
-// 二、字体系统 (Typography)
+// 三、字体系统 (Typography)
 // ========================================
 
-$font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+$font-family-sans: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 $font-family-mono: "SF Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, monospace;
 $font-family-body: $font-family-sans;
 $font-family-heading: $font-family-sans;
@@ -85,7 +125,7 @@ $line-height-normal: 1.5;
 $line-height-relaxed: 1.75;
 
 // ========================================
-// 三、间距系统 (Spacing)
+// 四、间距系统 (Spacing)
 // ========================================
 
 $space-xs: 4px;
@@ -97,7 +137,7 @@ $space-2xl: 48px;
 $space-3xl: 64px;
 
 // ========================================
-// 四、圆角系统 (Border Radius)
+// 五、圆角系统 (Border Radius)
 // ========================================
 
 $radius-none: 0;
@@ -110,7 +150,7 @@ $radius-full: 9999px;
 $radius-circle: 50%;
 
 // ========================================
-// 五、阴影系统 (Shadow)
+// 六、阴影系统 (Shadow)
 // ========================================
 
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -119,13 +159,13 @@ $shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 20px 40px -10px rgba(0, 0, 0,
 $shadow-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 30px 60px -15px rgba(0, 0, 0, 0.2);
 $shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.15);
 
-// 毛玻璃效果
+// 毛玻璃效果（旧版兼容）
 $glass-bg: rgba(255, 255, 255, 0.85);
 $glass-blur: blur(20px);
 $glass-border: 1px solid rgba(255, 255, 255, 0.3);
 
 // ========================================
-// 六、动效设计 (Animation)
+// 七、动效设计 (Animation)
 // ========================================
 
 $transition-fast: all 0.15s ease;
@@ -134,7 +174,7 @@ $transition-normal: all 0.2s ease;
 $transition-slow: all 0.3s ease;
 
 // ========================================
-// 七、布局尺寸
+// 八、布局尺寸
 // ========================================
 
 $header-height: 64px;
@@ -142,7 +182,7 @@ $sidebar-width: 240px;
 $container-max-width: 1440px;
 
 // ========================================
-// 八、渐变色 (Gradients)
+// 九、渐变色 (Gradients) - 旧版兼容
 // ========================================
 
 $gradient-bg: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
@@ -156,7 +196,7 @@ $gradient-badge-blue: linear-gradient(135deg, #e0e7ff, #c7d2fe);
 $gradient-badge-green: linear-gradient(135deg, #d1fae5, #a7f3d0);
 
 // ========================================
-// 九、响应式断点 (Breakpoints)
+// 十、响应式断点 (Breakpoints)
 // ========================================
 
 $breakpoint-xs: 576px;
@@ -167,7 +207,7 @@ $breakpoint-xl: 1280px;
 $breakpoint-2xl: 1536px;
 
 // ========================================
-// 十、向后兼容别名 (Backward Compatibility)
+// 十一、向后兼容别名 (Backward Compatibility)
 // ========================================
 
 $bg-light: $bg-hover;

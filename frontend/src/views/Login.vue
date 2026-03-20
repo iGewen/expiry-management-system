@@ -1,77 +1,106 @@
 <template>
-  <div class="login-container">
-    <!-- 背景渐变 + 装饰元素 -->
+  <div class="auth-container">
+    <!-- 背景装饰 -->
     <div class="bg-decoration">
-      <div class="gradient-bg"></div>
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
-      <div class="circle circle-4"></div>
+      <div class="bg-grid"></div>
+      <div class="bg-glow bg-glow-1"></div>
+      <div class="bg-glow bg-glow-2"></div>
+      <div class="floating-shape shape-1"></div>
+      <div class="floating-shape shape-2"></div>
     </div>
 
     <!-- 登录主体 -->
-    <div class="login-wrapper">
-      <!-- 左侧宣传区 -->
-      <div class="login-banner">
-        <div class="banner-content">
-          <div class="logo">
-            <div class="logo-icon">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.2"/>
-                <path d="M12 24L20 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <div class="auth-wrapper">
+      <!-- 左侧信息面板 -->
+      <div class="info-panel">
+        <div class="info-content">
+          <!-- 品牌区域 -->
+          <div class="brand-section">
+            <div class="brand-logo">
+              <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+                <path d="M12 24L20 32L36 16" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h1>商品保质期管理系统</h1>
+            <div class="brand-text">
+              <h1 class="brand-title">商品保质期管理系统</h1>
+              <p class="brand-subtitle">Enterprise Expiration Management</p>
+            </div>
           </div>
+
+          <!-- 标语 -->
           <p class="slogan">智能管理 · 预防过期 · 保障品质</p>
+
+          <!-- 功能列表 -->
           <div class="features">
             <div class="feature-item">
-              <div class="icon-wrapper">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 1v14M1 8h14"/>
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
               </div>
-              <span>实时监控商品保质期</span>
+              <div class="feature-text">
+                <span class="feature-title">实时监控商品保质期</span>
+                <span class="feature-desc">自动追踪库存商品有效期状态</span>
+              </div>
             </div>
             <div class="feature-item">
-              <div class="icon-wrapper">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 1v14M1 8h14"/>
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
               </div>
-              <span>智能预警提醒机制</span>
+              <div class="feature-text">
+                <span class="feature-title">智能预警提醒机制</span>
+                <span class="feature-desc">多渠道及时通知临期商品</span>
+              </div>
             </div>
             <div class="feature-item">
-              <div class="icon-wrapper">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M8 1v14M1 8h14"/>
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
               </div>
-              <span>数据统计分析报表</span>
+              <div class="feature-text">
+                <span class="feature-title">数据统计分析报表</span>
+                <span class="feature-desc">可视化展示过期损耗趋势</span>
+              </div>
             </div>
+          </div>
+
+          <!-- 服务承诺 -->
+          <div class="service-promise">
+            <div class="promise-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <span class="promise-text">数据安全保障 · 7×24小时服务支持</span>
           </div>
         </div>
       </div>
 
-      <!-- 右侧登录表单 -->
-      <div class="login-form-wrapper">
-        <div class="form-container">
+      <!-- 右侧表单卡片 -->
+      <div class="form-panel">
+        <div class="form-card">
           <div class="form-header">
             <div class="header-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-            <h2>欢迎登录</h2>
-            <p>请使用您的账号登录系统</p>
+            <h2 class="form-title">欢迎登录</h2>
+            <p class="form-subtitle">请使用您的账号登录系统</p>
           </div>
 
           <el-form
             ref="formRef"
             :model="loginForm"
             :rules="rules"
-            class="login-form"
+            class="auth-form"
           >
             <el-form-item prop="username">
               <div class="input-label">用户名</div>
@@ -82,7 +111,7 @@
                 @keyup.enter="handleLogin"
               >
                 <template #prefix>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                   </svg>
@@ -101,7 +130,7 @@
                 @keyup.enter="handleLogin"
               >
                 <template #prefix>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
@@ -112,7 +141,7 @@
             <el-form-item>
               <div class="form-options">
                 <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-                <router-link to="/forgot-password" class="forgot-link">忘记密码？</router-link>
+                <router-link to="/forgot-password" class="link">忘记密码？</router-link>
               </div>
             </el-form-item>
 
@@ -120,27 +149,22 @@
               <el-button
                 type="primary"
                 size="large"
-                class="login-button"
+                class="btn-primary"
                 :loading="loading"
                 @click="handleLogin"
               >
-                <svg v-if="!loading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                  <polyline points="10 17 15 12 10 7"/>
-                  <line x1="15" y1="12" x2="3" y2="12"/>
-                </svg>
                 {{ loading ? '登录中...' : '登 录' }}
               </el-button>
             </el-form-item>
 
             <!-- 飞书登录 -->
             <el-form-item v-if="feishuEnabled">
-              <div class="divider-text">
+              <div class="divider">
                 <span>或</span>
               </div>
               <el-button
                 size="large"
-                class="feishu-button"
+                class="btn-feishu"
                 :loading="feishuLoading"
                 @click="handleFeishuLogin"
               >
@@ -149,19 +173,19 @@
               </el-button>
             </el-form-item>
 
-            <div class="register-hint">
-              还没有账号？
-              <router-link to="/register" class="register-link">立即注册</router-link>
+            <div class="form-footer">
+              <span class="footer-text">还没有账号？</span>
+              <router-link to="/register" class="link">立即注册</router-link>
             </div>
           </el-form>
         </div>
 
-        <div class="login-footer">
-          <p>© 2024 商品保质期管理系统. All rights reserved.</p>
+        <div class="auth-footer">
+          <p class="copyright">© 2024 商品保质期管理系统. All rights reserved.</p>
           <p class="policy-links">
-            <router-link to="/disclaimer" class="policy-link">《免责声明》</router-link>
-            <span class="divider">|</span>
-            <router-link to="/privacy-policy" class="policy-link">《隐私政策》</router-link>
+            <router-link to="/disclaimer" class="footer-link">免责声明</router-link>
+            <span class="divider-dot">·</span>
+            <router-link to="/privacy-policy" class="footer-link">隐私政策</router-link>
           </p>
         </div>
       </div>
@@ -171,7 +195,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
@@ -179,7 +203,6 @@ import { useUserStore } from '@/stores/user'
 import type { LoginForm } from '@/types'
 
 const router = useRouter()
-const route = useRoute()
 const userStore = useUserStore()
 
 const formRef = ref<FormInstance>()
@@ -264,243 +287,303 @@ const handleFeishuLogin = async () => {
 <style scoped lang="scss">
 @import '@/styles/variables.scss';
 
-.login-container {
+// ========================================
+// 页面容器
+// ========================================
+.auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  background: $gradient-bg-auth;
+  font-family: $font-family-sans;
 }
 
+// ========================================
 // 背景装饰
+// ========================================
 .bg-decoration {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(30, 58, 95, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 58, 95, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
   
-  .gradient-bg {
-    position: absolute;
-    inset: 0;
-    background: $gradient-bg;
+  &.bg-glow-1 {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    left: -200px;
+    background: rgba(30, 58, 95, 0.04);
   }
   
-  .circle {
-    position: absolute;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
-    animation: float 25s infinite ease-in-out;
-    
-    &.circle-1 {
-      width: 400px;
-      height: 400px;
-      top: -150px;
-      left: -150px;
-    }
-    
-    &.circle-2 {
-      width: 300px;
-      height: 300px;
-      bottom: -100px;
-      right: 5%;
-      animation-delay: 5s;
-    }
-    
-    &.circle-3 {
-      width: 200px;
-      height: 200px;
-      top: 40%;
-      right: -80px;
-      animation-delay: 10s;
-    }
-    
-    &.circle-4 {
-      width: 150px;
-      height: 150px;
-      top: 20%;
-      left: 10%;
-      animation-delay: 15s;
-    }
+  &.bg-glow-2 {
+    width: 400px;
+    height: 400px;
+    bottom: -100px;
+    right: -100px;
+    background: rgba(59, 130, 246, 0.03);
+  }
+}
+
+.floating-shape {
+  position: absolute;
+  border: 1px solid rgba(30, 58, 95, 0.06);
+  border-radius: 12px;
+  animation: float 20s infinite ease-in-out;
+  
+  &.shape-1 {
+    width: 80px;
+    height: 80px;
+    top: 15%;
+    right: 8%;
+    animation-delay: 0s;
+  }
+  
+  &.shape-2 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 5%;
+    animation-delay: 5s;
   }
 }
 
 @keyframes float {
-  0%, 100% { 
-    transform: translateY(0) rotate(0deg) scale(1); 
-  }
-  50% { 
-    transform: translateY(-30px) rotate(180deg) scale(1.1); 
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
 }
 
-// 登录主体
-.login-wrapper {
+// ========================================
+// 主体布局
+// ========================================
+.auth-wrapper {
   position: relative;
   z-index: 1;
   display: flex;
   width: 1100px;
   max-width: 95%;
   min-height: 640px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: $bg-card;
   border-radius: 24px;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 25px 50px -12px $shadow-auth;
+  border: 1px solid $border-auth;
   overflow: hidden;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    box-shadow: 
-      0 25px 70px rgba(0, 0, 0, 0.1),
-      0 2px 6px rgba(0, 0, 0, 0.06);
-  }
 }
 
-// 左侧宣传区
-.login-banner {
+// ========================================
+// 左侧信息面板
+// ========================================
+.info-panel {
   flex: 1;
-  background: $gradient-primary;
   padding: 60px 50px;
   display: flex;
   align-items: center;
+  background: $bg-card;
   position: relative;
   
-  &::before {
+  &::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
-    opacity: 0.3;
+    right: 0;
+    top: 10%;
+    bottom: 10%;
+    width: 1px;
+    background: linear-gradient(transparent, $border-auth, transparent);
   }
 }
 
-.banner-content {
-  position: relative;
+.info-content {
+  width: 100%;
+}
+
+// 品牌区域
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  background: $gradient-accent;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
+  box-shadow: 0 8px 20px $shadow-logo;
+  flex-shrink: 0;
 }
 
-.logo {
-  margin-bottom: 48px;
-  
-  .logo-icon {
-    width: 64px;
-    height: 64px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    animation: fadeInDown 0.8s ease-out;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  h1 {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0;
-    letter-spacing: 1px;
-    animation: fadeInDown 0.8s ease-out 0.2s both;
-  }
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $fg-primary;
+  margin: 0;
+  line-height: 1.3;
 }
 
+.brand-subtitle {
+  font-size: 12px;
+  color: $fg-muted;
+  margin: 4px 0 0 0;
+  letter-spacing: 0.5px;
+}
+
+// 标语
 .slogan {
-  font-size: 17px;
-  margin-bottom: 56px;
-  opacity: 0.9;
-  animation: fadeInDown 0.8s ease-out 0.4s both;
-  font-weight: 400;
+  font-size: 16px;
+  color: $accent;
+  font-weight: 600;
+  margin: 0 0 40px 0;
+  letter-spacing: 1px;
 }
 
+// 功能列表
 .features {
-  .feature-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 24px;
-    font-size: 15px;
-    animation: fadeInLeft 0.8s ease-out both;
-    
-    &:nth-child(1) { animation-delay: 0.6s; }
-    &:nth-child(2) { animation-delay: 0.8s; }
-    &:nth-child(3) { animation-delay: 1s; }
-    
-    .icon-wrapper {
-      width: 32px;
-      height: 32px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
-// 右侧表单区
-.login-form-wrapper {
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.feature-icon {
+  width: 36px;
+  height: 36px;
+  background: $accent-subtle;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $accent;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $fg-primary;
+}
+
+.feature-desc {
+  font-size: 13px;
+  color: $fg-secondary;
+}
+
+// 服务承诺
+.service-promise {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  background: $accent-bg;
+  border: 1px solid $accent-subtle;
+  border-radius: 12px;
+}
+
+.promise-icon {
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.promise-text {
+  font-size: 13px;
+  color: $fg-secondary;
+}
+
+// ========================================
+// 右侧表单面板
+// ========================================
+.form-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: transparent;
+  background: $bg-card;
 }
 
-.form-container {
+.form-card {
   flex: 1;
-  padding: 60px 56px;
+  padding: 60px 56px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+// 表单头部
 .form-header {
-  margin-bottom: 40px;
-  animation: fadeInRight 0.8s ease-out;
   text-align: center;
-  
-  .header-icon {
-    width: 64px;
-    height: 64px;
-    background: $gradient-primary;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    color: white;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
-  }
-  
-  h2 {
-    font-size: 26px;
-    color: $text-primary;
-    margin: 0 0 8px 0;
-    font-weight: 700;
-  }
-  
-  p {
-    font-size: 14px;
-    color: $text-secondary;
-    margin: 0;
-  }
+  margin-bottom: 36px;
 }
 
-.login-form {
-  animation: fadeInRight 0.8s ease-out 0.2s both;
-  
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: $accent-subtle;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: $accent;
+}
+
+.form-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: $fg-primary;
+  margin: 0 0 8px 0;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  color: $fg-muted;
+  margin: 0;
+}
+
+// ========================================
+// 表单样式
+// ========================================
+.auth-form {
   :deep(.el-form-item) {
     margin-bottom: 20px;
   }
   
   .input-label {
     font-size: 14px;
-    font-weight: 600;
-    color: $text-regular;
+    font-weight: 500;
+    color: $fg-primary;
     margin-bottom: 8px;
   }
   
@@ -508,27 +591,38 @@ const handleFeishuLogin = async () => {
     .el-input__wrapper {
       padding: 0 16px;
       height: 48px;
-      border-radius: 4px;
-      box-shadow: 0 0 0 1px $border-base inset;
-      background: rgba(255, 255, 255, 0.8);
-      transition: all 200ms ease;
+      border-radius: 12px;
+      background: $input-bg;
+      box-shadow: 0 0 0 1px $border-input inset;
+      transition: all 0.2s ease;
 
       &:hover {
-        box-shadow: 0 0 0 1px $primary-color inset;
+        box-shadow: 0 0 0 1px $accent inset;
       }
 
       &.is-focus {
-        box-shadow: 0 0 0 2px $primary-color inset, 0 0 0 4px rgba(99, 102, 241, 0.1);
+        background: $input-focus-bg;
+        box-shadow: 0 0 0 2px $accent inset, 0 0 0 4px $accent-subtle;
       }
     }
 
     .el-input__prefix {
-      color: $text-secondary;
+      color: $fg-muted;
+      margin-right: 10px;
+    }
+    
+    &.is-focus .el-input__prefix {
+      color: $accent;
     }
 
     .el-input__inner {
       height: 48px;
       font-size: 15px;
+      color: $fg-primary;
+      
+      &::placeholder {
+        color: $fg-muted;
+      }
     }
   }
 }
@@ -538,44 +632,56 @@ const handleFeishuLogin = async () => {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin-top: -4px;
   
-  :deep(.el-checkbox__label) {
-    color: $text-regular;
-    font-size: 14px;
+  :deep(.el-checkbox) {
+    .el-checkbox__label {
+      color: $fg-secondary;
+      font-size: 14px;
+    }
+    
+    .el-checkbox__input.is-checked .el-checkbox__inner {
+      background-color: $accent;
+      border-color: $accent;
+    }
+    
+    .el-checkbox__input.is-checked + .el-checkbox__label {
+      color: $fg-secondary;
+    }
   }
 }
 
-.forgot-link {
-  color: $primary-color;
+// 链接样式
+.link {
+  color: $accent;
   font-size: 14px;
-  text-decoration: none;
   font-weight: 500;
-  transition: all 0.2s ease;
+  text-decoration: none;
+  transition: color 0.2s ease;
   
   &:hover {
-    color: $primary-hover;
+    color: $accent-light;
     text-decoration: underline;
   }
 }
 
-.login-button {
+// 主按钮
+.btn-primary {
   width: 100%;
   height: 48px;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 2px;
-  border-radius: 4px;
-  background: $gradient-primary;
+  border-radius: 12px;
+  background: $gradient-accent;
   border: none;
+  color: white;
   transition: all 0.2s ease;
-  
-  .btn-icon {
-    margin-right: 8px;
-  }
+  margin-top: 8px;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 10px 30px $shadow-button;
   }
   
   &:active {
@@ -583,21 +689,21 @@ const handleFeishuLogin = async () => {
   }
 }
 
-// 飞书登录
-.divider-text {
+// 分隔线
+.divider {
   width: 100%;
   text-align: center;
   position: relative;
-  margin-bottom: 16px;
+  margin: 8px 0;
   
   &::before,
   &::after {
     content: '';
     position: absolute;
     top: 50%;
-    width: 40%;
+    width: calc(50% - 30px);
     height: 1px;
-    background: linear-gradient(90deg, transparent, $border-light, transparent);
+    background: $border-input;
   }
   
   &::before {
@@ -609,22 +715,22 @@ const handleFeishuLogin = async () => {
   }
   
   span {
-    background: transparent;
-    padding: 0 16px;
-    color: $text-secondary;
+    color: $fg-muted;
     font-size: 14px;
+    padding: 0 16px;
   }
 }
 
-.feishu-button {
+// 飞书按钮
+.btn-feishu {
   width: 100%;
   height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 4px;
-  background: #3370FF;
-  border-color: #3370FF;
-  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid $border-input;
+  color: $fg-primary;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -632,179 +738,147 @@ const handleFeishuLogin = async () => {
   gap: 10px;
   
   &:hover {
-    background: #2860E1;
-    border-color: #2860E1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(51, 112, 255, 0.3);
+    background: rgba(30, 58, 95, 0.03);
+    border-color: $accent;
   }
   
   .feishu-icon {
-    filter: brightness(0) invert(1);
     width: 20px;
     height: 20px;
   }
 }
 
-.register-hint {
+// 表单底部
+.form-footer {
   text-align: center;
-  font-size: 14px;
-  color: $text-secondary;
   margin-top: 24px;
-}
-
-.register-link {
-  color: $primary-color;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
   
-  &:hover {
-    color: $primary-hover;
-    text-decoration: underline;
+  .footer-text {
+    color: $fg-secondary;
+    font-size: 14px;
   }
 }
 
-.login-footer {
+// ========================================
+// 页面底部
+// ========================================
+.auth-footer {
   padding: 20px 56px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid $border-auth;
   text-align: center;
-  background: rgba(255, 255, 255, 0.3);
+  background: $bg-primary;
   
-  p {
+  .copyright {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: $fg-muted;
+  }
+  
+  .policy-links {
     margin: 0;
     font-size: 12px;
-    color: $text-secondary;
-
-    &.policy-links {
-      margin-top: 8px;
-    }
   }
-
-  .policy-link {
-    color: $primary-color;
+  
+  .footer-link {
+    color: $fg-muted;
     text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
+    transition: color 0.2s ease;
+    
     &:hover {
-      color: $primary-hover;
-      text-decoration: underline;
+      color: $fg-secondary;
     }
   }
-
-  .divider {
-    margin: 0 12px;
-    color: $text-placeholder;
+  
+  .divider-dot {
+    margin: 0 8px;
+    color: $fg-muted;
   }
 }
 
-// 动画
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-// 响应式
+// ========================================
+// 响应式适配
+// ========================================
 @media (max-width: 992px) {
-  .login-wrapper {
+  .auth-wrapper {
     flex-direction: column;
     width: 100%;
-    max-width: 500px;
+    max-width: 480px;
     min-height: auto;
   }
   
-  .login-banner {
+  .info-panel {
     padding: 40px 32px;
     
-    .logo {
-      margin-bottom: 32px;
-      
-      h1 {
-        font-size: 24px;
-      }
-    }
-    
-    .slogan {
-      margin-bottom: 32px;
-      font-size: 15px;
+    &::after {
+      display: none;
     }
     
     .features {
       display: none;
     }
+    
+    .service-promise {
+      display: none;
+    }
   }
   
-  .form-container {
+  .brand-section {
+    margin-bottom: 0;
+    justify-content: center;
+  }
+  
+  .slogan {
+    text-align: center;
+    margin-bottom: 0;
+  }
+  
+  .form-card {
     padding: 40px 32px;
   }
   
-  .form-header {
-    .header-icon {
-      width: 56px;
-      height: 56px;
-    }
-    
-    h2 {
-      font-size: 24px;
-    }
-  }
-  
-  .login-footer {
+  .auth-footer {
     padding: 16px 32px;
   }
 }
 
 @media (max-width: 576px) {
-  .login-wrapper {
+  .auth-wrapper {
     border-radius: 16px;
+    max-width: 95%;
   }
   
-  .login-banner {
+  .info-panel {
     padding: 32px 24px;
   }
   
-  .form-container {
+  .brand-title {
+    font-size: 18px;
+  }
+  
+  .slogan {
+    font-size: 14px;
+  }
+  
+  .form-card {
     padding: 32px 24px;
   }
   
-  .login-form {
-    :deep(.el-input) {
-      .el-input__wrapper {
-        height: 44px;
-      }
+  .form-title {
+    font-size: 22px;
+  }
+  
+  :deep(.el-input) {
+    .el-input__wrapper {
+      height: 44px;
+    }
+    
+    .el-input__inner {
+      height: 44px;
     }
   }
   
-  .login-button,
-  .feishu-button {
+  .btn-primary,
+  .btn-feishu {
     height: 44px;
   }
 }
