@@ -357,7 +357,7 @@ const handleFeishuLogin = async () => {
   position: relative;
   overflow-x: hidden;
   background: var(--bg-primary);
-  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 // ========================================
