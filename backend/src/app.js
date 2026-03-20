@@ -128,25 +128,6 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// 登录速率限制（更严格）
-const loginLimiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.loginMax,
-  message: '登录尝试次数过多，请15分钟后再试',
-  skipSuccessfulRequests: true,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-// 短信发送速率限制
-const smsLimiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.smsMax,
-  message: '发送验证码过于频繁，请15分钟后再试',
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/sms', smsLimiter);
 
