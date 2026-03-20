@@ -117,7 +117,6 @@ export function verifyFileContent(req, res, next) {
     return next();
   }
   
-  const fs = await import('fs');
   const buffer = fs.readFileSync(req.file.path);
   
   const detectedType = detectFileType(buffer);
