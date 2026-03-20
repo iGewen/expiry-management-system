@@ -802,6 +802,7 @@ const handleRegister = async () => {
 // ========================================
 .auth-form {
   :deep(.el-form-item) {
+    width: 100%;
     margin-bottom: 16px;
   }
 }
