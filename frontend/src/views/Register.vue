@@ -428,6 +428,22 @@ const handleRegister = async () => {
   --error: #dc2626;
   --shadow-color: rgba(30, 58, 95, 0.08);
 }
+
+// ========================================
+// 屏幕阅读器专用类（隐藏元素但保持可访问性）
+// 注意：此类必须在非scoped样式块中定义，确保全局生效
+// ========================================
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 </style>
 <style scoped lang="scss">
 
@@ -1107,21 +1123,6 @@ const handleRegister = async () => {
     padding: 8px 12px;
     font-size: 12px;
   }
-}
-
-// ========================================
-// 屏幕阅读器专用类（隐藏元素但保持可访问性）
-// ========================================
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
