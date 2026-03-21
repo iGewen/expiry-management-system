@@ -258,9 +258,6 @@ const handleCommand = async (command: string) => {
     color: #64748b;
     font-weight: 500;
     transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     padding: 0 20px !important;
     
     &:hover {
@@ -275,21 +272,42 @@ const handleCommand = async (command: string) => {
     
     .el-icon {
       margin-right: 12px !important;
-      flex-shrink: 0;
+      font-size: 20px !important;
     }
   }
   
-  // 收起状态
+  // 收起状态 - 关键修复
   &.el-menu--collapse {
     :deep(.el-menu-item) {
-      justify-content: center !important;
       padding: 0 !important;
+      text-align: center !important;
+      
+      // 重置所有可能的 margin/padding
+      * {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       
       .el-icon {
-        margin-right: 0 !important;
-        margin-left: 0 !important;
+        margin: 0 auto !important;
+        display: block !important;
+        width: 20px;
+      }
+      
+      // 隐藏 tooltip 内容
+      .el-menu-item__content {
+        justify-content: center !important;
       }
     }
+  }
+}
+
+// 全局覆盖 collapse 状态下的菜单项样式
+:deep(.el-menu--collapse .el-menu-item) {
+  padding: 0 !important;
+  
+  .el-icon {
+    margin: 0 auto !important;
   }
 }
 
