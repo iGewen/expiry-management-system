@@ -19,13 +19,7 @@
         <div class="info-content">
           <!-- 品牌区域 -->
           <div class="brand-section">
-            <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-              </svg>
-            </div>
+            <div class="brand-logo"><img src="/icon/logo.png" alt="Logo" /></div>
             <div class="brand-text">
               <h1 class="brand-title">商品保质期管理系统</h1>
               <p class="brand-subtitle">Enterprise Expiration Management</p>
@@ -91,13 +85,7 @@
         <div class="auth-card">
           <!-- 移动端 Logo -->
           <div class="mobile-brand">
-            <div class="brand-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-              </svg>
-            </div>
+            <div class="brand-logo"><img src="/icon/logo.png" alt="Logo" /></div>
             <span class="mobile-brand-title">商品保质期管理系统</span>
           </div>
 
@@ -594,13 +582,18 @@ const handleRegister = async () => {
 .brand-logo {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(30, 58, 95, 0.2);
   flex-shrink: 0;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
 .brand-title {
