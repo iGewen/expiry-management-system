@@ -5,16 +5,7 @@
       <!-- Logo 区域 -->
       <div class="logo-section">
         <div class="logo-icon">
-          <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-            <rect width="48" height="48" rx="10" fill="url(#logo-gradient)"/>
-            <path d="M12 24L20 32L36 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="logo-gradient" x1="0" y1="0" x2="48" y2="48">
-                <stop stop-color="#1e3a5f"/>
-                <stop offset="1" stop-color="#2c5282"/>
-              </linearGradient>
-            </defs>
-          </svg>
+          <img src="/icon/logo.png" alt="Logo" />
         </div>
         <transition name="fade">
           <span v-if="!isCollapse" class="logo-text">保质期管理</span>
@@ -232,6 +223,14 @@ const handleCommand = async (command: string) => {
 
 .logo-icon {
   flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
 .logo-text {
