@@ -236,7 +236,7 @@ export class ProductService {
     const formattedProducts = products.map(p => this.formatProduct(p, userRole));
 
     const result = {
-      products: paginatedProducts,
+      products: formattedProducts,
       total,
       page: pageNum,
       pageSize: pageSizeNum,
