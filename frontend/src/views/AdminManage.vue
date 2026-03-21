@@ -580,6 +580,7 @@ onMounted(() => {
 .date-text {
   font-size: 13px;
   color: #64748b;
+  white-space: nowrap;
 }
 
 .text-muted {

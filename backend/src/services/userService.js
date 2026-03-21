@@ -48,6 +48,7 @@ export class UserService {
           updatedAt: true,
           lastLoginAt: true,
         lastLoginIp: true,
+          feishuOpenId: true,
           _count: {
             select: {
               products: {
@@ -71,6 +72,7 @@ export class UserService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         lastLoginAt: user.lastLoginAt,
+        feishuOpenId: user.feishuOpenId,
         productCount: user._count.products,
         logCount: user._count.logs
       })),
@@ -102,6 +104,7 @@ export class UserService {
         updatedAt: true,
           lastLoginAt: true,
         lastLoginIp: true,
+          feishuOpenId: true,
         _count: {
           select: {
             products: true,
