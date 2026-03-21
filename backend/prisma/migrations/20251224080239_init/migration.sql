@@ -12,6 +12,7 @@ CREATE TABLE `users` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `lastLoginAt` DATETIME(3) NULL,
+    `lastLoginIp` VARCHAR(50) NULL,
 
     UNIQUE INDEX `users_username_key`(`username`),
     UNIQUE INDEX `users_phone_key`(`phone`),

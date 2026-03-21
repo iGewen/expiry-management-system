@@ -30,10 +30,10 @@ const runMigrations = async () => {
     try {
       logger.info('Running database migrations...');
       
-      // 使用异步执行，设置超时时间
+      // 优先尝试 migrate deploy（应用迁移文件）
       const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
         cwd: path.join(process.cwd()),
-        timeout: 30000, // 30秒超时
+        timeout: 30000,
         env: { ...process.env }
       });
       
@@ -42,20 +42,27 @@ const runMigrations = async () => {
       
       logger.info('Database migrations completed successfully');
     } catch (error) {
-      logger.error('Database migration failed:', error.message);
+      logger.warn('Migrate deploy failed, trying db push...', error.message);
       
-      // 记录详细错误信息
-      if (error.stdout) logger.error('Migration stdout:', error.stdout);
-      if (error.stderr) logger.error('Migration stderr:', error.stderr);
-      
-      // 迁移失败但不阻塞启动（改为警告）
-      // 允许应用启动，但记录错误供运维排查
-      logger.warn('⚠️  Database migration failed, but application will continue to start.');
-      logger.warn('⚠️  Please check database connection and migration status manually.');
-      
-      // 如果是超时错误，提供更明确的提示
-      if (error.killed) {
-        logger.error('Migration process timed out after 30 seconds');
+      // 如果 migrate deploy 失败，尝试 db push（确保表存在）
+      try {
+        const { stdout, stderr } = await execAsync('npx prisma db push --skip-generate', {
+          cwd: path.join(process.cwd()),
+          timeout: 30000,
+          env: { ...process.env }
+        });
+        
+        if (stdout) logger.info(stdout);
+        logger.info('Database schema synced via db push');
+      } catch (dbPushError) {
+        logger.error('Database db push failed:', dbPushError.message);
+        
+        // 记录详细错误信息
+        if (dbPushError.stdout) logger.error('DB Push stdout:', dbPushError.stdout);
+        if (dbPushError.stderr) logger.error('DB Push stderr:', dbPushError.stderr);
+        
+        logger.warn('⚠️  Database migration failed, but application will continue to start.');
+        logger.warn('⚠️  Please check database connection and migration status manually.');
       }
     }
   }
