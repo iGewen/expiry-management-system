@@ -260,6 +260,8 @@ const handleCommand = async (command: string) => {
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
+    padding: 0 20px !important;
     
     &:hover {
       background: #f1f5f9;
@@ -269,30 +271,23 @@ const handleCommand = async (command: string) => {
     &.is-active {
       background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
       color: white;
-      
-      .el-icon {
-        color: white;
-        margin-right: 12px;
-      }
     }
     
     .el-icon {
-      margin-right: 12px;
+      margin-right: 12px !important;
       flex-shrink: 0;
     }
   }
   
-  &.is-collapse, &.el-menu--collapse {
+  // 收起状态
+  &.el-menu--collapse {
     :deep(.el-menu-item) {
-      justify-content: center;
+      justify-content: center !important;
       padding: 0 !important;
       
       .el-icon {
-        margin-right: 0;
-      }
-      
-      &.is-active .el-icon {
-        margin-right: 0;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
       }
     }
   }
