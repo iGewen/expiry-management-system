@@ -13,39 +13,44 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 function validateJwtSecret() {
   const secret = process.env.JWT_SECRET;
   
-  // 生产环境强制要求设置 JWT_SECRET
-  if (process.env.NODE_ENV === 'production') {
-    if (!secret || secret === 'default-secret-change-me') {
-      logger.error('FATAL: JWT_SECRET must be set in production environment');
-      throw new Error('JWT_SECRET environment variable is required in production');
-    }
-    
-    // 检查密钥强度（至少 32 个字符）
-    if (secret.length < 32) {
-      logger.error('FATAL: JWT_SECRET must be at least 32 characters long');
-      throw new Error('JWT_SECRET is too weak (minimum 32 characters required)');
-    }
+  // 任何环境都强制要求设置 JWT_SECRET
+  if (!secret) {
+    logger.error('FATAL: JWT_SECRET environment variable is required');
+    throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
   }
   
-  return secret || 'default-secret-change-me';
+  // 检查是否为默认弱密钥（开发环境也检查）
+  if (secret === 'default-secret-change-me' || secret === 'your-secret-key') {
+    logger.error('FATAL: JWT_SECRET cannot be the default weak value');
+    throw new Error('JWT_SECRET cannot be the default value. Please set a custom secret in your .env file.');
+  }
+  
+  // 检查密钥强度（至少 32 个字符）
+  if (secret.length < 32) {
+    logger.error('FATAL: JWT_SECRET must be at least 32 characters long');
+    throw new Error('JWT_SECRET is too weak (minimum 32 characters required for security)');
+  }
+  
+  return secret;
 }
 
 // CORS 配置验证
 function getCorsOrigin() {
   const origin = process.env.CORS_ORIGIN;
   
-  // 如果设置了CORS_ORIGIN，使用配置的值
-  if (origin) {
-    return origin;
+  // 任何环境都强制要求设置 CORS_ORIGIN
+  if (!origin) {
+    logger.error('FATAL: CORS_ORIGIN environment variable is required');
+    throw new Error('CORS_ORIGIN environment variable is required. Please set it in your .env file.');
   }
   
-  // 生产环境：自适应，允许所有来源
-  if (process.env.NODE_ENV === 'production') {
-    return '*';
+  // 检查是否为危险的通配符
+  if (origin === '*') {
+    logger.error('FATAL: CORS_ORIGIN cannot be * (wildcard). This is a security risk.');
+    throw new Error('CORS_ORIGIN cannot be *. Please specify the exact frontend domain(s) for security.');
   }
   
-  // 开发环境：默认 localhost
-  return 'http://localhost:5173';
+  return origin;
 }
 
 // 短信配置验证

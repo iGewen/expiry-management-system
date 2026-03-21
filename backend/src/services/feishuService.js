@@ -19,9 +19,39 @@ export class FeishuService {
 
   /**
    * 验证飞书 Webhook 地址并发送测试消息
+   * 添加 URL 白名单验证，防止 SSRF 攻击
    */
   async validateWebhook(webhookUrl) {
     try {
+      // 1. 验证 URL 格式
+      if (!webhookUrl || typeof webhookUrl !== 'string') {
+        throw new Error('Webhook 地址格式无效');
+      }
+
+      let url;
+      try {
+        url = new URL(webhookUrl);
+      } catch (e) {
+        throw new Error('Webhook 地址格式无效');
+      }
+
+      // 2. 只允许 HTTPS 协议
+      if (url.protocol !== 'https:') {
+        throw new Error('Webhook 地址必须使用 HTTPS 协议');
+      }
+
+      // 3. 白名单验证：只允许飞书官方域名
+      const allowedHosts = [
+        'open.feishu.cn',
+        'open.larksuite.com'
+      ];
+      
+      if (!allowedHosts.includes(url.hostname)) {
+        logger.error(`Invalid webhook host: ${url.hostname}. Only Feishu/Lark official domains are allowed.`);
+        throw new Error('Webhook 地址必须是飞书官方域名（open.feishu.cn 或 open.larksuite.com）');
+      }
+
+      // 4. 发送测试消息
       const response = await axios.post(webhookUrl, {
         msg_type: 'text',
         content: {
@@ -44,7 +74,7 @@ export class FeishuService {
       return false;
     } catch (error) {
       logger.error('Feishu webhook validation error:', error.message);
-      throw new Error('飞书 Webhook 地址无效或无法访问');
+      throw new Error(error.message || '飞书 Webhook 地址无效或无法访问');
     }
   }
 

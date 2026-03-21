@@ -101,20 +101,28 @@ function getActionType(req) {
   const fullPath = req.originalUrl || req.url;
   const { method } = req;
   
+  // 认证相关操作
   if (fullPath.includes('/auth/login')) return 'LOGIN';
   if (fullPath.includes('/auth/logout')) return 'LOGOUT';
   if (fullPath.includes('/auth/register')) return 'REGISTER';
+  if (fullPath.includes('/auth/feishu')) return 'FEISHU_AUTH';
+  if (fullPath.includes('/auth/change-password')) return 'CHANGE_PASSWORD';
+  if (fullPath.includes('/auth/reset-password')) return 'RESET_PASSWORD';
   
+  // 商品相关操作
   if (fullPath.includes('/products')) {
-    if (method === 'POST' && fullPath.includes('/batch/delete')) return 'DELETE_PRODUCTS';
-    if (method === 'POST' && fullPath.includes('/batch/update')) return 'UPDATE_PRODUCTS';
-    if (method === 'POST' && fullPath.includes('/batch/import')) return 'IMPORT_PRODUCTS';
+    if (method === 'POST' && fullPath.includes('/batch-delete')) return 'BATCH_DELETE_PRODUCTS';
+    if (method === 'POST' && fullPath.includes('/batch/update')) return 'BATCH_UPDATE_PRODUCTS';
+    if (method === 'POST' && fullPath.includes('/import')) return 'IMPORT_PRODUCTS';
+    if (method === 'GET' && fullPath.includes('/export')) return 'EXPORT_PRODUCTS';
+    if (method === 'GET' && fullPath.includes('/template')) return 'DOWNLOAD_TEMPLATE';
     if (method === 'POST') return 'CREATE_PRODUCT';
     if (method === 'PUT') return 'UPDATE_PRODUCT';
     if (method === 'DELETE') return 'DELETE_PRODUCT';
     if (method === 'GET') return 'VIEW_PRODUCTS';
   }
   
+  // 分类相关操作
   if (fullPath.includes('/categories')) {
     if (method === 'POST') return 'CREATE_CATEGORY';
     if (method === 'PUT') return 'UPDATE_CATEGORY';
@@ -122,22 +130,41 @@ function getActionType(req) {
     if (method === 'GET') return 'VIEW_CATEGORIES';
   }
   
+  // 用户管理操作
   if (fullPath.includes('/users')) {
+    if (fullPath.includes('/status')) return 'UPDATE_USER_STATUS';
+    if (fullPath.includes('/role')) return 'UPDATE_USER_ROLE';
+    if (fullPath.includes('/reset-password')) return 'ADMIN_RESET_PASSWORD';
     if (method === 'PUT') return 'UPDATE_USER';
     if (method === 'DELETE') return 'DELETE_USER';
+    if (method === 'GET') return 'VIEW_USERS';
   }
   
+  // 提醒设置操作
   if (fullPath.includes('/reminders')) {
-    if (method === 'POST' && fullPath.includes('/trigger')) return 'TRIGGER_REMINDER';
+    if (fullPath.includes('/trigger')) return 'TRIGGER_REMINDER';
+    if (fullPath.includes('/test-feishu')) return 'TEST_FEISHU_WEBHOOK';
     if (method === 'PUT') return 'UPDATE_REMINDER_SETTING';
     if (method === 'GET') return 'VIEW_REMINDERS';
   }
   
+  // 备份恢复操作
   if (fullPath.includes('/backup')) {
-    if (method === 'POST' && fullPath.includes('/restore')) return 'RESTORE_BACKUP';
+    if (fullPath.includes('/restore')) return 'RESTORE_BACKUP';
     if (method === 'POST') return 'CREATE_BACKUP';
     if (method === 'DELETE') return 'DELETE_BACKUP';
     if (method === 'GET') return 'VIEW_BACKUPS';
+  }
+  
+  // 日志操作
+  if (fullPath.includes('/logs')) {
+    if (method === 'DELETE') return 'DELETE_LOGS';
+    if (method === 'GET') return 'VIEW_LOGS';
+  }
+  
+  // 导入历史
+  if (fullPath.includes('/import-history')) {
+    if (method === 'GET') return 'VIEW_IMPORT_HISTORY';
   }
   
   return `${method}_ACTION`;

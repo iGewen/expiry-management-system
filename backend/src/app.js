@@ -18,31 +18,53 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 数据库迁移（生产环境自动执行）
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import path from 'path';
 
-const runMigrations = () => {
+const execAsync = promisify(exec);
+
+const runMigrations = async () => {
   // 仅在生产环境且非调试模式时自动迁移
   if (process.env.NODE_ENV === 'production' && process.env.SKIP_MIGRATION !== 'true') {
     try {
       logger.info('Running database migrations...');
-      execSync('npx prisma migrate deploy', { 
-        stdio: 'inherit',
-        cwd: path.join(process.cwd(), 'prisma')
+      
+      // 使用异步执行，设置超时时间
+      const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
+        cwd: path.join(process.cwd()),
+        timeout: 30000, // 30秒超时
+        env: { ...process.env }
       });
-      logger.info('Database migrations completed');
+      
+      if (stdout) logger.info(stdout);
+      if (stderr) logger.warn(stderr);
+      
+      logger.info('Database migrations completed successfully');
     } catch (error) {
       logger.error('Database migration failed:', error.message);
-      // 生产环境迁移失败应该阻止启动
-      if (process.env.NODE_ENV === 'production') {
-        process.exit(1);
+      
+      // 记录详细错误信息
+      if (error.stdout) logger.error('Migration stdout:', error.stdout);
+      if (error.stderr) logger.error('Migration stderr:', error.stderr);
+      
+      // 迁移失败但不阻塞启动（改为警告）
+      // 允许应用启动，但记录错误供运维排查
+      logger.warn('⚠️  Database migration failed, but application will continue to start.');
+      logger.warn('⚠️  Please check database connection and migration status manually.');
+      
+      // 如果是超时错误，提供更明确的提示
+      if (error.killed) {
+        logger.error('Migration process timed out after 30 seconds');
       }
     }
   }
 };
 
-// 启动时运行迁移
-runMigrations();
+// 启动时运行迁移（异步）
+runMigrations().catch(err => {
+  logger.error('Migration startup error:', err);
+});
 
 // 路由
 import authRoutes from './routes/auth.js';

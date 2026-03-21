@@ -44,6 +44,8 @@
 
 ### 方式一：Docker 部署（推荐）
 
+#### 快速开始
+
 ```bash
 # 1. 克隆项目
 git clone https://github.com/iGewen/expiry-management-system.git
@@ -51,14 +53,41 @@ cd expiry-management-system
 
 # 2. 配置环境变量
 cp .env.docker.example .env
-# 编辑 .env，设置 JWT_SECRET 等关键配置
+```
 
-# 3. 启动服务
+#### 必填环境变量配置
+
+编辑 `.env` 文件，**必须**配置以下变量（否则应用无法启动）：
+
+```bash
+# MySQL 数据库密码（至少16位强密码）
+MYSQL_ROOT_PASSWORD=<使用 openssl rand -base64 16 生成>
+MYSQL_PASSWORD=<使用 openssl rand -base64 16 生成>
+
+# Redis 密码（至少16位强密码）
+REDIS_PASSWORD=<使用 openssl rand -base64 16 生成>
+
+# JWT 密钥（至少32位强随机字符串）
+JWT_SECRET=<使用 openssl rand -base64 32 生成>
+JWT_REFRESH_SECRET=<使用 openssl rand -base64 32 生成>
+
+# CORS 前端域名（不能使用 *）
+CORS_ORIGIN=http://your-domain.com
+```
+
+#### 启动服务
+
+```bash
+# 启动所有服务
 docker-compose up -d
 
-# 4. 访问系统
+# 查看日志
+docker-compose logs -f
+
+# 访问系统
 # 前端：http://localhost
 # 后端：http://localhost:3000
+# 健康检查：http://localhost:3000/health
 ```
 
 详细说明请查看 [DOCKER_DEPLOY.md](./DOCKER_DEPLOY.md)
@@ -103,22 +132,33 @@ npm run build  # 构建生产版本
 
 ## ⚙️ 配置说明
 
-### 必需配置
+### ⚠️ 必填配置
 
-| 变量 | 说明 |
-|------|------|
-| `DATABASE_URL` | MySQL 连接字符串 |
-| `JWT_SECRET` | JWT 密钥（至少32位） |
+以下环境变量**必须**配置，否则应用无法启动：
 
-### 可选配置
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `DATABASE_URL` | MySQL 连接字符串 | `mysql://user:pass@host:3306/db` |
+| `JWT_SECRET` | JWT 密钥（至少32位） | 使用 `openssl rand -base64 32` 生成 |
+| `CORS_ORIGIN` | 前端域名（不能用 `*`） | `http://localhost:5173` |
+
+### 🔐 安全配置要求
+
+- **JWT_SECRET**: 至少32个字符，使用强随机字符串
+- **CORS_ORIGIN**: 不能使用通配符 `*`，必须指定具体域名
+- **数据库密码**: 生产环境必须修改默认密码
+
+### 📋 可选配置
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | `REDIS_HOST` | Redis 地址 | 无（使用内存） |
 | `REDIS_PASSWORD` | Redis 密码 | - |
-| `CORS_ORIGIN` | 允许跨域域名 | localhost |
 | `ALIYUN_ACCESS_KEY_ID` | 阿里云 AccessKey | 无（禁用短信） |
 | `ALIYUN_SMS_SIGN_NAME` | 短信签名 | - |
+| `FEISHU_APP_ID` | 飞书应用ID | 无（禁用飞书登录） |
+
+详细配置说明请查看 [backend/.env.example](./backend/.env.example)
 
 ### 飞书机器人配置
 

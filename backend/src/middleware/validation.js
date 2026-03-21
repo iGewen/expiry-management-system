@@ -98,20 +98,22 @@ export const validateId = (paramName = 'id') => {
 
 /**
  * 全局错误处理中间件
+ * 生产环境不泄露敏感信息
  */
 export const errorHandler = (err, req, res, next) => {
-  // 记录错误
+  // 记录错误（仅服务端日志）
   logger.error('Error:', {
     message: err.message,
     stack: err.stack,
     url: req.url,
     method: req.method,
-    body: req.body ? Object.keys(req.body) : null
+    body: req.body ? Object.keys(req.body) : null,
+    query: req.query ? Object.keys(req.query) : null
   });
 
   // 已知错误类型处理
   if (err.name === 'PrismaClientKnownRequestError') {
-    // Prisma 数据库错误
+    // Prisma 数据库错误 - 不暴露具体的数据库错误信息
     if (err.code === 'P2002') {
       return res.status(409).json({
         success: false,
@@ -128,6 +130,8 @@ export const errorHandler = (err, req, res, next) => {
       });
     }
     
+    // 其他数据库错误统一返回
+    logger.error('Database error:', { code: err.code, meta: err.meta });
     return res.status(400).json({
       success: false,
       message: '数据库操作失败',
@@ -135,7 +139,25 @@ export const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Multer 错误
+  // JWT 错误 - 不暴露具体的认证错误信息
+  if (err.name === 'JsonWebTokenError') {
+    logger.error('JWT error:', err.message);
+    return res.status(401).json({
+      success: false,
+      message: '认证失败',
+      code: 'AUTH_ERROR'
+    });
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      message: '登录已过期，请重新登录',
+      code: 'TOKEN_EXPIRED'
+    });
+  }
+
+  // Multer 文件上传错误
   if (err.name === 'MulterError') {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
@@ -162,22 +184,57 @@ export const errorHandler = (err, req, res, next) => {
 
   // 业务逻辑错误
   if (err.status) {
+    // 清理错误消息中的敏感信息
+    const safeMessage = sanitizeErrorMessage(err.message);
     return res.status(err.status).json({
       success: false,
-      message: err.message,
+      message: safeMessage,
       code: err.code || 'BUSINESS_ERROR'
     });
   }
 
-  // 默认 500 错误
+  // 默认 500 错误 - 生产环境不暴露错误详情
+  const isProduction = process.env.NODE_ENV === 'production';
   res.status(500).json({
     success: false,
-    message: process.env.NODE_ENV === 'production' 
-      ? '服务器内部错误' 
+    message: isProduction 
+      ? '服务器内部错误，请稍后重试' 
       : err.message,
-    code: 'INTERNAL_ERROR'
+    code: 'INTERNAL_ERROR',
+    // 开发环境可提供错误 ID 便于排查
+    ...(isProduction ? {} : { 
+      errorId: Date.now().toString(36),
+      stack: err.stack 
+    })
   });
 };
+
+/**
+ * 清理错误消息中的敏感信息
+ */
+function sanitizeErrorMessage(message) {
+  if (!message || typeof message !== 'string') {
+    return '操作失败';
+  }
+  
+  // 移除可能的敏感信息
+  const sensitivePatterns = [
+    /password[=:]\s*\S+/gi,
+    /secret[=:]\s*\S+/gi,
+    /token[=:]\s*\S+/gi,
+    /key[=:]\s*\S+/gi,
+    /mysql:\/\/[^\s]+/gi,
+    /redis:\/\/[^\s]+/gi,
+    /at\s+\S+:\d+:\d+/g // 移除堆栈信息
+  ];
+  
+  let sanitized = message;
+  for (const pattern of sensitivePatterns) {
+    sanitized = sanitized.replace(pattern, '[REDACTED]');
+  }
+  
+  return sanitized;
+}
 
 /**
  * 404 处理中间件

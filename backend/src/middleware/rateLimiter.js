@@ -2,24 +2,48 @@ import rateLimit from 'express-rate-limit';
 import { store } from '../config/redis.js';
 import logger from '../utils/logger.js';
 
-// 自定义 keyGenerator，处理无效 IP
+// 自定义 keyGenerator，正确处理 Docker/Nginx 环境下的真实 IP
 const keyGenerator = (req) => {
-  // 使用 X-Forwarded-For 头（如果存在）
+  // 1. 优先使用 X-Forwarded-For 头（Nginx/反向代理设置）
   const forwarded = req.headers['x-forwarded-for'];
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    // X-Forwarded-For 格式: client, proxy1, proxy2
+    // 第一个是客户端真实 IP
+    const clientIp = forwarded.split(',')[0].trim();
+    if (clientIp && clientIp !== 'unknown') {
+      return clientIp;
+    }
   }
-  // 使用 X-Real-IP 头
+  
+  // 2. 使用 X-Real-IP 头（Nginx 设置）
   const realIp = req.headers['x-real-ip'];
-  if (realIp) {
+  if (realIp && realIp !== 'unknown') {
     return realIp;
   }
-  // 使用 req.ip，如果是无效 IP 则使用默认值
-  if (req.ip && !req.ip.includes(':') && !req.ip.startsWith('172.')) {
+  
+  // 3. 使用 Express trust proxy 设置后的 req.ip
+  // 注意：需要在 app.js 中设置 app.set('trust proxy', 1)
+  if (req.ip && req.ip !== '::1' && req.ip !== '::ffff:127.0.0.1') {
+    // 如果是 IPv6 映射的 IPv4 地址，提取 IPv4 部分
+    if (req.ip.startsWith('::ffff:')) {
+      return req.ip.substring(7);
+    }
     return req.ip;
   }
-  // Docker 网络下的默认 key
-  return 'default-key';
+  
+  // 4. 最后回退：使用连接的远程地址
+  const remoteAddress = req.connection?.remoteAddress || req.socket?.remoteAddress;
+  if (remoteAddress) {
+    // 处理 IPv6 映射的 IPv4 地址
+    if (remoteAddress.startsWith('::ffff:')) {
+      return remoteAddress.substring(7);
+    }
+    return remoteAddress;
+  }
+  
+  // 5. 无法获取 IP 时的最后手段（记录警告）
+  logger.warn('Unable to determine client IP for rate limiting, using fallback key');
+  return 'unknown-ip-' + (req.headers['user-agent'] || 'no-ua').substring(0, 20);
 };
 
 // 通用API限流 - 每分钟100次

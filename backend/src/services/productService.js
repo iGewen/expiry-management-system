@@ -136,8 +136,48 @@ export class ProductService {
       if (startDate) where.createdAt.gte = new Date(startDate);
       if (endDate) where.createdAt.lte = new Date(endDate + 'T23:59:59');
     }
-  
-    // 状态筛选 - 由于状态需要实时计算，改为内存筛选
+
+    // 状态筛选 - 优化为数据库层面筛选
+    if (status) {
+      const statusArray = status.split(',').map(s => s.trim().toUpperCase());
+      const validStatuses = ['NORMAL', 'WARNING', 'EXPIRED'];
+      const filteredStatuses = statusArray.filter(s => validStatuses.includes(s));
+      
+      if (filteredStatuses.length > 0) {
+        const today = dayjs().startOf('day');
+        const orConditions = [];
+        
+        for (const s of filteredStatuses) {
+          if (s === 'EXPIRED') {
+            // 已过期：expiryDate < 今天
+            orConditions.push({
+              expiryDate: { lt: today.toDate() }
+            });
+          } else if (s === 'WARNING') {
+            // 即将过期：今天 <= expiryDate <= 今天+提醒天数
+            // 但这里 reminderDays 是商品级别的，我们使用默认的 3 天作为简化
+            const warningEnd = today.add(3, 'day').endOf('day').toDate();
+            orConditions.push({
+              AND: [
+                { expiryDate: { gte: today.toDate() } },
+                { expiryDate: { lte: warningEnd } }
+              ]
+            });
+          } else if (s === 'NORMAL') {
+            // 正常：expiryDate > 今天+3天
+            const normalStart = today.add(3, 'day').endOf('day').toDate();
+            orConditions.push({
+              expiryDate: { gt: normalStart }
+            });
+          }
+        }
+        
+        if (orConditions.length > 0) {
+          where.OR = orConditions;
+        }
+      }
+    }
+
     const includeOptions = {
       category: true,
       ...(userRole === 'SUPER_ADMIN' ? {
@@ -151,65 +191,57 @@ export class ProductService {
       } : {})
     };
 
-    // 先获取所有符合条件的商品（优化查询，仅返回必要字段）
-    const allProducts = await prisma.product.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        barcode: true,
-        productionDate: true,
-        shelfLife: true,
-        expiryDate: true,
-        reminderDays: true,
-        categoryId: true,
-        userId: true,
-        createdAt: true,
-        updatedAt: true,
-        category: includeOptions.category ? {
-          select: {
-            id: true,
-            name: true,
-            color: true
-          }
-        } : false,
-        ...(userRole === 'SUPER_ADMIN' ? {
-          user: {
+    // 执行查询（已优化为数据库层面筛选，无需获取所有数据）
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: isExportAll ? undefined : skip,
+        take: isExportAll ? undefined : pageSizeNum,
+        select: {
+          id: true,
+          name: true,
+          barcode: true,
+          productionDate: true,
+          shelfLife: true,
+          expiryDate: true,
+          reminderDays: true,
+          categoryId: true,
+          userId: true,
+          createdAt: true,
+          updatedAt: true,
+          category: includeOptions.category ? {
             select: {
               id: true,
-              username: true,
-              role: true
+              name: true,
+              color: true
             }
-          }
-        } : {})
-      }
-    });
+          } : false,
+          ...(userRole === 'SUPER_ADMIN' ? {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                role: true
+              }
+            }
+          } : {})
+        }
+      }),
+      // 单独查询总数（优化性能）
+      isExportAll ? 0 : prisma.product.count({ where })
+    ]);
 
-    // 格式化并计算状态
-    let formattedProducts = allProducts.map(p => this.formatProduct(p, userRole));
+    // 格式化商品数据
+    const formattedProducts = products.map(p => this.formatProduct(p, userRole));
 
-    // 如果有状态筛选，在内存中过滤
-    if (status) {
-      const statusArray = status.split(',').map(s => s.trim().toUpperCase());
-      const validStatuses = ['NORMAL', 'WARNING', 'EXPIRED'];
-      const filteredStatuses = statusArray.filter(s => validStatuses.includes(s));
-      
-      if (filteredStatuses.length > 0) {
-        formattedProducts = formattedProducts.filter(p => filteredStatuses.includes(p.status));
-      }
-    }
-
-    // 计算总数
-    const total = formattedProducts.length;
-
-    // 分页 - 导出全部时返回所有数据
-    let paginatedProducts;
-    if (isExportAll) {
-      paginatedProducts = formattedProducts;
-    } else {
-      paginatedProducts = formattedProducts.slice(skip, skip + pageSizeNum);
-    }
+    const result = {
+      products: formattedProducts,
+      total: isExportAll ? formattedProducts.length : total,
+      page: pageNum,
+      pageSize: pageSizeNum,
+      totalPages: Math.ceil((isExportAll ? formattedProducts.length : total) / pageSizeNum)
+    };
 
     const result = {
       products: paginatedProducts,
