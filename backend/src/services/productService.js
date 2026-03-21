@@ -236,14 +236,6 @@ export class ProductService {
     const formattedProducts = products.map(p => this.formatProduct(p, userRole));
 
     const result = {
-      products: formattedProducts,
-      total: isExportAll ? formattedProducts.length : total,
-      page: pageNum,
-      pageSize: pageSizeNum,
-      totalPages: Math.ceil((isExportAll ? formattedProducts.length : total) / pageSizeNum)
-    };
-
-    const result = {
       products: paginatedProducts,
       total,
       page: pageNum,

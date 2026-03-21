@@ -1,5 +1,8 @@
+ARG NODE_IMAGE=node:18-alpine
+ARG NGINX_IMAGE=nginx:alpine
+
 # 构建阶段
-FROM node:18-alpine as builder
+FROM ${NODE_IMAGE} as builder
 
 WORKDIR /app
 
@@ -12,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # 生产阶段 - 使用 nginx 提供静态文件
-FROM nginx:alpine
+FROM ${NGINX_IMAGE}
 
 # 复制构建产物
 COPY --from=builder /app/dist /usr/share/nginx/html
