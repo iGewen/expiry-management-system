@@ -18,9 +18,10 @@ NC='\033[0m' # No Color
 BOLD='\033[1m'
 
 # 项目路径
-PROJECT_ROOT="/var/www/expiry-management-system"
+PROJECT_ROOT="/var/wwwroot/expiry-management-system"
 BACKEND_DIR="$PROJECT_ROOT/backend"
 FRONTEND_DIR="$PROJECT_ROOT/frontend"
+LOG_DIR="/var/wwwroot/logs"
 
 # 配置变量
 declare -A CONFIG
@@ -1341,8 +1342,8 @@ module.exports = {
     env: {
       NODE_ENV: 'production'
     },
-    error_file: 'logs/error.log',
-    out_file: 'logs/combined.log',
+    error_file: '/var/wwwroot/logs/error.log',
+    out_file: '/var/wwwroot/logs/combined.log',
     log_date_format: 'YYYY-MM-DD HH:mm:ss',
     merge_logs: true
   }]
