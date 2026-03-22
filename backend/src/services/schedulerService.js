@@ -1,7 +1,7 @@
 import { calculateRemainingDays } from "../utils/dateUtils.js";
 import cron from 'node-cron';
 import reminderService from './reminderService.js';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../config/database.js';
 import logger from '../utils/logger.js';
 
 
