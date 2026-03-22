@@ -254,6 +254,37 @@ class CategoryService {
     logger.info(`Category deleted: ${category.name} by user ${userId}`);
     return { message: '分类已删除' };
   }
+
+  /**
+   * 初始化用户默认分类
+   */
+  async initDefaultCategories(userId) {
+    const defaultCategories = [
+      { name: '食品', color: '#FF6B6B' },
+      { name: '药品', color: '#4ECDC4' },
+      { name: '化妆品', color: '#45B7D1' },
+      { name: '其他', color: '#96CEB4' }
+    ];
+
+    for (const cat of defaultCategories) {
+      await prisma.category.upsert({
+        where: {
+          userId_name: {
+            userId,
+            name: cat.name
+          }
+        },
+        update: {},
+        create: {
+          userId,
+          name: cat.name,
+          color: cat.color
+        }
+      });
+    }
+
+    logger.info(`Default categories initialized for user ${userId}`);
+  }
 }
 
 export default new CategoryService();
