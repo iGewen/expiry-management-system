@@ -141,7 +141,8 @@ export class FeishuService {
         // 检查是否是限流错误
         if (response.data?.code === 11232 || response.data?.msg?.includes("frequency limited")) {
           if (attempt < maxRetries) {
-            const waitTime = attempt * 3000;
+            // 飞书频率限制需要等待更长时间，使用指数退避
+            const waitTime = Math.pow(attempt, 2) * 10000; // 10秒, 40秒, 90秒
             logger.warn(`Feishu rate limited, retrying in ${waitTime}ms (attempt ${attempt}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
             continue;
