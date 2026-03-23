@@ -223,6 +223,7 @@ const dialogTitle = ref('添加用户')
 const submitting = ref(false)
 const formRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
+const passwordDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const deleting = ref(false)
 
