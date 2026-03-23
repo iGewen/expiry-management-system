@@ -3,6 +3,12 @@ import cron from 'node-cron';
 import reminderService from './reminderService.js';
 import prisma from '../config/database.js';
 import logger from '../utils/logger.js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 
 class SchedulerService {
@@ -16,8 +22,9 @@ class SchedulerService {
   start() {
     // 每小时整点检查提醒，根据用户设置的提醒时间发送
     const reminderJob = cron.schedule('0 * * * *', async () => {
-      const now = new Date();
-      const currentHour = now.getHours();
+      // 使用上海时区获取当前时间
+      const now = dayjs().tz('Asia/Shanghai');
+      const currentHour = now.hour();
       const currentTimeStr = `${String(currentHour).padStart(2, '0')}:00`;
       
       logger.info(`Running scheduled reminder check at ${currentTimeStr}...`);
