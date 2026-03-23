@@ -84,13 +84,10 @@ const logger = winston.createLogger({
   ]
 });
 
-// 开发环境输出到控制台
-const isDev = process.env.NODE_ENV !== 'production';
-if (isDev) {
-  logger.add(new winston.transports.Console({
-    format: consoleFormat
-  }));
-}
+// 始终输出到控制台（便于 docker logs 查看）
+logger.add(new winston.transports.Console({
+  format: consoleFormat
+}));
 
 // 异常处理
 process.on('uncaughtException', (error) => {

@@ -22,6 +22,9 @@ COPY . .
 # 生成 Prisma Client
 RUN npx prisma generate
 
+# 创建日志目录
+RUN mkdir -p logs
+
 # 暴露端口
 EXPOSE 3000
 
