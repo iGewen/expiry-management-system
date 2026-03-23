@@ -143,7 +143,7 @@
     </el-dialog>
 
     <!-- 重置密码对话框 -->
-    <el-dialog v-model="passwordDialogVisible" title="重置密码" width="400px">
+    <el-dialog v-model="dialogs.password" title="重置密码" width="400px">
       <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-position="top">
         <el-form-item label="新密码" prop="newPassword">
           <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
@@ -153,7 +153,7 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="passwordDialogVisible = false">取消</el-button>
+        <el-button @click="dialogs.password = false">取消</el-button>
         <el-button type="primary" @click="handleSubmitPassword" :loading="submitting">确定</el-button>
       </template>
     </el-dialog>
@@ -223,9 +223,14 @@ const dialogTitle = ref('添加用户')
 const submitting = ref(false)
 const formRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
-const passwordDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const deleting = ref(false)
+
+// 对话框状态（使用 reactive 避免 ref 编译问题）
+const dialogs = reactive({
+  password: false,
+  delete: false
+})
 
 const isSuperAdmin = computed(() => userStore.user?.role === 'SUPER_ADMIN')
 const currentUserId = computed(() => userStore.user?.id)
@@ -376,7 +381,7 @@ const handleChangePassword = (row: User) => {
   passwordForm.id = row.id
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
-  passwordDialogVisible.value = true
+  dialogs.password = true
 }
 
 const handleSubmitPassword = async () => {
@@ -387,7 +392,7 @@ const handleSubmitPassword = async () => {
     try {
       await userApi.resetPassword(passwordForm.id, passwordForm.newPassword)
       ElMessage.success('密码重置成功')
-      passwordDialogVisible.value = false
+      dialogs.password = false
     } catch (error: any) {
       ElMessage.error(error.response?.data?.message || '密码重置失败')
     } finally {
