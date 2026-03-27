@@ -209,13 +209,27 @@ export class ProductController {
           return result;
         });
       } else if (ext === '.csv') {
-        // 解析 CSV 文件 - 使用 iconv-lite 处理多种编码
+        // 解析 CSV 文件 - 自动检测编码
         const buffer = fs.readFileSync(filePath);
-        let content = iconv.decode(buffer, 'utf8');
         
-        // 检测是否为UTF-8 BOM
-        if (content.charCodeAt(0) === 0xFEFF) {
-          content = content.slice(1);
+        // 尝试多种编码
+        const encodings = ['utf8', 'gbk', 'gb2312', 'latin1'];
+        let content = '';
+        let headers = [];
+        
+        for (const encoding of encodings) {
+          content = iconv.decode(buffer, encoding);
+          // 检测是否为UTF-8 BOM
+          if (content.charCodeAt(0) === 0xFEFF) {
+            content = content.slice(1);
+          }
+          headers = content.split('\n')[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+          // 检查是否包含有效的中文字符
+          const hasChinese = headers.some(h => /[\u4e00-\u9fa5]/.test(h));
+          if (hasChinese) {
+            logger.info(`CSV detected encoding: ${encoding}, headers: ${headers}`);
+            break;
+          }
         }
         
         const lines = content.split('\n').filter(line => line.trim());
@@ -228,9 +242,9 @@ export class ProductController {
           });
         }
 
-        // 解析表头
-        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-        logger.info(`CSV headers: ${headers}`);
+        // 重新解析表头
+        headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        logger.info(`CSV headers final: ${headers}`);
         
         const nameIdx = headers.findIndex(h => ['商品名称', 'name'].includes(h));
         const productionDateIdx = headers.findIndex(h => ['生产日期', 'productionDate'].includes(h));
