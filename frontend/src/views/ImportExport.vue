@@ -239,7 +239,7 @@ const handleImport = async () => {
   try {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
-    const res = await httpClient.post('/products/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const res = await httpClient.post('/products/batch/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     if (res.success) {
       importResult.value = { title: '导入成功', type: 'success', detail: `成功导入 ${res.data?.success || 0} 条，跳过 ${res.data?.skipped || 0} 条` }
       ElMessage.success('导入完成')
