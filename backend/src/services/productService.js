@@ -448,13 +448,41 @@ export class ProductService {
 
     // 使用事务确保原子性
     await prisma.$transaction(async (tx) => {
+      // 缓存分类映射，避免重复查询
+      const categoryCache = new Map();
+      
       for (let i = 0; i < productsData.length; i++) {
         try {
-          const { name, productionDate, shelfLife, reminderDays } = productsData[i];
+          const { name, productionDate, shelfLife, reminderDays, category } = productsData[i];
           
           // 验证必填字段
           if (!name || !productionDate || !shelfLife) {
             throw new Error('缺少必需字段（商品名称、生产日期、保质期）');
+          }
+          
+          // 处理分类
+          let categoryId = null;
+          if (category && typeof category === 'string' && category.trim()) {
+            const categoryName = category.trim();
+            // 先从缓存中查找
+            if (categoryCache.has(categoryName)) {
+              categoryId = categoryCache.get(categoryName);
+            } else {
+              // 查找或创建分类
+              let existingCategory = await tx.category.findFirst({
+                where: { userId, name: categoryName }
+              });
+              
+              if (!existingCategory) {
+                // 创建新分类
+                existingCategory = await tx.category.create({
+                  data: { name: categoryName, userId, color: '#409EFF' }
+                });
+              }
+              
+              categoryId = existingCategory.id;
+              categoryCache.set(categoryName, categoryId);
+            }
           }
           
           const productionDateObj = new Date(productionDate);
@@ -470,7 +498,8 @@ export class ProductService {
               expiryDate,
               reminderDays: parseInt(reminderDays, 10) || 3,
               status,
-              userId
+              userId,
+              categoryId
             }
           });
 

@@ -204,7 +204,8 @@ export class ProductController {
             name: row['商品名称'] || row['name'],
             productionDate: this.parseDate(row['生产日期'] || row['productionDate']),
             shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
-            reminderDays: row['提醒天数'] || row['reminderDays'] || 3
+            reminderDays: row['提醒天数'] || row['reminderDays'] || 3,
+            category: row['分类'] || row['category'] || row['分类名称'] || null
           };
           return result;
         });
@@ -250,8 +251,9 @@ export class ProductController {
         const productionDateIdx = headers.findIndex(h => ['生产日期', 'productionDate'].includes(h));
         const shelfLifeIdx = headers.findIndex(h => ['保质期天数', '保质期(天)', 'shelfLife', '保质期'].includes(h));
         const reminderDaysIdx = headers.findIndex(h => ['提醒天数', 'reminderDays'].includes(h));
+        const categoryIdx = headers.findIndex(h => ['分类', 'category', '分类名称'].includes(h));
 
-        logger.info(`Parsed ${lines.length - 1} rows from CSV, indexes: name=${nameIdx}, date=${productionDateIdx}, shelfLife=${shelfLifeIdx}`);
+        logger.info(`Parsed ${lines.length - 1} rows from CSV, indexes: name=${nameIdx}, date=${productionDateIdx}, shelfLife=${shelfLifeIdx}, category=${categoryIdx}`);
 
         productsData = lines.slice(1).map((line, index) => {
           const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
@@ -260,7 +262,8 @@ export class ProductController {
             name: cols[nameIdx],
             productionDate: this.parseDate(cols[productionDateIdx]),
             shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
-            reminderDays: cols[reminderDaysIdx] || 3
+            reminderDays: cols[reminderDaysIdx] || 3,
+            category: categoryIdx >= 0 ? cols[categoryIdx] : null
           };
         });
       } else {
