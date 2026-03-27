@@ -208,8 +208,26 @@ export class ProductController {
           return result;
         });
       } else if (ext === '.csv') {
-        // 解析 CSV 文件
-        const content = fs.readFileSync(filePath, 'utf8');
+        // 解析 CSV 文件 - 尝试多种编码
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // 检测是否为UTF-8 BOM或GBK编码
+        const hasBOM = content.charCodeAt(0) === 0xFEFF;
+        if (hasBOM) {
+          content = content.slice(1);
+        }
+        
+        // 如果表头是乱码，尝试GBK解码
+        const firstLine = content.split('\n')[0];
+        if (firstLine && /[^\x00-\x7F]/.test(firstLine)) {
+          // 检查是否包含中文乱码特征
+          const hasGarbled = firstLine.includes('��') || !/[\u4e00-\u9fa5]/.test(firstLine);
+          if (hasGarbled) {
+            const buffer = fs.readFileSync(filePath);
+            content = buffer.toString('gbk');
+          }
+        }
+        
         const lines = content.split('\n').filter(line => line.trim());
         
         if (lines.length < 2) {
@@ -222,12 +240,14 @@ export class ProductController {
 
         // 解析表头
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        logger.info(`CSV headers raw: ${headers}`);
+        
         const nameIdx = headers.findIndex(h => ['商品名称', 'name'].includes(h));
         const productionDateIdx = headers.findIndex(h => ['生产日期', 'productionDate'].includes(h));
         const shelfLifeIdx = headers.findIndex(h => ['保质期天数', '保质期(天)', 'shelfLife', '保质期'].includes(h));
         const reminderDaysIdx = headers.findIndex(h => ['提醒天数', 'reminderDays'].includes(h));
 
-        logger.info(`Parsed ${lines.length - 1} rows from CSV, headers: ${headers}`);
+        logger.info(`Parsed ${lines.length - 1} rows from CSV, headers: ${headers}, nameIdx=${nameIdx}, productionDateIdx=${productionDateIdx}, shelfLifeIdx=${shelfLifeIdx}`);
 
         productsData = lines.slice(1).map((line, index) => {
           const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
