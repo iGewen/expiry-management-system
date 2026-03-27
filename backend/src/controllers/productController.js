@@ -188,7 +188,7 @@ export class ProductController {
 
       let productsData = [];
 
-      // 解析 Excel 文件
+      // 解析文件
       if (ext === '.xlsx' || ext === '.xls') {
         const workbook = XLSX.readFile(filePath);
         const sheetName = workbook.SheetNames[0];
@@ -206,6 +206,38 @@ export class ProductController {
             reminderDays: row['提醒天数'] || row['reminderDays'] || 3
           };
           return result;
+        });
+      } else if (ext === '.csv') {
+        // 解析 CSV 文件
+        const content = fs.readFileSync(filePath, 'utf8');
+        const lines = content.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          fs.unlinkSync(filePath);
+          return res.status(400).json({
+            success: false,
+            message: 'CSV文件为空或格式不正确'
+          });
+        }
+
+        // 解析表头
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const nameIdx = headers.findIndex(h => ['商品名称', 'name'].includes(h));
+        const productionDateIdx = headers.findIndex(h => ['生产日期', 'productionDate'].includes(h));
+        const shelfLifeIdx = headers.findIndex(h => ['保质期天数', '保质期(天)', 'shelfLife', '保质期'].includes(h));
+        const reminderDaysIdx = headers.findIndex(h => ['提醒天数', 'reminderDays'].includes(h));
+
+        logger.info(`Parsed ${lines.length - 1} rows from CSV, headers: ${headers}`);
+
+        productsData = lines.slice(1).map((line, index) => {
+          const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          const shelfLife = cols[shelfLifeIdx] || 0;
+          return {
+            name: cols[nameIdx],
+            productionDate: this.parseDate(cols[productionDateIdx]),
+            shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
+            reminderDays: cols[reminderDaysIdx] || 3
+          };
         });
       } else {
         // 删除文件
