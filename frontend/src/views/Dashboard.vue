@@ -89,6 +89,7 @@
           v-loading="loading"
           class="alert-table"
           :max-height="300"
+          tooltip-effect="light"
         >
           <el-table-column prop="name" label="商品名称" min-width="150">
             <template #default="{ row }">
@@ -99,11 +100,6 @@
             <template #default="{ row }">
               <span v-if="row.category" class="tag" :style="{background: row.category.color || '#1e3a5f'}">{{ row.category.name }}</span>
               <span v-else>-</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="barcode" label="条码" width="120">
-            <template #default="{ row }">
-              <span class="txt-gray">{{ row.barcode || '-' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="生产日期" width="90">
@@ -121,7 +117,7 @@
               <span class="txt">{{ dayjs(row.expiryDate).format('YYYY-MM-DD') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="remainingDays" label="剩余" width="70" sortable>
+          <el-table-column prop="remainingDays" label="剩余" width="80" sortable>
             <template #default="{ row }">
               <span class="days-badge" :class="getDaysClass(row.remainingDays)">
                 <span class="days-num">{{ row.remainingDays }}</span>
@@ -129,17 +125,12 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="reminderDays" label="提醒" width="60">
-            <template #default="{ row }">
-              <span class="txt-gray">{{ row.reminderDays }}天</span>
-            </template>
-          </el-table-column>
           <el-table-column label="状态" width="60">
             <template #default="{ row }">
               <span class="status-pill" :class="getStatusClass(row.status)">{{ getStatusText(row.status) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="70">
+          <el-table-column label="操作" width="60">
             <template #default="{ row }">
               <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
             </template>
