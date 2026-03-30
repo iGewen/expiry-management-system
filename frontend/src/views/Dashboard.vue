@@ -91,12 +91,12 @@
           :max-height="300"
           tooltip-effect="light"
         >
-          <el-table-column prop="name" label="商品名称" min-width="150">
+          <el-table-column prop="name" label="商品名称" min-width="120">
             <template #default="{ row }">
               <span class="txt">{{ row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="分类" width="80">
+          <el-table-column label="分类" width="70">
             <template #default="{ row }">
               <span v-if="row.category" class="tag" :style="{background: row.category.color || '#1e3a5f'}">{{ row.category.name }}</span>
               <span v-else>-</span>
@@ -107,17 +107,17 @@
               <span class="txt-gray">{{ dayjs(row.productionDate).format('YYYY-MM-DD') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="shelfLife" label="保质期" width="70">
+          <el-table-column prop="shelfLife" label="保质期" width="60">
             <template #default="{ row }">
               <span class="txt-gray">{{ row.shelfLife }}天</span>
             </template>
           </el-table-column>
-          <el-table-column prop="expiryDate" label="过期日期" width="100">
+          <el-table-column prop="expiryDate" label="过期日期" width="90">
             <template #default="{ row }">
               <span class="txt">{{ dayjs(row.expiryDate).format('YYYY-MM-DD') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="remainingDays" label="剩余" width="80" sortable>
+          <el-table-column prop="remainingDays" label="剩余" width="70" sortable>
             <template #default="{ row }">
               <span class="days-badge" :class="getDaysClass(row.remainingDays)">
                 <span class="days-num">{{ row.remainingDays }}</span>
@@ -127,12 +127,16 @@
           </el-table-column>
           <el-table-column label="状态" width="60">
             <template #default="{ row }">
-              <span class="status-pill" :class="getStatusClass(row.status)">{{ getStatusText(row.status) }}</span>
+              <el-tooltip :content="getStatusText(row.status)" placement="top" :show-after="500">
+                <span class="status-pill" :class="getStatusClass(row.status)">{{ getStatusText(row.status) }}</span>
+              </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="60">
+          <el-table-column label="操作" width="50">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              <el-tooltip content="编辑" placement="top" :show-after="500">
+                <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -161,7 +165,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElTooltip } from 'element-plus'
 import { 
   Box, 
   WarningFilled, 
