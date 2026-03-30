@@ -168,7 +168,15 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_error(401)
                 return
         
-        payload = json.loads(body)
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError as e:
+            print(f'[{datetime.now()}] JSON解析错误: {e}, body: {body}')
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write('无效的JSON'.encode('utf-8'))
+            return
+        
         branch = payload.get('ref', '').replace('refs/heads/', '')
         
         if branch != 'main':
