@@ -91,33 +91,33 @@
           :max-height="300"
           tooltip-effect="light"
         >
-          <el-table-column prop="name" label="商品名称" min-width="160">
+          <el-table-column prop="name" label="商品名称" min-width="220">
             <template #default="{ row }">
               <span class="txt">{{ row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="分类" width="90">
+          <el-table-column label="分类" width="70">
             <template #default="{ row }">
               <span v-if="row.category" class="tag" :style="{background: row.category.color || '#1e3a5f'}">{{ row.category.name }}</span>
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column label="生产日期" width="100">
+          <el-table-column label="生产日期" width="85">
             <template #default="{ row }">
               <span class="txt-gray">{{ dayjs(row.productionDate).format('YYYY-MM-DD') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="shelfLife" label="保质期" width="80">
+          <el-table-column prop="shelfLife" label="保质期" width="65">
             <template #default="{ row }">
               <span class="txt-gray">{{ row.shelfLife }}天</span>
             </template>
           </el-table-column>
-          <el-table-column prop="expiryDate" label="过期日期" width="110">
+          <el-table-column prop="expiryDate" label="过期日期" width="95">
             <template #default="{ row }">
               <span class="txt">{{ dayjs(row.expiryDate).format('YYYY-MM-DD') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="remainingDays" label="剩余" width="80" sortable>
+          <el-table-column prop="remainingDays" label="剩余" width="70" sortable>
             <template #default="{ row }">
               <el-tooltip :content="getStatusText(row.status)" placement="top" :show-after="500">
                 <span class="days-badge" :class="getDaysClass(row.remainingDays)">
@@ -127,7 +127,7 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column label="状态" width="70">
+          <el-table-column label="状态" width="60">
             <template #default="{ row }">
               <el-tooltip :content="getStatusText(row.status)" placement="top" :show-after="500">
                 <span class="status-pill" :class="getStatusClass(row.status)">{{ getStatusText(row.status) }}</span>
