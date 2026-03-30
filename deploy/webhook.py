@@ -67,7 +67,6 @@ def notify_failure(error_msg):
 
 def deploy():
     print(f'[{datetime.now()}] 开始部署...')
-    deploy_success = False
     
     # 检查是否有部署在进行中
     lock_file = '/tmp/deploy.lock'
@@ -84,67 +83,67 @@ def deploy():
     except Exception as e:
         print(f'[{datetime.now()}] 创建锁文件失败: {e}')
     
-    for retry in range(MAX_RETRIES):
-        try:
-            print(f'[{datetime.now()}] 尝试部署 (第{retry + 1}次)...')
-            
-            # 1. 拉取最新代码
-            run_command('git fetch origin main')
-            local_commit = run_command('git rev-parse HEAD', check=False).stdout.strip()
-            remote_commit = run_command('git rev-parse origin/main', check=False).stdout.strip()
-            
-            if local_commit == remote_commit:
-                print('代码已是最新，跳过部署')
-                return
-            
-            run_command('git reset --hard origin/main')
-            
-            # 2. 停止旧容器
-            print('停止旧容器...')
-            run_command('docker-compose down', check=False)
-            time.sleep(2)
-            
-            # 3. 构建并启动
-            print('构建镜像...')
-            build_result = run_command('docker-compose build --no-cache', check=False)
-            if build_result.returncode != 0:
-                print(f'构建失败: {build_result.stderr}')
-                raise Exception('构建失败')
-            
-            print('启动容器...')
-            up_result = run_command('docker-compose up -d', check=False)
-            if up_result.returncode != 0:
-                print(f'启动失败: {up_result.stderr}')
-                raise Exception('启动失败')
-            
-            # 4. 等待容器启动
-            time.sleep(10)
-            
-            # 5. 检查容器状态
-            if check_containers_running():
-                print(f'[{datetime.now()}] 部署成功！')
-                notify_success()
-                return
-            else:
-                raise Exception('部分容器未成功启动')
+    try:
+        for retry in range(MAX_RETRIES):
+            try:
+                print(f'[{datetime.now()}] 尝试部署 (第{retry + 1}次)...')
                 
-        except Exception as e:
-            print(f'[{datetime.now()}] 部署失败: {e}')
-            if retry < MAX_RETRIES - 1:
-                print(f'[{datetime.now()}] 等待 10 秒后重试...')
-                time.sleep(10)
-            else:
-                print(f'[{datetime.now()}] 已重试 {MAX_RETRIES} 次，仍然失败')
-                notify_failure(f'部署失败: {e}')
-                # 最后尝试一次简单启动作为兜底
-                print('尝试简单启动作为兜底...')
+                # 1. 拉取最新代码
+                run_command('git fetch origin main')
+                local_commit = run_command('git rev-parse HEAD', check=False).stdout.strip()
+                remote_commit = run_command('git rev-parse origin/main', check=False).stdout.strip()
+                
+                if local_commit == remote_commit:
+                    print('代码已是最新，跳过部署')
+                    return
+                
+                run_command('git reset --hard origin/main')
+                
+                # 2. 停止旧容器
+                print('停止旧容器...')
                 run_command('docker-compose down', check=False)
                 time.sleep(2)
-                run_command('docker-compose up -d', check=False)
+                
+                # 3. 构建并启动
+                print('构建镜像...')
+                build_result = run_command('docker-compose build --no-cache', check=False)
+                if build_result.returncode != 0:
+                    print(f'构建失败: {build_result.stderr}')
+                    raise Exception('构建失败')
+                
+                print('启动容器...')
+                up_result = run_command('docker-compose up -d', check=False)
+                if up_result.returncode != 0:
+                    print(f'启动失败: {up_result.stderr}')
+                    raise Exception('启动失败')
+                
+                # 4. 等待容器启动
                 time.sleep(10)
+                
+                # 5. 检查容器状态
+                if check_containers_running():
+                    print(f'[{datetime.now()}] 部署成功！')
+                    notify_success()
+                    return
+                else:
+                    raise Exception('部分容器未成功启动')
+                    
+            except Exception as e:
+                print(f'[{datetime.now()}] 部署失败: {e}')
+                if retry < MAX_RETRIES - 1:
+                    print(f'[{datetime.now()}] 等待 10 秒后重试...')
+                    time.sleep(10)
+                else:
+                    print(f'[{datetime.now()}] 已重试 {MAX_RETRIES} 次，仍然失败')
+                    notify_failure(f'部署失败: {e}')
+                    # 最后尝试一次简单启动作为兜底
+                    print('尝试简单启动作为兜底...')
+                    run_command('docker-compose down', check=False)
+                    time.sleep(2)
+                    run_command('docker-compose up -d', check=False)
+                    time.sleep(10)
     finally:
         # 无论成功失败，都删除锁文件
-        lock_file = '/tmp/deploy.lock'
         if os.path.exists(lock_file):
             try:
                 os.remove(lock_file)
