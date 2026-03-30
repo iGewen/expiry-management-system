@@ -1,5 +1,5 @@
-ARG NODE_IMAGE=registry.cn-hangzhou.aliyuncs.com/ihee_docker_project/node:18-alpine
-ARG NGINX_IMAGE=registry.cn-hangzhou.aliyuncs.com/ihee_docker_project/nginx:alpine
+ARG NODE_IMAGE=node:18-alpine
+ARG NGINX_IMAGE=nginx:alpine
 
 # 构建阶段
 FROM ${NODE_IMAGE} as builder
