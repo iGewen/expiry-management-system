@@ -190,8 +190,13 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('部署任务已启动'.encode('utf-8'))
         
-        # 异步执行部署
-        deploy()
+        # 执行部署，捕获所有异常
+        try:
+            deploy()
+        except Exception as e:
+            print(f'[{datetime.now()}] deploy()执行异常: {e}')
+            import traceback
+            traceback.print_exc()
 
 if __name__ == '__main__':
     server = HTTPServer(('0.0.0.0', 9000), Handler)
