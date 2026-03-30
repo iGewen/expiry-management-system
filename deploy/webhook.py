@@ -69,6 +69,21 @@ def deploy():
     print(f'[{datetime.now()}] 开始部署...')
     deploy_success = False
     
+    # 检查是否有部署在进行中
+    lock_file = '/tmp/deploy.lock'
+    if os.path.exists(lock_file):
+        print(f'[{datetime.now()}] 部署已在进行中，跳过')
+        notify_feishu('⏸ 部署跳过\n📦 项目：expiry-management-system\n🖥 服务器：115.190.199.9\n⏰ 时间：' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '\n🔔 原因：已有部署在进行中')
+        return
+    
+    # 创建锁文件
+    try:
+        with open(lock_file, 'w') as f:
+            f.write(str(os.getpid()))
+        print(f'[{datetime.now()}] 创建部署锁文件')
+    except Exception as e:
+        print(f'[{datetime.now()}] 创建锁文件失败: {e}')
+    
     for retry in range(MAX_RETRIES):
         try:
             print(f'[{datetime.now()}] 尝试部署 (第{retry + 1}次)...')
@@ -127,6 +142,15 @@ def deploy():
                 time.sleep(2)
                 run_command('docker-compose up -d', check=False)
                 time.sleep(10)
+    finally:
+        # 无论成功失败，都删除锁文件
+        lock_file = '/tmp/deploy.lock'
+        if os.path.exists(lock_file):
+            try:
+                os.remove(lock_file)
+                print(f'[{datetime.now()}] 删除部署锁文件')
+            except Exception as e:
+                print(f'[{datetime.now()}] 删除锁文件失败: {e}')
 
 class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
