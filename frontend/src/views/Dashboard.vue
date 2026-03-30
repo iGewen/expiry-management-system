@@ -85,11 +85,12 @@
       
       <div class="alert-table-wrapper">
         <el-table 
-          :data="expiringProducts" 
+          :data="expiringProducts.slice(0, 5)" 
           v-loading="loading"
           class="alert-table"
+          :max-height="300"
         >
-          <el-table-column prop="name" label="商品名称" min-width="180">
+          <el-table-column prop="name" label="商品名称" min-width="150">
             <template #default="{ row }">
               <span class="txt">{{ row.name }}</span>
             </template>
@@ -100,19 +101,42 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column label="过期日期" width="90">
+          <el-table-column prop="barcode" label="条码" width="120">
             <template #default="{ row }">
-              <span class="txt">{{ dayjs(row.expiryDate).format('MM-DD') }}</span>
+              <span class="txt-gray">{{ row.barcode || '-' }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="剩余" width="70">
+          <el-table-column label="生产日期" width="90">
             <template #default="{ row }">
-              <span class="txt">{{ row.remainingDays }}天</span>
+              <span class="txt-gray">{{ dayjs(row.productionDate).format('YYYY-MM-DD') }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="shelfLife" label="保质期" width="70">
+            <template #default="{ row }">
+              <span class="txt-gray">{{ row.shelfLife }}天</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="expiryDate" label="过期日期" width="100">
+            <template #default="{ row }">
+              <span class="txt">{{ dayjs(row.expiryDate).format('YYYY-MM-DD') }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remainingDays" label="剩余" width="70" sortable>
+            <template #default="{ row }">
+              <span class="days-badge" :class="getDaysClass(row.remainingDays)">
+                <span class="days-num">{{ row.remainingDays }}</span>
+                <span class="days-unit">天</span>
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="reminderDays" label="提醒" width="60">
+            <template #default="{ row }">
+              <span class="txt-gray">{{ row.reminderDays }}天</span>
             </template>
           </el-table-column>
           <el-table-column label="状态" width="60">
             <template #default="{ row }">
-              <span class="txt">{{ getStatusText(row.status) }}</span>
+              <span class="status-pill" :class="getStatusClass(row.status)">{{ getStatusText(row.status) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="70">
@@ -121,6 +145,12 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <!-- 更多商品提示 -->
+        <div class="more-products" v-if="expiringProducts.length > 5">
+          <span>还有 {{ expiringProducts.length - 5 }} 件商品，点击查看更多</span>
+          <el-button type="primary" link @click="goToProductList">查看全部</el-button>
+        </div>
 
         <!-- 空状态 -->
         <div class="empty-state" v-if="!loading && expiringProducts.length === 0">
@@ -229,6 +259,10 @@ const handleEdit = (row: Product) => {
   router.push(`/products?id=${row.id}`)
 }
 
+const goToProductList = () => {
+  router.push('/products?status=WARNING')
+}
+
 const loadStats = async () => {
   try {
     const data = await getProductStats()
@@ -245,8 +279,12 @@ const loadStats = async () => {
 const loadExpiringProducts = async () => {
   loading.value = true
   try {
-    const data = await getProducts({ status: 'WARNING', pageSize: 5 })
-    expiringProducts.value = data?.products || []
+    // 获取更多数据以便排序，取100条足够排序显示
+    const data = await getProducts({ status: 'WARNING', pageSize: 100 })
+    // 按剩余天数升序排序（最紧急的在前）
+    const products = data?.products || []
+    products.sort((a, b) => (a.remainingDays || 0) - (b.remainingDays || 0))
+    expiringProducts.value = products
   } catch (error: any) {
     ElMessage.error(error.response?.data?.message || '加载商品列表失败')
   } finally {
@@ -745,6 +783,7 @@ onUnmounted(() => {
 }
 
 .txt { font-size: 13px; color: #1e293b; }
+.txt-gray { font-size: 12px; color: #64748b; }
 .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; background: #1e3a5f; color: #fff; }
 
 .days-badge {
@@ -842,5 +881,16 @@ onUnmounted(() => {
     color: #64748b;
     margin: 0;
   }
+}
+.more-products {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #64748b;
 }
 </style>
