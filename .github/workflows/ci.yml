@@ -17,21 +17,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
       
       # 后端检查
       - name: Install backend dependencies
-        run: cd backend && npm ci
+        working-directory: ./backend
+        run: npm ci
       
       - name: Lint backend
-        run: cd backend && npm run lint || true
+        working-directory: ./backend
+        run: npm run lint || true
       
       # 前端检查
       - name: Install frontend dependencies
-        run: cd frontend && npm ci
+        working-directory: ./frontend
+        run: npm ci
       
       - name: Build frontend
-        run: cd frontend && npm run build
+        working-directory: ./frontend
+        run: npm run build
 
       # 成功通知
       - name: Notify Feishu Success
