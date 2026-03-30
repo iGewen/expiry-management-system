@@ -201,7 +201,8 @@ export class ProductController {
         productsData = data.map((row, index) => {
           const shelfLife = row['保质期天数'] || row['保质期(天)'] || row['shelfLife'] || row['保质期'] || 0;
           // 修复：提醒天数可能是数字类型，直接使用
-          let reminderDays = row['提醒天数'] || row['reminderDays'];
+          // 支持多种列名：提醒天数、提前提醒天数、reminderDays
+          let reminderDays = row['提醒天数'] || row['提前提醒天数'] || row['reminderDays'];
           if (reminderDays === undefined || reminderDays === null || reminderDays === '') {
             reminderDays = 3;
           } else if (typeof reminderDays === 'number') {
@@ -259,7 +260,7 @@ export class ProductController {
         const nameIdx = headers.findIndex(h => ['商品名称', 'name'].includes(h));
         const productionDateIdx = headers.findIndex(h => ['生产日期', 'productionDate'].includes(h));
         const shelfLifeIdx = headers.findIndex(h => ['保质期天数', '保质期(天)', 'shelfLife', '保质期'].includes(h));
-        const reminderDaysIdx = headers.findIndex(h => ['提醒天数', 'reminderDays'].includes(h));
+        const reminderDaysIdx = headers.findIndex(h => ['提醒天数', '提前提醒天数', 'reminderDays'].includes(h));
         const categoryIdx = headers.findIndex(h => ['分类', 'category', '分类名称'].includes(h));
 
         logger.info(`Parsed ${lines.length - 1} rows from CSV, indexes: name=${nameIdx}, date=${productionDateIdx}, shelfLife=${shelfLifeIdx}, category=${categoryIdx}`);
