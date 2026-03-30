@@ -5,12 +5,14 @@ import hashlib
 import subprocess
 import time
 import requests
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 
 SECRET = 'Hehaifeng520@'.encode()
 PROJECT_DIR = '/var/wwwroot/expiry-management-system'
 MAX_RETRIES = 3
+FEISHU_WEBHOOK = 'https://open.feishu.cn/open-apis/bot/v2/hook/28c0c0b8-d749-4ace-b572-ac69d9f85f45'
 
 def run_command(cmd, cwd=PROJECT_DIR, check=True):
     print(f"执行: {cmd}")
@@ -37,13 +39,35 @@ def check_containers_running():
             return False
     return True
 
-def notify_failure(message):
-    """部署失败时发送通知（可选）"""
-    # 可以添加飞书/钉钉等通知
-    print(f"通知: {message}")
+def notify_feishu(message, msg_type='text'):
+    """发送飞书通知"""
+    try:
+        data = {
+            "msg_type": msg_type,
+            "content": {
+                "text": message
+            }
+        }
+        response = requests.post(FEISHU_WEBHOOK, headers={'Content-Type': 'application/json'}, data=json.dumps(data), timeout=10)
+        print(f"飞书通知发送结果: {response.status_code}")
+        return response.status_code == 200
+    except Exception as e:
+        print(f"飞书通知发送失败: {e}")
+        return False
+
+def notify_success():
+    """部署成功通知"""
+    message = f"✅ 部署成功\n📦 项目：expiry-management-system\n🖥 服务器：115.190.199.9\n⏰ 时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    notify_feishu(message)
+
+def notify_failure(error_msg):
+    """部署失败通知"""
+    message = f"❌ 部署失败\n📦 项目：expiry-management-system\n🖥 服务器：115.190.199.9\n⏰ 时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n🔴 错误：{error_msg}"
+    notify_feishu(message)
 
 def deploy():
     print(f'[{datetime.now()}] 开始部署...')
+    deploy_success = False
     
     for retry in range(MAX_RETRIES):
         try:
@@ -84,6 +108,7 @@ def deploy():
             # 5. 检查容器状态
             if check_containers_running():
                 print(f'[{datetime.now()}] 部署成功！')
+                notify_success()
                 return
             else:
                 raise Exception('部分容器未成功启动')
@@ -120,7 +145,6 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_error(401)
                 return
         
-        import json
         payload = json.loads(body)
         branch = payload.get('ref', '').replace('refs/heads/', '')
         
