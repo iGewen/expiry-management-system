@@ -66,7 +66,9 @@ def notify_failure(error_msg):
     notify_feishu(message)
 
 def deploy():
+    import sys
     print(f'[{datetime.now()}] 开始部署...')
+    sys.stdout.flush()
     
     # 检查是否有部署在进行中
     lock_file = '/tmp/deploy.lock'
@@ -165,8 +167,11 @@ class Handler(BaseHTTPRequestHandler):
         if signature:
             expected = 'sha256=' + hmac.new(SECRET, body, hashlib.sha256).hexdigest()
             if not hmac.compare_digest(signature, expected):
+                print(f'[{datetime.now()}] 签名验证失败')
                 self.send_error(401)
                 return
+        else:
+            print(f'[{datetime.now()}] 无签名，跳过验证')
         
         try:
             payload = json.loads(body)
