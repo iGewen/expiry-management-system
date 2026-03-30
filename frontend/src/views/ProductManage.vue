@@ -150,10 +150,14 @@ const loadProducts = async () => {
     if (searchForm.name) params.name = searchForm.name
     if (searchForm.status) params.status = searchForm.status
     if (searchForm.categoryId) params.categoryId = searchForm.categoryId
-    const res = await getProducts(params)
-    products.value = res?.products || []
-    pagination.total = res?.total || 0
-  } catch (e: any) { ElMessage.error(e.response?.data?.message || '加载失败') }
+    const res: any = await getProducts(params)
+    // 确保正确获取 products 数组
+    products.value = res?.data?.products || res?.products || []
+    pagination.total = res?.data?.total || res?.total || 0
+  } catch (e: any) { 
+    console.error('加载商品失败:', e)
+    ElMessage.error(e.response?.data?.message || '加载失败') 
+  }
   finally { loading.value = false }
 }
 
@@ -197,7 +201,14 @@ const handleSubmit = async () => {
 }
 
 const handleDelete = async (row: Product) => {
-  try { await ElMessageBox.confirm(`删除「${row.name}」?`, '确认', { type: 'warning' }); await deleteProduct(row.id); ElMessage.success('删除成功'); loadProducts() } catch (e: any) { if (e !== 'cancel') ElMessage.error('删除失败') }
+  try { 
+    await ElMessageBox.confirm(`删除「${row.name}」?`, '确认', { type: 'warning' })
+    await deleteProduct(row.id)
+    ElMessage.success('删除成功')
+    await loadProducts()
+    // 删除后清空选中状态
+    selectedIds.value = []
+  } catch (e: any) { if (e !== 'cancel') ElMessage.error('删除失败') }
 }
 
 const handleSelectionChange = (sel: Product[]) => { selectedIds.value = sel.map(p => p.id) }
@@ -219,7 +230,14 @@ const handleBatchSubmit = async () => {
 }
 
 const handleBatchDelete = async () => {
-  try { await ElMessageBox.confirm(`删除 ${selectedIds.value.length} 个商品?`, '确认', { type: 'warning' }); await batchDeleteProducts(selectedIds.value); ElMessage.success('删除成功'); loadProducts() } catch (e: any) { if (e !== 'cancel') ElMessage.error('失败') }
+  try { 
+    await ElMessageBox.confirm(`删除 ${selectedIds.value.length} 个商品?`, '确认', { type: 'warning' })
+    await batchDeleteProducts(selectedIds.value)
+    ElMessage.success('删除成功')
+    await loadProducts()
+    // 批量删除后清空选中状态
+    selectedIds.value = []
+  } catch (e: any) { if (e !== 'cancel') ElMessage.error('失败') }
 }
 
 const handleExport = async (cmd: string) => {
