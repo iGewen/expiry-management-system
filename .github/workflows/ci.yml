@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -7,28 +7,44 @@ on:
     branches: [main]
 
 jobs:
-  backend:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Install dependencies
+          cache: 'npm'
+      
+      # 后端检查
+      - name: Install backend dependencies
         run: cd backend && npm ci
-      - name: Build
+      
+      - name: Build backend
         run: cd backend && npm run build
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install dependencies
+      
+      # 前端检查
+      - name: Install frontend dependencies
         run: cd frontend && npm ci
-      - name: Build
+      
+      - name: Build frontend
         run: cd frontend && npm run build
+
+      # 成功通知
+      - name: Notify Feishu Success
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.FEISHU_WEBHOOK }} \
+          -H "Content-Type: application/json" \
+          -d '{"msg_type":"text","content":{"text":"✅ CI检查通过\n📦 项目：expiry-management-system\n🔀 分支：main\n👤 提交者：${{ github.actor }}\n📝 Commit：${{ github.event.head_commit.message }}"}}'          
+
+      # 失败通知
+      - name: Notify Feishu Failure
+        if: failure()
+        run: |
+          curl -X POST ${{ secrets.FEISHU_WEBHOOK }} \
+          -H "Content-Type: application/json" \
+          -d '{"msg_type":"text","content":{"text":"❌ CI检查失败\n📦 项目：expiry-management-system\n🔀 分支：main\n👤 提交者：${{ github.actor }}\n📝 Commit：${{ github.event.head_commit.message }}\n⚠️ 请检查代码后重新推送"}}'          
