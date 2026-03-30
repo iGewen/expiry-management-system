@@ -43,7 +43,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        NODE_IMAGE: ${NODE_IMAGE:-crpi-h8wdp3y1iogi9wj4.cn-qingdao.personal.cr.aliyuncs.com/ihee_docker_project/node:lts}
+        NODE_IMAGE: ${NODE_IMAGE:-node:18-alpine}
     container_name: expiry-backend
     restart: unless-stopped
     depends_on:
@@ -80,8 +80,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NODE_IMAGE: ${NODE_IMAGE:-crpi-h8wdp3y1iogi9wj4.cn-qingdao.personal.cr.aliyuncs.com/ihee_docker_project/node:lts}
-        NGINX_IMAGE: ${NGINX_IMAGE:-crpi-h8wdp3y1iogi9wj4.cn-qingdao.personal.cr.aliyuncs.com/ihee_docker_project/nginx:latest}
+        NODE_IMAGE: ${NODE_IMAGE:-node:18-alpine}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:alpine}
     container_name: expiry-frontend
     restart: unless-stopped
     depends_on:
