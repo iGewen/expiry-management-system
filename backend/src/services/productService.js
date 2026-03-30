@@ -137,7 +137,7 @@ export class ProductService {
       if (endDate) where.createdAt.lte = new Date(endDate + 'T23:59:59');
     }
 
-    // 状态筛选 - 优化为数据库层面筛选
+    // 状态筛选 - 使用商品的 reminderDays 动态判断
     if (status) {
       const statusArray = status.split(',').map(s => s.trim().toUpperCase());
       const validStatuses = ['NORMAL', 'WARNING', 'EXPIRED'];
@@ -145,35 +145,46 @@ export class ProductService {
       
       if (filteredStatuses.length > 0) {
         const today = dayjs().startOf('day');
-        const orConditions = [];
         
-        for (const s of filteredStatuses) {
-          if (s === 'EXPIRED') {
-            // 已过期：expiryDate < 今天
-            orConditions.push({
-              expiryDate: { lt: today.toDate() }
-            });
-          } else if (s === 'WARNING') {
-            // 即将过期：今天 <= expiryDate <= 今天+提醒天数
-            // 但这里 reminderDays 是商品级别的，我们使用默认的 3 天作为简化
-            const warningEnd = today.add(3, 'day').endOf('day').toDate();
-            orConditions.push({
-              AND: [
-                { expiryDate: { gte: today.toDate() } },
-                { expiryDate: { lte: warningEnd } }
-              ]
-            });
-          } else if (s === 'NORMAL') {
-            // 正常：expiryDate > 今天+3天
-            const normalStart = today.add(3, 'day').endOf('day').toDate();
-            orConditions.push({
-              expiryDate: { gt: normalStart }
-            });
+        // 获取符合状态条件的商品ID
+        const allMatchingProducts = await prisma.product.findMany({
+          where: {
+            ...where,
+            isDeleted: false
+          },
+          select: {
+            id: true,
+            expiryDate: true,
+            reminderDays: true
           }
-        }
+        });
         
-        if (orConditions.length > 0) {
-          where.OR = orConditions;
+        const matchingIds = allMatchingProducts
+          .filter(product => {
+            let expiryDate = product.expiryDate;
+            if (!expiryDate) {
+              expiryDate = dayjs(product.productionDate).add(product.shelfLife - 1, "day").toDate();
+            }
+            const remainingDays = dayjs(expiryDate).startOf('day').diff(today, 'day');
+            
+            let productStatus;
+            if (remainingDays <= 0) {
+              productStatus = 'EXPIRED';
+            } else if (remainingDays <= product.reminderDays) {
+              productStatus = 'WARNING';
+            } else {
+              productStatus = 'NORMAL';
+            }
+            
+            return filteredStatuses.includes(productStatus);
+          })
+          .map(p => p.id);
+        
+        if (matchingIds.length > 0) {
+          where.id = { in: matchingIds };
+        } else {
+          // 没有匹配的商品，返回空结果
+          where.id = { in: [-1] };
         }
       }
     }

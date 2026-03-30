@@ -200,11 +200,20 @@ export class ProductController {
 
         productsData = data.map((row, index) => {
           const shelfLife = row['保质期天数'] || row['保质期(天)'] || row['shelfLife'] || row['保质期'] || 0;
+          // 修复：提醒天数可能是数字类型，直接使用
+          let reminderDays = row['提醒天数'] || row['reminderDays'];
+          if (reminderDays === undefined || reminderDays === null || reminderDays === '') {
+            reminderDays = 3;
+          } else if (typeof reminderDays === 'number') {
+            reminderDays = reminderDays;
+          } else {
+            reminderDays = parseInt(reminderDays, 10) || 3;
+          }
           const result = {
             name: row['商品名称'] || row['name'],
             productionDate: this.parseDate(row['生产日期'] || row['productionDate']),
             shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
-            reminderDays: row['提醒天数'] || row['reminderDays'] || 3,
+            reminderDays: reminderDays,
             category: row['分类'] || row['category'] || row['分类名称'] || null
           };
           return result;
@@ -258,11 +267,20 @@ export class ProductController {
         productsData = lines.slice(1).map((line, index) => {
           const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
           const shelfLife = cols[shelfLifeIdx] || 0;
+          // 修复：提醒天数可能是数字类型，直接使用
+          let reminderDays = cols[reminderDaysIdx];
+          if (reminderDays === undefined || reminderDays === null || reminderDays === '') {
+            reminderDays = 3;
+          } else if (typeof reminderDays === 'number') {
+            reminderDays = reminderDays;
+          } else {
+            reminderDays = parseInt(reminderDays, 10) || 3;
+          }
           return {
             name: cols[nameIdx],
             productionDate: this.parseDate(cols[productionDateIdx]),
             shelfLife: typeof shelfLife === 'number' ? shelfLife : parseInt(shelfLife) || 0,
-            reminderDays: cols[reminderDaysIdx] || 3,
+            reminderDays: reminderDays,
             category: categoryIdx >= 0 ? cols[categoryIdx] : null
           };
         });
