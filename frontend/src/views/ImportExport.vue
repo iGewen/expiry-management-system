@@ -285,7 +285,7 @@ onMounted(() => { loadCategories() })
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/variables.scss';
+@use '@/styles/variables.scss' as *;
 
 .import-export-page { padding: 32px; background: #f8fafc; min-height: calc(100vh - 64px); }
 

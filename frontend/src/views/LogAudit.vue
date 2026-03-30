@@ -370,7 +370,7 @@ onMounted(() => { loadLogs() })
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/variables.scss';
+@use '@/styles/variables.scss' as *;
 
 .log-audit-page { padding: 32px; background: #f8fafc; min-height: calc(100vh - 64px); }
 

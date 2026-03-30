@@ -1,5 +1,5 @@
 // 全局样式 - 现代简约风格
-@import './variables.scss';
+@use './variables.scss' as *;
 
 // 重置样式
 * {
