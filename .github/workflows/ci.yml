@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# 并发控制：同一分支只允许一个任务运行，新push会取消旧任务
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
